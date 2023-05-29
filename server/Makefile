@@ -16,7 +16,8 @@ SRC				=	src/core.c \
 					src/clients/client_gestion.c \
 					src/clients/lib.c \
 					src/clients/init.c \
-					src/commands/handle_command.c
+					src/commands/handle_command.c \
+					src/commands/handle_command_lib.c
 
 SRC_TESTS = tests/tests_main.c
 

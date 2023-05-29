@@ -75,19 +75,13 @@ void handle_command(client_t *clients, int index, char *buffer);
 // Initialise la structure client
 void init_clients_list(client_t *clients);
 
-// Gère la commande CDUP
-void handle_cdup(client_t *clients, int index);
-
-// Gère la commande CWD
-void handle_cwd(client_t *clients, int index);
-
-// Gère la commande PWD
-void handle_pwd(client_t *clients, int index);
-
 // Gère la deconnexion du client
 void handle_disconnect(client_t *clients, int socket, int index);
 
-// Gère la commande DELE
-void handle_dele(client_t *clients, int index, char *command);
+// Récupère les arguments du client
+char **get_args_from_client(char *buffer);
+
+// Libère un tableau de char **
+void free_array(char **array);
 
 #endif /* !SERVER_H_ */
