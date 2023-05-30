@@ -9,17 +9,18 @@
 
 void print_params(server_params_t params)
 {
-    printf("Settings recupéres depuis les paramètres:\n\n");
+    printf("\nSettings recupéres depuis les paramètres:\n\n");
     printf("Port:\t%d\n", params.port);
     printf("Width:\t%d\n", params.width);
     printf("Height:\t%d\n", params.height);
     printf("Clients per Team:\t%d\n", params.clients_per_team);
-    printf("Frequency:\t%d\n", params.frequency);
+    printf("Frequency:\t%d\n\n", params.frequency);
     if (!params.team_names)
         return;
     printf("Team Names:\n");
     for (int i = 0; params.team_names[i]; i++)
         printf("- %s\n", params.team_names[i]);
+    printf("\n\n");
 }
 
 int main(int argc, char **argv)
