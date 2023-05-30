@@ -10,14 +10,14 @@
 void handle_command_two(int client_socket, char **args)
 {
     if (args[0] == NULL) {
-        send_response(client_socket, "Zappy: Invalid command.\n");
+        send_response(client_socket, "ko\n");
         return;
     }
     if (strcasecmp(args[0], "INVENTORY") == 0) {
         send_response(client_socket, "Zappy: Inventory.\n");
         return;
     }
-    send_response(client_socket, "Zappy: Invalid command.\n");
+    send_response(client_socket, "ko\n");
 }
 
 void handle_command(client_t *clients, int index, char *buffer)
@@ -26,7 +26,7 @@ void handle_command(client_t *clients, int index, char *buffer)
     int client_socket = clients[index].socket;
 
     if (!args || !args[0]) {
-        send_response(client_socket, "Zappy: Invalid command.\n");
+        send_response(client_socket, "ko\n");
         return;
     }
     if (strcasecmp(args[0], "HELP") == 0) {

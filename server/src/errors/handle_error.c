@@ -17,15 +17,17 @@ int check_errors(int argc, char **argv)
 {
     if (!argv || !argv[1])
         return EPITECH_ERROR;
-
-    char *error_message = "USAGE: ./zappy port\n\tport is the port \
-        number on which the server socket listens\n";
-
     if (argc == 1 || strcmp(argv[1], "-help") == 0) {
-        printf("%s", error_message);
+        FILE *file = fopen("helper.txt", "r");
+        if (file) {
+            char buffer[256];
+            while (fgets(buffer, sizeof(buffer), file))
+                printf("%s", buffer);
+            fclose(file);
+        } else
+            printf("Failed to open helper.txt\n");
         return 1;
     }
-
     if (argc != 2)
         return EPITECH_ERROR;
     if (atoi(argv[1]) == 0)
