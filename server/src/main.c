@@ -9,12 +9,14 @@
 
 void print_params(server_params_t params)
 {
-    printf("Port: %d\n", params.port);
-    printf("Width: %d\n", params.width);
-    printf("Height: %d\n", params.height);
-    printf("Clients per Team: %d\n", params.clients_per_team);
-    printf("Frequency: %d\n", params.frequency);
-
+    printf("Settings recupéres depuis les paramètres:\n\n");
+    printf("Port:\t%d\n", params.port);
+    printf("Width:\t%d\n", params.width);
+    printf("Height:\t%d\n", params.height);
+    printf("Clients per Team:\t%d\n", params.clients_per_team);
+    printf("Frequency:\t%d\n", params.frequency);
+    if (!params.team_names)
+        return;
     printf("Team Names:\n");
     for (int i = 0; params.team_names[i]; i++)
         printf("- %s\n", params.team_names[i]);
@@ -39,5 +41,6 @@ int main(int argc, char **argv)
     if (listen(server_socket, 3) < 0)
         return EPITECH_ERROR;
     wait_for_connections(server_socket, clients, address);
+    free(clients);
     return 0;
 }

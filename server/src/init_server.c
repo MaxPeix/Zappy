@@ -11,32 +11,44 @@ server_params_t init_default_server_params(void)
 {
     server_params_t params;
 
-    params.port = 0;
-    params.width = 0;
-    params.height = 0;
+    params.port = 4242;
+    params.width = 15;
+    params.height = 15;
     params.team_names = NULL;
-    params.clients_per_team = 0;
-    params.frequency = 0;
+    params.clients_per_team = 2;
+    params.frequency = 5000;
     return params;
+}
+
+void parse_teams_names(int argc, char **argv, int i, server_params_t *params)
+{
+    int team_count = 0;
+    for (int j = i + 1; j < argc; j++) {
+        if (argv[j][0] == '-')
+            break; 
+        team_count++;
+    }
+    params->team_names = malloc(sizeof(char *) * (team_count + 1));
+    for (int k = 0; k < team_count; k++)
+        params->team_names[k] = strdup(argv[i + k + 1]);
+    params->team_names[team_count + 1] = NULL;
 }
 
 void parse_args(int argc, char **argv, server_params_t *params)
 {
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-p") == 0) {
+        if (strcmp(argv[i], "-p") == 0)
             params->port = atoi(argv[++i]);
-        } else if (strcmp(argv[i], "-x") == 0) {
+        if (strcmp(argv[i], "-x") == 0)
             params->width = atoi(argv[++i]);
-        } else if (strcmp(argv[i], "-y") == 0) {
+        if (strcmp(argv[i], "-y") == 0)
             params->height = atoi(argv[++i]);
-        } else if (strcmp(argv[i], "-n") == 0) {
-            params->team_names = &argv[i + 1];
-            break;
-        } else if (strcmp(argv[i], "-c") == 0) {
+        if (strcmp(argv[i], "-n") == 0)
+            parse_teams_names(argc, argv, i, params);
+        if (strcmp(argv[i], "-c") == 0)
             params->clients_per_team = atoi(argv[++i]);
-        } else if (strcmp(argv[i], "-f") == 0) {
+        if (strcmp(argv[i], "-f") == 0)
             params->frequency = atoi(argv[++i]);
-        }
     }
 }
 

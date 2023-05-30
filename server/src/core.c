@@ -9,10 +9,8 @@
 
 void handle_disconnect(client_t *clients, int socket, int index)
 {
-    printf("Client disconnected, socket fd is %d\n", socket);
     close(socket);
     clients[index].socket = 0;
-    clients[index].logged_in = 0;
 }
 
 void handle_client_request(client_t *clients, int index,
@@ -21,15 +19,6 @@ void handle_client_request(client_t *clients, int index,
     if (!buffer)
         return;
     buffer[buffer_size] = '\0';
-
-    if (clients[index].logged_in == 0) {
-        check_login(clients, index, buffer);
-        if (clients[index].logged_in == 1) {
-            printf("Client connected, socket fd is %d\n",
-                clients[index].socket);
-        }
-        return;
-    }
     if (buffer && strlen(buffer) > 0)
         handle_command(clients, index, buffer);
 }

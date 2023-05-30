@@ -25,7 +25,6 @@
 
     typedef struct client {
         int socket;
-        int logged_in;
     } client_t;
 
     typedef struct server_params {
@@ -63,12 +62,9 @@ int set_clients_sockets(client_t *clients, fd_set *readfds, int server_socket);
 // Accepte une nouvelle connexion entrante
 int accept_new_connection(int server_socket, struct sockaddr_in address);
 
-// Vérifie les descripteurs de fichiers des clients connectés pour une activité
+// Vérifie les descripteurs de fichiers des clients connectés une activité
 void check_client_activity(client_t *clients,
     int server_socket, fd_set *readfds);
-
-// Connecte un client
-void check_login(client_t *clients, int i, char *buffer);
 
 // Envoie une réponse au client
 void send_response(int socket, char *message);
