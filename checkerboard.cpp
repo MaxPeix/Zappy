@@ -4,7 +4,7 @@ void draw_checkerboard()
 {
     int taille_case = 50;
     int nb_cases = 8;
-    
+
     sf::RenderWindow window(sf::VideoMode(taille_case * nb_cases, taille_case * nb_cases), "Trantor");
     sf::RectangleShape rectangle(sf::Vector2f(taille_case, taille_case));
     
