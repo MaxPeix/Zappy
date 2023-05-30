@@ -85,6 +85,7 @@ int connectToServer(int port, std::string machine)
         return 1;
     }
 
+    std::cout << "Received: " << buffer << std::endl;
     // Parse the received data
     int x, y;
     char *line = strtok(buffer, "\n");  // Split the buffer into lines
@@ -103,7 +104,17 @@ int connectToServer(int port, std::string machine)
         std::cerr << "Failed to parse server response." << std::endl;
     }
 
-    std::cout << "Received: " << buffer << std::endl;
+
+    char buffer1[BUFFER_SIZE];
+    memset(buffer1, 0, BUFFER_SIZE);
+    if (recv(clientSocket, buffer1, BUFFER_SIZE, 0) == -1) {
+        std::cerr << "Failed to receive data from the server." << std::endl;
+        close(clientSocket);
+        return 1;
+    }
+
+    std::cout << "Received: " << buffer1 << std::endl;
+
     // Close the socket
     close(clientSocket);
 
