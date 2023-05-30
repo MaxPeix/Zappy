@@ -13,7 +13,16 @@ void handle_select_errors(int activity)
         printf("select error");
 }
 
-int check_errors(int argc, char **argv)
+int check_error_params(server_params_t params)
+{
+    if (params.port < 5) {
+        printf("Port is not a valid number (%d)\n", params.port);
+        return EPITECH_ERROR;
+    }
+    return 0;
+}
+
+int check_errors(int argc, char **argv, server_params_t params)
 {
     if (!argv || !argv[1])
         return EPITECH_ERROR;
@@ -28,9 +37,7 @@ int check_errors(int argc, char **argv)
             printf("Failed to open helper.txt\n");
         return 1;
     }
-    if (argc != 2)
-        return EPITECH_ERROR;
-    if (atoi(argv[1]) == 0)
+    if (check_error_params(params) == EPITECH_ERROR)
         return EPITECH_ERROR;
     return 0;
 }

@@ -28,14 +28,24 @@
         int logged_in;
     } client_t;
 
+    typedef struct server_params {
+        int port;
+        int width;
+        int height;
+        char **team_names;
+        int clients_per_team;
+        int frequency;
+    } server_params_t;
+
 // Vérifie les erreurs de la ligne de commande
-int check_errors(int argc, char **argv);
+int check_errors(int argc, char **argv, server_params_t params);
 
 // Initialise la liste des clients connectés
 void init_clients_list(client_t *clients);
 
 // Crée le socket et le lie à l'adresse du serveur
-int create_and_bind_socket(char **argv, struct sockaddr_in *address);
+int create_and_bind_socket(server_params_t params,
+    struct sockaddr_in *address);
 
 // Attend les connexions entrantes et gère les clients connectés
 void wait_for_connections(int server_socket,
@@ -56,9 +66,6 @@ int accept_new_connection(int server_socket, struct sockaddr_in address);
 // Vérifie les descripteurs de fichiers des clients connectés pour une activité
 void check_client_activity(client_t *clients,
     int server_socket, fd_set *readfds);
-
-// Vérifie les erreurs de la ligne de commande
-int check_errors(int argc, char **argv);
 
 // Connecte un client
 void check_login(client_t *clients, int i, char *buffer);
@@ -83,5 +90,11 @@ char **get_args_from_client(char *buffer);
 
 // Libère un tableau de char **
 void free_array(char **array);
+
+// Parse les arguments passés en parametre au binaire
+void parse_args(int argc, char **argv, server_params_t *params);
+
+// Initalise la structure par défaut
+server_params_t init_default_server_params(void);
 
 #endif /* !SERVER_H_ */
