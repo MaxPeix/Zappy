@@ -7,7 +7,14 @@
 
 #include <iostream>
 #include <cstring>
-#include "GUI.hpp"
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+#define SUCCESS 0
+#define ERROR 84
+
+const int BUFFER_SIZE = 4096;
 
 int parseArguments(int ac, char **av, int& port, std::string& machine)
 {
@@ -35,6 +42,73 @@ int parseArguments(int ac, char **av, int& port, std::string& machine)
     return SUCCESS;
 }
 
+int connectToServer(int port, std::string machine)
+{
+    // Create a socket
+    int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (clientSocket == -1) {
+        std::cerr << "Failed to create socket." << std::endl;
+        return 1;
+    }
+
+    // Server address and port
+    std::string serverIP = "127.0.0.1";  // Replace with the server's IP address
+    int serverPort = port;  // Replace with the server's port number
+
+    // Set up the server address structure
+    struct sockaddr_in serverAddress{};
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_addr.s_addr = inet_addr(serverIP.c_str());
+    serverAddress.sin_port = htons(serverPort);
+
+    // Connect to the server
+    if (connect(clientSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1) {
+        std::cerr << "Failed to connect to the server." << std::endl;
+        close(clientSocket);
+        return 1;
+    }
+
+    // Send the "GRAPHIC" command to the server
+    const char *command = "GRAPHIC\n";
+    if (send(clientSocket, command, strlen(command), 0) == -1) {
+        std::cerr << "Failed to send command to the server." << std::endl;
+        close(clientSocket);
+        return 1;
+    }
+
+    // Receive the server response (X and Y values)
+    char buffer[BUFFER_SIZE];
+    memset(buffer, 0, BUFFER_SIZE);
+    if (recv(clientSocket, buffer, BUFFER_SIZE, 0) == -1) {
+        std::cerr << "Failed to receive data from the server." << std::endl;
+        close(clientSocket);
+        return 1;
+    }
+
+    // Parse the received data
+    int x, y;
+    char *line = strtok(buffer, "\n");  // Split the buffer into lines
+
+    while (line != nullptr) {
+        if (sscanf(line, "msz %d %d", &x, &y) == 2) {
+            std::cout << "Received X: " << x << std::endl;
+            std::cout << "Received Y: " << y << std::endl;
+            break;  // Exit the loop if a matching line is found
+        }
+
+        line = strtok(nullptr, "\n");  // Get the next line
+    }
+
+    if (line == nullptr) {
+        std::cerr << "Failed to parse server response." << std::endl;
+    }
+
+    std::cout << "Received: " << buffer << std::endl;
+    // Close the socket
+    close(clientSocket);
+
+    return 0;
+}
 
 int main(int ac, char **av)
 {
@@ -44,9 +118,8 @@ int main(int ac, char **av)
     if (parseArguments(ac, av, port, machine) != 0) {
         return ERROR;
     }
-
-    std::cout << "Port: " << port << std::endl;
-    std::cout << "Machine: " << machine << std::endl;
-
+    if (connectToServer(port, machine) != 0) {
+        return ERROR;
+    }
     return SUCCESS;
 }
