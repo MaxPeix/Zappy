@@ -7,15 +7,15 @@
 
 NAME			=	zappy_gui
 
-SRC_MAIN		= src/main.c
+SRC_MAIN		= src/main.cpp
 
-SRC				=	src/core.c
+SRC				=	src/core.cpp
 
 SRC_TESTS = tests/tests_main.c
 
-OBJ				=			$(SRC:.c=.o)
+OBJ				=			$(SRC:.cpp=.o)
 
-OBJ_MAIN		=			$(SRC_MAIN:.c=.o)
+OBJ_MAIN		=			$(SRC_MAIN:.cpp=.o)
 
 CFLAGS 			= 			-I./includes
 
