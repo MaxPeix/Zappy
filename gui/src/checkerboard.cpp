@@ -1,3 +1,10 @@
+/*
+** EPITECH PROJECT, 2023
+** Zappy
+** File description:
+** Draw checkerboard
+*/
+
 #include "gui.hpp"
 
 void draw_checkerboard(int x, int y)
