@@ -1,13 +1,12 @@
-#include <SFML/Graphics.hpp>
+#include "gui.hpp"
 
-void draw_checkerboard()
+void draw_checkerboard(int x, int y)
 {
     int taille_case = 50;
-    int nb_cases = 8;
 
-    sf::RenderWindow window(sf::VideoMode(taille_case * nb_cases, taille_case * nb_cases), "Trantor");
+    sf::RenderWindow window(sf::VideoMode(taille_case * x, taille_case * y), "Trantor");
     sf::RectangleShape rectangle(sf::Vector2f(taille_case, taille_case));
-    
+
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -15,8 +14,8 @@ void draw_checkerboard()
                 window.close();
         }
         window.clear();
-        for(int i = 0; i < nb_cases; i++) {
-            for(int j = 0; j  < nb_cases; j++) {
+        for(int i = 0; i < x; i++) {
+            for(int j = 0; j < y; j++) {
                 rectangle.setPosition(i * taille_case, j * taille_case);
                 if((i + j) % 2 == 0)
                     rectangle.setFillColor(sf::Color::Black);
@@ -27,10 +26,4 @@ void draw_checkerboard()
         }
         window.display();
     }
-}
-
-int main()
-{
-    draw_checkerboard();
-    return 0;
 }

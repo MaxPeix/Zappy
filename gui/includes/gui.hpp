@@ -6,11 +6,16 @@
 */
 
 #pragma once
+
+#include "init/init.hpp"
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
 #define SUCCESS 0
 #define ERROR 84
 
+int connectToServer(int port, std::string machine);
+void draw_checkerboard(int x, int y);
 
 struct TileData {
     int x;
