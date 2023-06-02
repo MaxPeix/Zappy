@@ -42,7 +42,7 @@ class Comm:
         if not self.is_connected():
             self.__logger.error("Not connected")
             raise ConnectionError("Not connected")
-        self.__logger.debug("Sending data: %s", data)
+        self.__logger.info("--> %s", data[:-1] if data.endswith("\n") else data)
         self._socket.send(data.encode())
 
     def _recv(self) -> str | None:
@@ -78,6 +78,7 @@ class Comm:
                 self.__logger.info("You died")
                 raise ConnectionError("You died")
             data = data[index + 1:]
+            self.__logger.info("<-- %s", current)
             res.append(current)
             self.__logger.debug("\t%s", current)
         return res

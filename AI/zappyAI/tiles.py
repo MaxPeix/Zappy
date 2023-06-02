@@ -6,4 +6,4 @@ from dataclasses import dataclass
 class Tile:
     x: int
     y: int
-    object: Object | None
+    objects: list[Object]
