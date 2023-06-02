@@ -26,7 +26,8 @@ class AI:
         if len(data) != 2:
             raise ConnectionError("Invalid response")
         try:
-            res = (int(data[0]), (int(data[1].split(" ")[0]), int(data[1].split(" ")[1])))
+            res = (int(data[0]),
+                   (int(data[1].split(" ")[0]), int(data[1].split(" ")[1])))
         except ValueError:
             raise ConnectionError("Invalid response")
         self._id = res[0]
@@ -61,13 +62,24 @@ class AI:
         self._comm.send("Broadcast " + message + "\n")
 
     def connect_nbr(self):
+        nb_connect: int = 0
+        data: list[str]
         self._comm.send("Connect_nbr\n")
+        data = self._comm.recv()
+        if len(data) != 1:
+            raise ConnectionError("Invalid response")
+        nb_connect = int(data[0])
+        return nb_connect
 
     def fork(self):
         self._comm.send("Fork\n")
+        if self._comm.recv() != ["ok"]:
+            raise ConnectionError("Invalid response")
 
     def eject(self):
         self._comm.send("Eject\n")
+        if self._comm.recv() != ["ok"]:
+            raise ConnectionError("Invalid response")
 
     def take(self, resource: zp.objects):
         self._comm.send("Take " + resource.name + "\n")
