@@ -17,6 +17,10 @@ void handle_command_two(int client_socket, char **args)
         send_response(client_socket, "Zappy: Inventory.\n");
         return;
     }
+    if (strcasecmp(args[0], "GRAPHIC") == 0) {
+        send_response(client_socket, "Zappy: Graphic command.\n");
+        return;
+    }
     send_response(client_socket, "ko\n");
 }
 
