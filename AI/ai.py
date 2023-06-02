@@ -12,6 +12,15 @@ class AI:
     _teamName: str
     _level: int = 1
     _world: list[list[zp.Tile]]
+    _inventory: dict[str, int] = {
+        "food": 10,
+        "linemate": 0,
+        "deraumere": 0,
+        "sibur": 0,
+        "mendiane": 0,
+        "phiras": 0,
+        "thystame": 0
+    }
 
     def __init__(self, comm: Comm, team_name: str):
         self._comm = comm
@@ -152,10 +161,27 @@ class AI:
                 pos = self._at((lv, i))
                 self._world[pos[0]][pos[1]] = zp.Tile(True, res.pop(0))
 
-    def inventory(self) -> list[zp.Object]:
-        res: list[zp.Object] = []
+    def inventory(self) -> bool:
         self._comm.send("Inventory\n")
-        return res
+        success: bool = True
+        data: list[str] = self._recv()
+        datalist: list[str]
+        if len(data) != 1:
+            raise ConnectionError("Invalid response")
+        if not data[0].startswith("[ ") or not data[0].endswith(" ]"):
+            raise ConnectionError("Invalid response")
+        data[0] = data[0][2:-2]
+        datalist = data[0].split(", ")
+        if len(datalist) != 7:
+            raise ConnectionError("Invalid response")
+        for string in datalist:
+            key, value = string.strip().split(" ")
+            if key not in self._inventory or not value.isdigit():
+                raise ConnectionError("Invalid response")
+            if int(value) != self._inventory[key]:
+                success = False
+            self._inventory[key] = int(value)
+        return success
 
     def broadcast(self, message: str):
         self._comm.send("Broadcast " + message + "\n")
@@ -181,16 +207,28 @@ class AI:
             raise ConnectionError("Invalid response")
 
     def take(self, resource: zp.objects) -> bool:
+        if resource not in self._inventory:
+            return False
         self._comm.send("Take " + resource.name + "\n")
         res: list[str] = self._recv()
         if res == ["ok"]:
+            self._inventory[resource] += 1
             return True
         elif res == ["ko"]:
             return False
         raise ConnectionError("Invalid response")
 
-    def set(self, resource: zp.objects):
+    def set(self, resource: zp.objects) -> bool:
         self._comm.send("Set " + resource.name + "\n")
+        if resource not in self._inventory or self._inventory[resource] <= 0:
+            return False
+        res: list[str] = self._recv()
+        if res == ["ok"]:
+            self._inventory[resource] -= 1
+            return True
+        elif res == ["ko"]:
+            return False
+        raise ConnectionError("Invalid response")
 
     def incantation(self):
         self._comm.send("Incantation\n")
