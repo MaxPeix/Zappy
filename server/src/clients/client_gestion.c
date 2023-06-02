@@ -44,8 +44,8 @@ void update_client_struct(int new_socket, client_t *clients)
     }
 }
 
-void wait_for_connections(int server_socket,
-    client_t *clients, struct sockaddr_in address)
+void wait_for_connections(int server_socket, client_t *clients,
+    struct sockaddr_in address, server_params_t server_params)
 {
     int new_socket = 0;
     fd_set readfds = {0};
@@ -64,6 +64,6 @@ void wait_for_connections(int server_socket,
             new_socket = accept_new_connection(server_socket, address);
             update_client_struct(new_socket, clients);
         }
-        check_client_activity(clients, server_socket, &readfds);
+        check_client_activity(clients, server_socket, &readfds, server_params);
     }
 }

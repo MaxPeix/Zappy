@@ -10,7 +10,7 @@
 void send_response(int socket, char *message)
 {
     write(socket, message, strlen(message));
-    printf("Message sent: %s", message);
+    printf("Sent: %s", message);
     fflush(stdout);
 }
 
