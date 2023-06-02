@@ -23,8 +23,26 @@
     #define CLIENT_NAME "Anonymous"
     #define EPITECH_ERROR 84
 
+    typedef struct mob {
+        int x;
+        int y;
+        int level;
+        enum inventory {
+            FOOD,
+            LINEMATE,
+            DERAUMERE,
+            SIBUR,
+            MENDIANE,
+            PHIRAS,
+            THYSTAME
+        };
+    } mob_t;
+
     typedef struct client {
         int socket;
+        char *team_name;
+        int available_slots;
+        mob_t *mobs;
     } client_t;
 
     typedef struct server_params {
