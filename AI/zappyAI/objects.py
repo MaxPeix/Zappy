@@ -10,6 +10,13 @@ class Object:
 
 
 @dataclass
+class Player(Object):
+    type: ObjectType = ObjectType.PLAYER
+    name: str = "player"
+    description: str = "A player"
+
+
+@dataclass
 class Linemate(Object):
     type: ObjectType = ObjectType.LINEMATE
     name: str = "linemate"
@@ -56,3 +63,31 @@ class Food(Object):
     type: ObjectType = ObjectType.FOOD
     name: str = "food"
     description: str = "Somme food"
+
+
+OBJECTS: list[tuple[str, Object]] = [
+    ("linemate", Linemate()),
+    ("deraumere", Deraumere()),
+    ("sibur", Sibur()),
+    ("mendiane", Mendiane()),
+    ("phiras", Phiras()),
+    ("thystame", Thystame()),
+    ("food", Food()),
+    ("player", Player())
+]
+
+
+def get_object(name: str) -> Object:
+    for obj in OBJECTS:
+        if obj[0] == name:
+            return obj[1]
+    else:
+        raise ValueError("Invalid object name")
+
+
+def is_object(name: str) -> bool:
+    for obj in OBJECTS:
+        if obj[0] == name:
+            return True
+    else:
+        return False
