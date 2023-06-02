@@ -58,6 +58,8 @@ class AI:
                     except ValueError:
                         raise ConnectionError("Invalid response")
                     self._on_message(direction, line[9:])
+                    if len(data) == 1:
+                        return self._recv()
         return data
 
     def _login(self, team_name: str):
