@@ -111,7 +111,7 @@ class AI:
     def broadcast(self, message: str):
         self._comm.send("Broadcast " + message + "\n")
 
-    def connect_nbr(self):
+    def connect_nbr(self) -> int:
         nb_connect: int = 0
         data: list[str]
         self._comm.send("Connect_nbr\n")
