@@ -6,7 +6,7 @@ class AI:
     _dead: bool = False
     _direction: zp.Direction = zp.Direction.N
     _comm: Comm
-    _pos: zp.Pos
+    _pos: zp.Pos = zp.Pos(5, 5)
     _id: int
     _worldSize: zp.Size
     _teamName: str
@@ -21,7 +21,26 @@ class AI:
             raise ConnectionError("Invalid response")
         self._login(team_name)
         # init world with empty tiles from world size
-        self._world = [[zp.Tile(x, y, []) for x in range(self._worldSize.width)] for y in range(self._worldSize.height)]
+        self._world = [[zp.Tile(False, []) for x in range(self._worldSize.width)] for y in
+                       range(self._worldSize.height)]
+        if self.connect_nbr() > 1:
+            pass  # TODO: ask word info on broadcast
+
+    def draw_map(self):
+        for y in range(self._worldSize.height):
+            for x in range(self._worldSize.width):
+                if self._pos.x == x and self._pos.y == y:
+                    if self._direction == zp.Direction.N:
+                        print("^", end="")
+                    elif self._direction == zp.Direction.E:
+                        print(">", end="")
+                    elif self._direction == zp.Direction.S:
+                        print("v", end="")
+                    elif self._direction == zp.Direction.W:
+                        print("<", end="")
+                    continue
+                print(self._world[y][x], end="")
+            print()
 
     def _on_message(self, direction: zp.Direction, message: str):
         print("Message from " + str(direction) + ": " + message)
@@ -72,6 +91,8 @@ class AI:
                 continue
             current: list[zp.Object] = []
             for obj in objs.split(" "):
+                if obj == "":
+                    continue
                 current.append(zp.get_object(obj))
             objects.append(current)
         return objects
@@ -80,6 +101,16 @@ class AI:
         self._comm.send("Forward\n")
         if self._recv() != ["ok"]:
             raise ConnectionError("Invalid response")
+        if self._direction == zp.Direction.N:
+            self._pos.y -= 1
+        elif self._direction == zp.Direction.E:
+            self._pos.x += 1
+        elif self._direction == zp.Direction.S:
+            self._pos.y += 1
+        elif self._direction == zp.Direction.W:
+            self._pos.x -= 1
+        else:
+            raise ValueError("Invalid direction")
 
     def right(self):
         self._comm.send("Right\n")
@@ -95,13 +126,31 @@ class AI:
         self._direction = zp.Direction(
             (self._direction.value - (1 if self._direction.value % 2 == 0 else 2) if self._direction.value > 2 else 7))
 
-    def look(self) -> list[list[zp.Object] | None]:
+    def _at(self, relative_pos: tuple[int, int]) -> tuple[int, int]:
+        y, x = relative_pos
+        if self._direction == zp.Direction.S:
+            return self._pos.y + y, self._pos.x + x
+        elif self._direction == zp.Direction.E:
+            return self._pos.y - x, self._pos.x + y
+        elif self._direction == zp.Direction.N:
+            return self._pos.y - y, self._pos.x - x
+        elif self._direction == zp.Direction.W:
+            return self._pos.y - x, self._pos.x - y
+        else:
+            raise ValueError("Invalid direction")
+
+    def look(self):
+        nb_tiles: list[int] = [1, 3, 15, 24, 45, 72, 108, 162, 225, 324, 521]
         self._comm.send("Look\n")
         data: list[str] = self._recv()
         res: list[list[zp.Object] | None] = self._get_objects(data[0])
-        if len(res) != [1, 3, 15, 24, 45, 72, 108, 162, 225, 324, 521][self._level]:
+        if len(res) - 1 != nb_tiles[self._level]:
             raise ConnectionError("Invalid response")
-        return res
+        for lv in range(self._level + 1):
+            for i in range(-lv, nb_tiles[lv] - lv):
+                # self._world[self._pos.y + lv][self._pos.x + i] = zp.Tile(True, res.pop(0))
+                pos = self._at((lv, i))
+                self._world[pos[0]][pos[1]] = zp.Tile(True, res.pop(0))
 
     def inventory(self) -> list[zp.Object]:
         res: list[zp.Object] = []
