@@ -12,6 +12,7 @@ class AI:
     _teamName: str
     _level: int = 1
     _world: list[list[zp.Tile]]
+    _ticks: int = 0
 
     def __init__(self, comm: Comm, team_name: str):
         self._comm = comm
@@ -111,9 +112,11 @@ class AI:
             self._pos.x -= 1
         else:
             raise ValueError("Invalid direction")
+        self._ticks += 7
 
     def right(self):
         self._comm.send("Right\n")
+        self._ticks += 7
         if self._recv() != ["ok"]:
             raise ConnectionError("Invalid response")
         self._direction = zp.Direction(
@@ -121,6 +124,7 @@ class AI:
 
     def left(self):
         self._comm.send("Left\n")
+        self._ticks += 7
         if self._recv() != ["ok"]:
             raise ConnectionError("Invalid response")
         self._direction = zp.Direction(
@@ -142,13 +146,13 @@ class AI:
     def look(self):
         nb_tiles: list[int] = [1, 3, 15, 24, 45, 72, 108, 162, 225, 324, 521]
         self._comm.send("Look\n")
+        self._ticks += 7
         data: list[str] = self._recv()
         res: list[list[zp.Object] | None] = self._get_objects(data[0])
         if len(res) - 1 != nb_tiles[self._level]:
             raise ConnectionError("Invalid response")
         for lv in range(self._level + 1):
             for i in range(-lv, nb_tiles[lv] - lv):
-                # self._world[self._pos.y + lv][self._pos.x + i] = zp.Tile(True, res.pop(0))
                 pos = self._at((lv, i))
                 self._world[pos[0]][pos[1]] = zp.Tile(True, res.pop(0))
 
@@ -159,6 +163,7 @@ class AI:
 
     def broadcast(self, message: str):
         self._comm.send("Broadcast " + message + "\n")
+        self._ticks += 7
 
     def connect_nbr(self) -> int:
         nb_connect: int = 0
@@ -172,12 +177,14 @@ class AI:
 
     def fork(self):
         self._comm.send("Fork\n")
-        if self._comm.recv() != ["ok"]:
+        self._ticks += 42
+        if self._recv() != ["ok"]:
             raise ConnectionError("Invalid response")
 
     def eject(self):
         self._comm.send("Eject\n")
-        if self._comm.recv() != ["ok"]:
+        self._ticks += 7
+        if self._recv() != ["ok"]:
             raise ConnectionError("Invalid response")
 
     def take(self, resource: zp.objects) -> bool:
@@ -194,3 +201,4 @@ class AI:
 
     def incantation(self):
         self._comm.send("Incantation\n")
+        self._ticks += 300
