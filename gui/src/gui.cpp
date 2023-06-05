@@ -20,11 +20,64 @@ GUI::~GUI()
 
 void GUI::draw_cmd(sf::RenderWindow window, std::string cmd)
 {
+    window.display();
+    if (cmd.compare("msz") == 0)
+        return;
+    if (cmd.compare("bct") == 0)
+        return;
+    if (cmd.compare("tna") == 0)
+        return;
+    if (cmd.compare("pnw") == 0)
+        return;
+    if (cmd.compare("ppo") == 0)
+        return;
+    if (cmd.compare("plv") == 0)
+        return;
+    if (cmd.compare("pin") == 0)
+        return;
+    if (cmd.compare("pex") == 0)
+        return;
+    if (cmd.compare("pbc") == 0)
+        return;
+    if (cmd.compare("pic") == 0)
+        return;
+    if (cmd.compare("pie") == 0)
+        return;
+    if (cmd.compare("pfk") == 0)
+        return;
+    if (cmd.compare("pdr") == 0)
+        return;
+    if (cmd.compare("pgt") == 0)
+        return;
+    if (cmd.compare("pdi") == 0)
+        return;
+    if (cmd.compare("enw") == 0)
+        return;
+    if (cmd.compare("ebo") == 0)
+        return;
+    if (cmd.compare("edi") == 0)
+        return;
+    if (cmd.compare("sgt") == 0)
+        return;
+    if (cmd.compare("sst") == 0)
+        return;
+    if (cmd.compare("seg") == 0)
+        return;
+    if (cmd.compare("smg") == 0)
+        return;
+    if (cmd.compare("suc") == 0)
+        return;
+    if (cmd.compare("sbp") == 0)
+        return;
+    else
+        return;
+    return;
 }
 
 std::string GUI::ask_server(std::string cmd)
 {
-    std::string response = "test";
+    std::string response;
+    std::cout << cmd;
     return response;
 }
 
@@ -90,7 +143,6 @@ int GUI::connectToServer()
         std::cerr << "Failed to parse server response." << std::endl;
     this->width = x;
     this->height = y;
-    close(clientSocket);
     return 0;
 }
 
