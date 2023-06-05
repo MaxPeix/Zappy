@@ -16,7 +16,7 @@ void draw_checkerboard(int x, int y)
     sf::RectangleShape rectangle(sf::Vector2f(box_size, box_size));
     sf::Font font;
 
-    if (!font.loadFromFile("assets/Mergury-Regular.otf")) {
+    if (!font.loadFromFile("assets/Bronten.ttf")) {
         std::cerr << "Failed to load font." << std::endl;
         return;
     }
