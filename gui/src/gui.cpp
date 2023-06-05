@@ -15,7 +15,17 @@ GUI::GUI(int port, std::string machine)
 
 GUI::~GUI()
 {
-    
+
+}
+
+void GUI::draw_cmd(sf::RenderWindow window, std::string cmd)
+{
+}
+
+std::string GUI::ask_server(std::string cmd)
+{
+    std::string response = "test";
+    return response;
 }
 
 int GUI::connectToServer()

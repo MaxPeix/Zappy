@@ -26,8 +26,9 @@ class GUI {
         ~GUI();
         int connectToServer();
         void draw_game();
+        void draw_cmd(sf::RenderWindow window, std::string cmd);
+        std::string ask_server(std::string cmd);
     private:
-        sf::RenderWindow window;
         int port;
         std::string machine;
         int height;
