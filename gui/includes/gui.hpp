@@ -7,46 +7,30 @@
 
 #pragma once
 
-#include "init/init.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <iostream>
+#include <cstring>
+
+const int BUFFER_SIZE = 4096;
 
 #define SUCCESS 0
 #define ERROR 84
 
-int connectToServer(int port, std::string machine);
-void draw_checkerboard(int x, int y);
-
-struct TileData {
-    int x;
-    int y;
-    int q0;
-    int q1;
-    int q2;
-    int q3;
-    int q4;
-    int q5;
-    int q6;
-};
-
 class GUI {
     public:
-        GUI();
+        GUI(int port, std::string machine);
         ~GUI();
-        int run();
+        int connectToServer();
+        void draw_game();
     private:
         sf::RenderWindow window;
         int port;
         std::string machine;
-};
-
-class Map {
-    public:
-        Map();
-        ~Map();
-    private:
-        int x;
-        int y;
-        std::vector<TileData> tiles;
+        int height;
+        int width;
         std::vector<std::vector<std::string>> tna;
 };

@@ -9,8 +9,7 @@ NAME			=	zappy_gui
 
 SRC_MAIN		= src/main.cpp
 
-SRC				=	src/init/init.cpp \
-					src/checkerboard.cpp
+SRC				=	src/gui.cpp
 
 SRC_TESTS = tests/tests_main.c
 

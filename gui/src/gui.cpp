@@ -1,16 +1,93 @@
 /*
 ** EPITECH PROJECT, 2023
-** Zappy
+** Zappy GUI
 ** File description:
-** Draw checkerboard
+** gui.cpp
 */
 
 #include "gui.hpp"
 
-void draw_checkerboard(int x, int y)
+GUI::GUI(int port, std::string machine)
 {
-    int box_size = 1080 / y;
-    int width_checkerboard = box_size * x;
+    this->port = port;
+    this->machine = machine;
+}
+
+GUI::~GUI()
+{
+    
+}
+
+int GUI::connectToServer()
+{
+    int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (clientSocket == -1) {
+        std::cerr << "Failed to create socket." << std::endl;
+        return 1;
+    }
+
+    std::string serverIP;
+    if (this->machine == "localhost")
+        serverIP = "127.0.0.1";
+    int serverPort = this->port;
+
+    struct sockaddr_in serverAddress{};
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_addr.s_addr = inet_addr(serverIP.c_str());
+    serverAddress.sin_port = htons(serverPort);
+
+    if (connect(clientSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1) {
+        std::cerr << "Failed to connect to the server." << std::endl;
+        close(clientSocket);
+        return 1;
+    }
+
+    const char *command = "GRAPHIC\n";
+    if (send(clientSocket, command, strlen(command), 0) == -1) {
+        std::cerr << "Failed to send command to the server." << std::endl;
+        close(clientSocket);
+        return 1;
+    }
+
+    char buffer[BUFFER_SIZE];
+    memset(buffer, 0, BUFFER_SIZE);
+    if (recv(clientSocket, buffer, BUFFER_SIZE, 0) == -1) {
+        std::cerr << "Failed to receive data from the server." << std::endl;
+        close(clientSocket);
+        return 1;
+    }
+    char buffer1[BUFFER_SIZE];
+    memset(buffer1, 0, BUFFER_SIZE);
+    if (recv(clientSocket, buffer1, BUFFER_SIZE, 0) == -1) {
+        std::cerr << "Failed to receive data from the server." << std::endl;
+        close(clientSocket);
+        return 1;
+    }
+
+    int x, y;
+    char *line = strtok(buffer, "\n");
+    line = strtok(buffer1, "\n");
+    while (line != nullptr) {
+        if (sscanf(line, "msz %d %d", &x, &y) == 2) {
+            std::cout << "Received X: " << x << std::endl;
+            std::cout << "Received Y: " << y << std::endl;
+            break;
+        }
+        line = strtok(nullptr, "\n");
+    }
+
+    if (line == nullptr)
+        std::cerr << "Failed to parse server response." << std::endl;
+    this->width = x;
+    this->height = y;
+    close(clientSocket);
+    return 0;
+}
+
+void GUI::draw_game()
+{
+    int box_size = 1080 / this->height;
+    int width_checkerboard = box_size * this->width;
     int rectangle_width = 1920 - width_checkerboard;
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "Trantor");
     sf::RectangleShape rectangle(sf::Vector2f(box_size, box_size));
@@ -101,8 +178,8 @@ void draw_checkerboard(int x, int y)
         window.draw(text2);
         window.draw(text3);
 
-        for(int i = 0; i < x; i++) {
-            for(int j = 0; j < y; j++) {
+        for(int i = 0; i < this->width; i++) {
+            for(int j = 0; j < this->height; j++) {
                 rectangle.setPosition(i * box_size + rectangle_width, j * box_size);
                 if((i + j) % 2 == 0)
                     rectangle.setFillColor(sf::Color::Black);

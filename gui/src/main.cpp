@@ -41,8 +41,8 @@ int main(int ac, char **av)
     if (parseArguments(ac, av, port, machine) != 0) {
         return ERROR;
     }
-    if (connectToServer(port, machine) != 0) {
-        return ERROR;
-    }
+    GUI gui(port, machine);
+    gui.connectToServer();
+    gui.draw_game();
     return SUCCESS;
 }
