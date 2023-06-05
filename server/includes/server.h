@@ -65,8 +65,8 @@ int create_and_bind_socket(server_params_t params,
     struct sockaddr_in *address);
 
 // Attend les connexions entrantes et gère les clients connectés
-void wait_for_connections(int server_socket,
-    client_t *clients, struct sockaddr_in address);
+void wait_for_connections(int server_socket, client_t *clients,
+    struct sockaddr_in address, server_params_t server_params);
 
 // Ajoute un nouveau client à la liste des clients connectés
 void update_client_struct(int new_socket, client_t *clients);
@@ -82,7 +82,7 @@ int accept_new_connection(int server_socket, struct sockaddr_in address);
 
 // Vérifie les descripteurs de fichiers des clients connectés une activité
 void check_client_activity(client_t *clients,
-    int server_socket, fd_set *readfds);
+    int server_socket, fd_set *readfds, server_params_t server_params);
 
 // Envoie une réponse au client
 void send_response(int socket, char *message);
@@ -91,13 +91,14 @@ void send_response(int socket, char *message);
 void read_method(int socket, char *buffer);
 
 // Gère les commandes du client
-void handle_command(client_t *clients, int index, char *buffer);
+void handle_command(client_t *client, server_params_t server_params,
+    char *buffer);
 
 // Initialise la structure client
 void init_clients_list(client_t *clients);
 
 // Gère la deconnexion du client
-void handle_disconnect(client_t *clients, int socket, int index);
+void handle_disconnect(client_t *client);
 
 // Récupère les arguments du client
 char **get_args_from_client(char *buffer);
@@ -107,6 +108,9 @@ void free_array(char **array);
 
 // Parse les arguments passés en parametre au binaire
 void parse_args(int argc, char **argv, server_params_t *params);
+
+// handle_graphic_command
+void handle_graphic_command(client_t *client, server_params_t server_params);
 
 // Initalise la structure par défaut
 server_params_t init_default_server_params(void);

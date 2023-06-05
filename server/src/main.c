@@ -41,7 +41,7 @@ int main(int argc, char **argv)
         return EPITECH_ERROR;
     if (listen(server_socket, 3) < 0)
         return EPITECH_ERROR;
-    wait_for_connections(server_socket, clients, address);
+    wait_for_connections(server_socket, clients, address, params);
     free(clients);
     return 0;
 }

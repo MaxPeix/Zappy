@@ -7,8 +7,11 @@
 
 #include "server.h"
 
-void handle_command_two(int client_socket, char **args)
+void handle_command_two(client_t *client, server_params_t server_params,
+    char **args)
 {
+    int client_socket = client->socket;
+
     if (args[0] == NULL) {
         send_response(client_socket, "ko\n");
         return;
@@ -17,13 +20,18 @@ void handle_command_two(int client_socket, char **args)
         send_response(client_socket, "Zappy: Inventory.\n");
         return;
     }
+    if (strcasecmp(args[0], "GRAPHIC") == 0) {
+        handle_graphic_command(client, server_params);
+        return;
+    }
     send_response(client_socket, "ko\n");
 }
 
-void handle_command(client_t *clients, int index, char *buffer)
+void handle_command(client_t *client, server_params_t server_params,
+    char *buffer)
 {
     char **args = get_args_from_client(buffer);
-    int client_socket = clients[index].socket;
+    int client_socket = client->socket;
 
     if (!args || !args[0]) {
         send_response(client_socket, "ko\n");
@@ -35,8 +43,8 @@ void handle_command(client_t *clients, int index, char *buffer)
     }
     if (strcasecmp(args[0], "QUIT") == 0) {
         send_response(client_socket, "Goodbye.\n");
-        handle_disconnect(clients, client_socket, index);
+        handle_disconnect(client);
         return;
     }
-    handle_command_two(client_socket, args);
+    handle_command_two(client, server_params, args);
 }
