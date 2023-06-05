@@ -3,91 +3,174 @@ from zappyAI.enums import *
 
 
 @dataclass
-class Object:
-    type: ObjectType
-    name: str
-    description: str
+class Resources:
+    food: int
+    linemate: int
+    deraumere: int
+    sibur: int
+    mendiane: int
+    phiras: int
+    thystame: int
+    player: int
 
+    def __getitem__(self, item: ObjectType | str) -> int:
+        if type(item) == str:
+            if item == "food":
+                return self.food
+            elif item == "linemate":
+                return self.linemate
+            elif item == "deraumere":
+                return self.deraumere
+            elif item == "sibur":
+                return self.sibur
+            elif item == "mendiane":
+                return self.mendiane
+            elif item == "phiras":
+                return self.phiras
+            elif item == "thystame":
+                return self.thystame
+            elif item == "player":
+                return self.player
+            else:
+                raise ValueError("Invalid name")
+        elif type(item) == ObjectType:
+            if item == ObjectType.FOOD:
+                return self.food
+            elif item == ObjectType.LINEMATE:
+                return self.linemate
+            elif item == ObjectType.DERAUMERE:
+                return self.deraumere
+            elif item == ObjectType.SIBUR:
+                return self.sibur
+            elif item == ObjectType.MENDIANE:
+                return self.mendiane
+            elif item == ObjectType.PHIRAS:
+                return self.phiras
+            elif item == ObjectType.THYSTAME:
+                return self.thystame
+            elif item == ObjectType.PLAYER:
+                return self.player
+            else:
+                raise ValueError("Invalid ObjectType")
+        else:
+            raise ValueError("Invalid object type")
 
-@dataclass
-class Player(Object):
-    type: ObjectType = ObjectType.PLAYER
-    name: str = "player"
-    description: str = "A player"
+    def __setitem__(self, item: ObjectType | str, value: int):
+        if type(item) == str:
+            if item == "food":
+                self.food = value
+            elif item == "linemate":
+                self.linemate = value
+            elif item == "deraumere":
+                self.deraumere = value
+            elif item == "sibur":
+                self.sibur = value
+            elif item == "mendiane":
+                self.mendiane = value
+            elif item == "phiras":
+                self.phiras = value
+            elif item == "thystame":
+                self.thystame = value
+            elif item == "player":
+                self.player = value
+            else:
+                raise ValueError("Invalid name")
+        elif type(item) == ObjectType:
+            if item == ObjectType.FOOD:
+                self.food = value
+            elif item == ObjectType.LINEMATE:
+                self.linemate = value
+            elif item == ObjectType.DERAUMERE:
+                self.deraumere = value
+            elif item == ObjectType.SIBUR:
+                self.sibur = value
+            elif item == ObjectType.MENDIANE:
+                self.mendiane = value
+            elif item == ObjectType.PHIRAS:
+                self.phiras = value
+            elif item == ObjectType.THYSTAME:
+                self.thystame = value
+            elif item == ObjectType.PLAYER:
+                self.player = value
+            else:
+                raise ValueError("Invalid ObjectType")
+        else:
+            raise ValueError("Invalid object type")
 
+    def __contains__(self, item: ObjectType | str) -> bool:
+        try:
+            self[item] = self[item]
+        except ValueError:
+            return False
+        return True
 
-@dataclass
-class Linemate(Object):
-    type: ObjectType = ObjectType.LINEMATE
-    name: str = "linemate"
-    description: str = "A linemate stone"
+    def __len__(self):
+        res: int = 0
+        for key in self:
+            res += self[key]
+        return res
 
+    def __str__(self):
+        return f"Resources(food={self.food}, linemate={self.linemate}, deraumere={self.deraumere}, sibur={self.sibur}, mendiane={self.mendiane}, phiras={self.phiras}, thystame={self.thystame}, player={self.player})"
 
-@dataclass
-class Deraumere(Object):
-    type: ObjectType = ObjectType.DERAUMERE
-    name: str = "deraumere"
-    description: str = "A deraumere stone"
+    def __repr__(self):
+        return str(self)
 
+    def __iter__(self):
+        yield "food"
+        yield "linemate"
+        yield "deraumere"
+        yield "sibur"
+        yield "mendiane"
+        yield "phiras"
+        yield "thystame"
+        yield "player"
 
-@dataclass
-class Sibur(Object):
-    type: ObjectType = ObjectType.SIBUR
-    name: str = "sibur"
-    description: str = "A sibur stone"
+    def __add__(self, other: 'Resources') -> 'Resources':
+        return Resources(
+            self.food + other.food,
+            self.linemate + other.linemate,
+            self.deraumere + other.deraumere,
+            self.sibur + other.sibur,
+            self.mendiane + other.mendiane,
+            self.phiras + other.phiras,
+            self.thystame + other.thystame,
+            self.player + other.player
+        )
 
+    def __sub__(self, other: 'Resources') -> 'Resources':
+        return Resources(
+            self.food - other.food,
+            self.linemate - other.linemate,
+            self.deraumere - other.deraumere,
+            self.sibur - other.sibur,
+            self.mendiane - other.mendiane,
+            self.phiras - other.phiras,
+            self.thystame - other.thystame,
+            self.player - other.player
+        )
 
-@dataclass
-class Mendiane(Object):
-    type: ObjectType = ObjectType.MENDIANE
-    name: str = "mendiane"
-    description: str = "A mendiane stone"
+    def __eq__(self, other: 'Resources') -> bool:
+        return (self.food == other.food and
+                self.linemate == other.linemate and
+                self.deraumere == other.deraumere and
+                self.sibur == other.sibur and
+                self.mendiane == other.mendiane and
+                self.phiras == other.phiras and
+                self.thystame == other.thystame and
+                self.player == other.player)
 
+    def __ne__(self, other: 'Resources') -> bool:
+        return not self.__eq__(other)
 
-@dataclass
-class Phiras(Object):
-    type: ObjectType = ObjectType.PHIRAS
-    name: str = "phiras"
-    description: str = "A phiras stone"
-
-
-@dataclass
-class Thystame(Object):
-    type: ObjectType = ObjectType.THYSTAME
-    name: str = "thystame"
-    description: str = "A thystame stone"
-
-
-@dataclass
-class Food(Object):
-    type: ObjectType = ObjectType.FOOD
-    name: str = "food"
-    description: str = "Somme food"
-
-
-OBJECTS: list[tuple[str, Object]] = [
-    ("linemate", Linemate()),
-    ("deraumere", Deraumere()),
-    ("sibur", Sibur()),
-    ("mendiane", Mendiane()),
-    ("phiras", Phiras()),
-    ("thystame", Thystame()),
-    ("food", Food()),
-    ("player", Player())
-]
-
-
-def get_object(name: str) -> Object:
-    for obj in OBJECTS:
-        if obj[0] == name:
-            return obj[1]
-    else:
-        raise ValueError("Invalid object name")
+    def is_empty(self) -> bool:
+        for i in self:
+            if self[i] != 0:
+                return False
+        return True
 
 
 def is_object(name: str) -> bool:
-    for obj in OBJECTS:
-        if obj[0] == name:
-            return True
-    else:
-        return False
+    if name in ObjectType.__iter__():
+        return True
+    return False

@@ -1,4 +1,5 @@
-from zappyAI.objects import Object, Player
+from zappyAI.objects import Resources
+from zappyAI.enums import ObjectType
 from dataclasses import dataclass
 
 
@@ -9,9 +10,9 @@ class Tile:
             return "?"
         if len(self.objects) == 0:
             return " "
-        elif Player in self.objects:
+        elif ObjectType.PLAYER in self.objects:
             return "P"
         else:
             return "!"
     known: bool
-    objects: list[Object]
+    objects: Resources
