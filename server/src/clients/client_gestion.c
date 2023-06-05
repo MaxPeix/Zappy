@@ -23,7 +23,6 @@ int set_clients_sockets(client_t *clients, fd_set *readfds, int server_socket)
 
 int accept_new_connection(int server_socket, struct sockaddr_in address)
 {
-    char *team_name;
     int addrlen = sizeof(address);
     int new_socket = accept(server_socket, (struct sockaddr *)&address,
         (socklen_t*)&addrlen);
@@ -32,11 +31,6 @@ int accept_new_connection(int server_socket, struct sockaddr_in address)
         exit(EPITECH_ERROR);
     }
     send_response(new_socket, "WELCOME\n");
-    // read_method(new_socket, team_name);
-    // // création de team? j'ai pas tt compris ou bien on link juste la socket client à une team
-    // send_response(new_socket, team.available_slots);
-    // send_response(new_socket, team.available_slots);
-
     return new_socket;
 }
 
@@ -45,9 +39,6 @@ void update_client_struct(int new_socket, client_t *clients)
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i].socket == 0) {
             clients[i].socket = new_socket;
-            read_method(new_socket, clients[i].team_name);
-            send_response(new_socket, clients[i].available_slots);
-            send_response(new_socket, "X Y\n");
             break;
         }
     }

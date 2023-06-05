@@ -11,6 +11,7 @@ void handle_disconnect(client_t *client)
 {
     close(client->socket);
     client->socket = 0;
+    client->start_loggin = 0;
 }
 
 void handle_client_request(client_t *client, char *buffer,
