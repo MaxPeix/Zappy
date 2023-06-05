@@ -7,36 +7,44 @@
 
 #include "server.h"
 
-void handle_command_three(client_t *clients, int index,
-    char *command, int found)
+void handle_command_two(client_t *client, server_params_t server_params,
+    char **args)
 {
-    if (found == 0)
-        send_response(clients[index].socket, "Zappy: Unknown command.\n");
-}
+    int client_socket = client->socket;
 
-void handle_command_two(client_t *clients, int index, char *command,
-    int found)
-{
-    handle_command_three(clients, index, command, found);
-}
-
-void handle_command(client_t *clients, int index, char *buffer)
-{
-    char *command = strtok(buffer, " \r\n");
-    int found = 0;
-
-    if (!command || strlen(command) == 0) {
-        send_response(clients[index].socket, "Zappy: Unknown command.\n");
+    if (args[0] == NULL) {
+        send_response(client_socket, "ko\n");
         return;
     }
-    if (strcasecmp(command, "HELP") == 0) {
-        send_response(clients[index].socket, "Zappy: Help message.\n");
-        found++;
-    }
-    if (strcasecmp(buffer, "QUIT") == 0) {
-        send_response(clients[index].socket, "Goodbye.\n");
-        handle_disconnect(clients, clients[index].socket, index);
+    if (strcasecmp(args[0], "INVENTORY") == 0) {
+        send_response(client_socket, "Zappy: Inventory.\n");
         return;
     }
-    handle_command_two(clients, index, command, found);
+    if (strcasecmp(args[0], "GRAPHIC") == 0) {
+        handle_graphic_command(client, server_params);
+        return;
+    }
+    send_response(client_socket, "ko\n");
+}
+
+void handle_command(client_t *client, server_params_t server_params,
+    char *buffer)
+{
+    char **args = get_args_from_client(buffer);
+    int client_socket = client->socket;
+
+    if (!args || !args[0]) {
+        send_response(client_socket, "ko\n");
+        return;
+    }
+    if (strcasecmp(args[0], "HELP") == 0) {
+        send_response(client_socket, "Zappy: Help message.\n");
+        return;
+    }
+    if (strcasecmp(args[0], "QUIT") == 0) {
+        send_response(client_socket, "Goodbye.\n");
+        handle_disconnect(client);
+        return;
+    }
+    handle_command_two(client, server_params, args);
 }
