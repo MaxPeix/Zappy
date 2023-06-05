@@ -25,7 +25,7 @@ void parse_teams_names(int argc, char **argv, int i, server_params_t *params)
     int team_count = 0;
     for (int j = i + 1; j < argc; j++) {
         if (argv[j][0] == '-')
-            break; 
+            break;
         team_count++;
     }
     params->team_names = malloc(sizeof(char *) * (team_count + 1));

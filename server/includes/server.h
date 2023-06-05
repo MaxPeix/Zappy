@@ -119,4 +119,11 @@ void handle_graphic_command(client_t *client, server_params_t server_params);
 // Initalise la structure par défaut
 server_params_t init_default_server_params(void);
 
+// check if the team name is valid
+int check_team_name(char *team_name, char **valid_teams);
+
+// send the team info to the client (from protocol of the start)
+void send_team_info(int socket, client_t *client, server_params_t
+    server_params);
+
 #endif /* !SERVER_H_ */

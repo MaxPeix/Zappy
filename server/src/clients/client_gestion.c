@@ -36,21 +36,17 @@ int accept_new_connection(int server_socket, struct sockaddr_in address)
 void update_client_struct(int new_socket, client_t *clients,
     server_params_t server_params)
 {
-    char slots_str[50];
-    char world_dimensions_str[50];
-
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i].socket == 0) {
             clients[i].socket = new_socket;
             send_response(clients[i].socket, "WELCOME\n");
             char buffer[BUFFER_SIZE];
             ssize_t bytes_read = read_method(new_socket, buffer);
+            size_t len = strlen(buffer);
+            buffer[len - 1] = (buffer[len - 1] == '\n') ?
+                '\0' : buffer[len - 1];
             clients[i].team_name = strdup(buffer);
-            sprintf(slots_str, "%d\n", server_params.clients_per_team); 
-            send_response(clients[i].socket, slots_str);
-            sprintf(world_dimensions_str, "%d %d\n",
-                server_params.width, server_params.height);
-            send_response(clients[i].socket, world_dimensions_str);
+            send_team_info(clients[i].socket, &clients[i], server_params);
             break;
         }
     }
