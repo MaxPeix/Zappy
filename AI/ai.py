@@ -13,15 +13,7 @@ class AI:
     _level: int = 1
     _world: list[list[zp.Tile]]
     _ticks: int = 0
-    _inventory: dict[str, int] = {
-        "food": 10,
-        "linemate": 0,
-        "deraumere": 0,
-        "sibur": 0,
-        "mendiane": 0,
-        "phiras": 0,
-        "thystame": 0
-    }
+    _inventory: zp.Resources = zp.Resources(10, 0, 0, 0, 0, 0, 0, 0)
 
     def __init__(self, comm: Comm, team_name: str):
         self._comm = comm
@@ -31,7 +23,8 @@ class AI:
             raise ConnectionError("Invalid response")
         self._login(team_name)
         # init world with empty tiles from world size
-        self._world = [[zp.Tile(False, []) for x in range(self._worldSize.width)] for y in
+        self._world = [[zp.Tile(False, zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)) for x in range(self._worldSize.width)] for
+                       y in
                        range(self._worldSize.height)]
         if self.connect_nbr() > 1:
             pass  # TODO: ask word info on broadcast
@@ -87,8 +80,8 @@ class AI:
         self._id = res[0]
         self._worldSize = zp.Size(res[1][0], res[1][1])
 
-    def _get_objects(self, data: str) -> list[list[zp.Object] | None]:
-        objects: list[list[zp.Object] | None] = []
+    def _get_objects(self, data: str) -> list[zp.Resources]:
+        objects: list[zp.Resources] = []
         if not data.startswith("[") or not data.endswith("]"):
             raise ValueError("Invalid message: " + data)
         tmp: list[str | None] = data[2:-2].split(",")
@@ -97,15 +90,15 @@ class AI:
                 tmp[i] = None
                 continue
             tmp[i] = tmp[i].strip()
-        for objs in tmp:
+        for index, objs in enumerate(tmp):
             if objs is None:
-                objects.append(None)
+                objects.append(zp.Resources(0, 0, 0, 0, 0, 0, 0, 0))
                 continue
-            current: list[zp.Object] = []
-            for obj in objs.split(" "):
-                if obj == "":
+            current = zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)
+            for idx, obj in enumerate(objs.split(" ")):
+                if obj.strip() == "" or (index == 0 and idx == 0 and obj.strip() == "player"):
                     continue
-                current.append(zp.get_object(obj))
+                current[obj] += 1
             objects.append(current)
         return objects
 
@@ -159,7 +152,7 @@ class AI:
         self._comm.send("Look\n")
         self._ticks += 7
         data: list[str] = self._recv()
-        res: list[list[zp.Object] | None] = self._get_objects(data[0])
+        res: list[zp.Resources] = self._get_objects(data[0])
         if len(res) - 1 != nb_tiles[self._level]:
             raise ConnectionError("Invalid response")
         for lv in range(self._level + 1):
@@ -224,6 +217,9 @@ class AI:
         res: list[str] = self._recv()
         if res == ["ok"]:
             self._inventory[resource] += 1
+            self._world[self._pos.y][self._pos.x].objects[resource] -= 1
+            if self._world[self._pos.y][self._pos.x].objects[resource] <= 0:
+                self.look()
             return True
         elif res == ["ko"]:
             return False
@@ -237,6 +233,7 @@ class AI:
         res: list[str] = self._recv()
         if res == ["ok"]:
             self._inventory[resource] -= 1
+            self._world[self._pos.y][self._pos.x].objects[resource] += 1
             return True
         elif res == ["ko"]:
             return False
