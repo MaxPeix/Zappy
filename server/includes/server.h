@@ -45,7 +45,6 @@
         int socket;
         char *team_name;
         int start_loggin;
-        int available_slots;
         mob_t *mobs;
     } client_t;
 
@@ -73,7 +72,8 @@ void wait_for_connections(int server_socket, client_t *clients,
     struct sockaddr_in address, server_params_t server_params);
 
 // Ajoute un nouveau client à la liste des clients connectés
-void update_client_struct(int new_socket, client_t *clients);
+void update_client_struct(int new_socket, client_t *clients, server_params_t
+    server_params);
 
 // Traite les erreurs du select
 void handle_select_errors(int activity);
@@ -92,7 +92,7 @@ void check_client_activity(client_t *clients,
 void send_response(int socket, char *message);
 
 // Lis le message du client
-void read_method(int socket, char *buffer);
+ssize_t read_method(int socket, char *buffer);
 
 // Gère les commandes du client
 void handle_command(client_t *client, server_params_t server_params,

@@ -30,15 +30,27 @@ int accept_new_connection(int server_socket, struct sockaddr_in address)
         perror("accept failed");
         exit(EPITECH_ERROR);
     }
-    send_response(new_socket, "WELCOME\n");
     return new_socket;
 }
 
-void update_client_struct(int new_socket, client_t *clients)
+void update_client_struct(int new_socket, client_t *clients,
+    server_params_t server_params)
 {
+    char slots_str[50];
+    char world_dimensions_str[50];
+
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i].socket == 0) {
             clients[i].socket = new_socket;
+            send_response(clients[i].socket, "WELCOME\n");
+            char buffer[BUFFER_SIZE];
+            ssize_t bytes_read = read_method(new_socket, buffer);
+            clients[i].team_name = strdup(buffer);
+            sprintf(slots_str, "%d\n", server_params.clients_per_team); 
+            send_response(clients[i].socket, slots_str);
+            sprintf(world_dimensions_str, "%d %d\n",
+                server_params.width, server_params.height);
+            send_response(clients[i].socket, world_dimensions_str);
             break;
         }
     }
@@ -62,8 +74,9 @@ void wait_for_connections(int server_socket, client_t *clients,
         handle_select_errors(activity);
         if (FD_ISSET(server_socket, &readfds)) {
             new_socket = accept_new_connection(server_socket, address);
-            update_client_struct(new_socket, clients);
+            update_client_struct(new_socket, clients, server_params);
         }
-        check_client_activity(clients, server_socket, &readfds, server_params);
+        check_client_activity(clients,
+            server_socket, &readfds, server_params);
     }
 }
