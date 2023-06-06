@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <cstring>
+#include "assets.hpp"
 
 const int BUFFER_SIZE = 4096;
 
@@ -25,13 +26,18 @@ class GUI {
         GUI(int port, std::string machine);
         ~GUI();
         int connectToServer();
+        void init_game();
         void draw_game();
+        void game_loop();
         void draw_cmd(sf::RenderWindow window, std::string cmd);
         std::string ask_server(std::string cmd);
     private:
+        sf::RenderWindow window;
+        Assets assets;
         int port;
         std::string machine;
         int height;
         int width;
         std::vector<std::vector<std::string>> tna;
+
 };

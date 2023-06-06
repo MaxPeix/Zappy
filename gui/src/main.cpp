@@ -43,6 +43,7 @@ int main(int ac, char **av)
     }
     GUI gui(port, machine);
     gui.connectToServer();
-    gui.draw_game();
+    gui.init_game();
+    gui.game_loop();
     return SUCCESS;
 }
