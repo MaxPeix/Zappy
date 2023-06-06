@@ -143,7 +143,7 @@ class AI:
                 pos = self._at((lv, i))
                 self._world[(pos[0], pos[1])] = zp.Tile(True, res.pop(0))
 
-    def inventory(self) -> bool:
+    def check_inventory(self) -> bool:
         self._comm.send("Inventory\n")
         self._ticks += 1
         success: bool = True
@@ -225,3 +225,15 @@ class AI:
     def incantation(self):
         self._comm.send("Incantation\n")
         self._ticks += 300
+
+    @property
+    def pos(self):
+        return self._pos
+
+    @property
+    def world(self):
+        return self._world
+
+    @property
+    def inventory(self):
+        return self._inventory
