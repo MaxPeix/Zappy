@@ -17,3 +17,20 @@ class Tile:
             return "P"
         else:
             return "!"
+
+    def __repr__(self):
+        return str(self)
+
+    def __len__(self):
+        return len(self.objects)
+
+    def __getitem__(self, item: ObjectType | str) -> int:
+        return self.objects[item]
+
+    def __setitem__(self, item: ObjectType | str, value: int):
+        self.objects[item] = value
+
+    def __iter__(self):
+        for item in self.objects:
+            for i in range(self.objects[item]):
+                yield item
