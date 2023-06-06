@@ -9,11 +9,9 @@
 
 int draw_cmd(std::string cmd)
 {
-    
 }
 
 int loop()
 {
-
     return SUCCESS;
 }

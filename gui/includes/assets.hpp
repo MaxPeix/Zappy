@@ -12,9 +12,9 @@
 
 class Assets {
     public:
-        Assets() = default;
-        Assets(int height, int width);
+        Assets();
         ~Assets();
+        void init_assets(int height, int width);
         int box_size;
         int width_checkerboard;
         int rectangle_width;

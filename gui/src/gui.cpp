@@ -21,7 +21,8 @@ void GUI::init_game()
 {
     this->window.create(sf::VideoMode(1920, 1080), "Trantor");
     this->window.setFramerateLimit(60);
-    this->assets = Assets(this->height, this->width);
+    this->assets = Assets();
+    this->assets.init_assets(this->height, this->width);
 }
 
 void GUI::draw_game()

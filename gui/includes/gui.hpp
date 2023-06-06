@@ -39,5 +39,4 @@ class GUI {
         int height;
         int width;
         std::vector<std::vector<std::string>> tna;
-
 };

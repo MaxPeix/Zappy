@@ -7,25 +7,30 @@
 
 #include "assets.hpp"
 
-Assets::Assets(int height, int width)
+Assets::Assets()
+{
+    std::cout << "Assets created" << std::endl;
+}
+
+void Assets::init_assets(int height, int width)
 {
     this->box_size = 1080 / height;
     this->width_checkerboard = box_size * width;
     this->rectangle_width = 1920 - width_checkerboard;
     this->rectangle = sf::RectangleShape(sf::Vector2f(this->box_size, this->box_size));
     this->font.loadFromFile("assets/Bronten.ttf");
-    this->text_tna.setString("Team name: ");
     this->text_tna.setFont(this->font);
+    this->text_tna.setString("Team name: ");
     this->text_tna.setCharacterSize(40);
     this->text_tna.setFillColor(sf::Color::Black);
     this->text_tna.setPosition(250, 10);
-    this->text_chat.setString("Chat :");
     this->text_chat.setFont(this->font);
+    this->text_chat.setString("Chat :");
     this->text_chat.setCharacterSize(40);
     this->text_chat.setFillColor(sf::Color::Black);
     this->text_chat.setPosition(350, 1080 / 3 + 10);
-    this->text_info.setString("Info :");
     this->text_info.setFont(this->font);
+    this->text_info.setString("Info :");
     this->text_info.setCharacterSize(40);
     this->text_info.setFillColor(sf::Color::Black);
     this->text_info.setPosition(350, 2 * 1080 / 3 + 10);
