@@ -29,8 +29,6 @@ void handle_graphic_command(client_t *client, server_params_t *server_params)
             send_response(client->socket, buffer_bct);
         }
     }
-    send_response(client->socket, buffer_map_size);
-    send_response(client->socket, buffer_sgt);
     if (!server_params->team_names)
         return;
     for (int i = 0; server_params->team_names[i]; i++) {
