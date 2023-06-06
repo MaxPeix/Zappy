@@ -14,7 +14,7 @@ class AI:
     _ticks: int = 0
     _inventory: zp.Resources = zp.Resources(10, 0, 0, 0, 0, 0, 0, 0)
 
-    def __init__(self, comm: Comm, team_name: str):
+    def __init__(self, comm: Comm, team_name: str) -> None:
         self._comm = comm
         self._teamName = team_name
         data: list[str] = self._comm.recv()
@@ -25,10 +25,10 @@ class AI:
         if self.connect_nbr() > 1:
             pass  # TODO: ask word info on broadcast
 
-    def draw_map(self):
+    def draw_map(self) -> None:
         print(self._world.__str__((self._pos, self._direction)))
 
-    def _on_message(self, direction: zp.Direction, message: str):
+    def _on_message(self, direction: zp.Direction, message: str) -> None:
         print("Message from " + str(direction) + ": " + message)
 
     def _recv(self) -> list[str]:
@@ -47,7 +47,7 @@ class AI:
                         return self._recv()
         return data
 
-    def _login(self, team_name: str):
+    def _login(self, team_name: str) -> None:
         res: tuple[int, tuple[int, int]] = (0, (0, 0))
         data: list[str]
 
@@ -85,7 +85,7 @@ class AI:
             objects.append(current)
         return objects
 
-    def forward(self):
+    def forward(self) -> None:
         self._comm.send("Forward\n")
         if self._recv() != ["ok"]:
             raise ConnectionError("Invalid response")
@@ -101,7 +101,7 @@ class AI:
             raise ValueError("Invalid direction")
         self._ticks += 7
 
-    def right(self):
+    def right(self) -> None:
         self._comm.send("Right\n")
         self._ticks += 7
         if self._recv() != ["ok"]:
@@ -109,7 +109,7 @@ class AI:
         self._direction = zp.Direction(
             (self._direction.value + (1 if self._direction.value % 2 == 0 else 2) if self._direction.value < 6 else 1))
 
-    def left(self):
+    def left(self) -> None:
         self._comm.send("Left\n")
         self._ticks += 7
         if self._recv() != ["ok"]:
@@ -130,7 +130,7 @@ class AI:
         else:
             raise ValueError("Invalid direction")
 
-    def look(self):
+    def look(self) -> None:
         nb_tiles: list[int] = [1, 3, 15, 24, 45, 72, 108, 162, 225, 324, 521]
         self._comm.send("Look\n")
         self._ticks += 7
@@ -166,7 +166,7 @@ class AI:
             self._inventory[key] = int(value)
         return success
 
-    def broadcast(self, message: str):
+    def broadcast(self, message: str) -> None:
         self._comm.send("Broadcast " + message + "\n")
         self._ticks += 7
 
@@ -180,13 +180,13 @@ class AI:
         nb_connect = int(data[0])
         return nb_connect
 
-    def fork(self):
+    def fork(self) -> None:
         self._comm.send("Fork\n")
         self._ticks += 42
         if self._recv() != ["ok"]:
             raise ConnectionError("Invalid response")
 
-    def eject(self):
+    def eject(self) -> None:
         self._comm.send("Eject\n")
         self._ticks += 7
         if self._recv() != ["ok"]:
@@ -222,18 +222,18 @@ class AI:
             return False
         raise ConnectionError("Invalid response")
 
-    def incantation(self):
+    def incantation(self) -> None:
         self._comm.send("Incantation\n")
         self._ticks += 300
 
     @property
-    def pos(self):
+    def pos(self) -> zp.Pos:
         return self._pos
 
     @property
-    def world(self):
+    def world(self) -> zp.World:
         return self._world
 
     @property
-    def inventory(self):
+    def inventory(self) -> zp.Resources:
         return self._inventory

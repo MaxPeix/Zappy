@@ -11,7 +11,7 @@ class ObjectType(Enum):
     THYSTAME = 6
     PLAYER = 7
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self == ObjectType.FOOD:
             return "food"
         elif self == ObjectType.LINEMATE:
@@ -31,12 +31,12 @@ class ObjectType(Enum):
         else:
             return "unknown"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
 
 class Direction(Enum):
-    def __str__(self):
+    def __str__(self) -> str:
         if self == Direction.N:
             return "North"
         elif self == Direction.NE:
@@ -55,6 +55,9 @@ class Direction(Enum):
             return "North-West"
         else:
             return "Unknown"
+
+    def __repr__(self) -> str:
+        return str(self)
 
     E = 1
     SE = 2

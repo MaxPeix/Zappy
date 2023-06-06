@@ -55,7 +55,7 @@ class Resources:
         else:
             raise ValueError("Invalid object type")
 
-    def __setitem__(self, item: ObjectType | str, value: int):
+    def __setitem__(self, item: ObjectType | str, value: int) -> None:
         if type(item) == str:
             if item == "food":
                 self.food = value
@@ -104,19 +104,19 @@ class Resources:
             return False
         return True
 
-    def __len__(self):
+    def __len__(self) -> int:
         res: int = 0
         for key in self:
             res += self[key]
         return res
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Resources(food={self.food}, linemate={self.linemate}, deraumere={self.deraumere}, sibur={self.sibur}, mendiane={self.mendiane}, phiras={self.phiras}, thystame={self.thystame}, player={self.player})"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
-    def __iter__(self):
+    def __iter__(self) -> iter:
         yield ObjectType.FOOD
         yield ObjectType.LINEMATE
         yield ObjectType.DERAUMERE
