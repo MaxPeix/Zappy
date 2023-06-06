@@ -12,10 +12,14 @@ class World:
         self._world = [[default_tile for x in range(size.width)] for y in range(size.height)]
         self._size = size
 
-    def __getitem__(self, pos: tuple[int, int]) -> Tile:
+    def __getitem__(self, pos: tuple[int, int] | Pos) -> Tile:
+        if type(pos) == Pos:
+            pos = (pos.y, pos.x)
         return self._world[pos[0] % self._size.height][pos[1] % self._size.width]
 
-    def __setitem__(self, pos: tuple[int, int], value: Tile):
+    def __setitem__(self, pos: tuple[int, int] | Pos, value: Tile):
+        if type(pos) == Pos:
+            pos = (pos.y, pos.x)
         self._world[pos[0] % self._size.height][pos[1] % self._size.width] = value
 
     def __iter__(self):
