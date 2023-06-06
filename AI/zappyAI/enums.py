@@ -11,6 +11,29 @@ class ObjectType(Enum):
     THYSTAME = 6
     PLAYER = 7
 
+    def __str__(self):
+        if self == ObjectType.FOOD:
+            return "food"
+        elif self == ObjectType.LINEMATE:
+            return "linemate"
+        elif self == ObjectType.DERAUMERE:
+            return "deraumere"
+        elif self == ObjectType.SIBUR:
+            return "sibur"
+        elif self == ObjectType.MENDIANE:
+            return "mendiane"
+        elif self == ObjectType.PHIRAS:
+            return "phiras"
+        elif self == ObjectType.THYSTAME:
+            return "thystame"
+        elif self == ObjectType.PLAYER:
+            return "player"
+        else:
+            return "unknown"
+
+    def __repr__(self):
+        return str(self)
+
 
 class Direction(Enum):
     def __str__(self):
@@ -32,6 +55,7 @@ class Direction(Enum):
             return "North-West"
         else:
             return "Unknown"
+
     E = 1
     SE = 2
     S = 3
@@ -40,4 +64,3 @@ class Direction(Enum):
     NW = 6
     N = 7
     NE = 8
-
