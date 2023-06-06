@@ -12,7 +12,7 @@ class AI:
     _level: int = 1
     _world: zp.World
     _ticks: int = 0
-    _inventory: zp.Resources = zp.Resources(10, 0, 0, 0, 0, 0, 0, 0)
+    _inventory: zp.Resources = zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)
 
     def __init__(self, comm: utils.Comm, team_name: str) -> None:
         self._comm = comm
@@ -21,6 +21,7 @@ class AI:
         if data != ["WELCOME"]:
             raise ConnectionError("Invalid response")
         self._login(team_name)
+        self.check_inventory()
         # init world with empty tiles from world size
         if self.connect_nbr() > 1:
             pass  # TODO: ask word info on broadcast
