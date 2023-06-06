@@ -1,11 +1,11 @@
-from connection import Comm
+import utils
 import zappyAI as zp
 
 
 class AI:
     _dead: bool = False
     _direction: zp.Direction = zp.Direction.N
-    _comm: Comm
+    _comm: utils.Comm
     _pos: zp.Pos = zp.Pos(5, 5)
     _id: int
     _teamName: str
@@ -14,7 +14,7 @@ class AI:
     _ticks: int = 0
     _inventory: zp.Resources = zp.Resources(10, 0, 0, 0, 0, 0, 0, 0)
 
-    def __init__(self, comm: Comm, team_name: str) -> None:
+    def __init__(self, comm: utils.Comm, team_name: str) -> None:
         self._comm = comm
         self._teamName = team_name
         data: list[str] = self._comm.recv()
