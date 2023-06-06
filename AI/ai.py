@@ -8,10 +8,9 @@ class AI:
     _comm: Comm
     _pos: zp.Pos = zp.Pos(5, 5)
     _id: int
-    _worldSize: zp.Size
     _teamName: str
     _level: int = 1
-    _world: list[list[zp.Tile]]
+    _world: zp.World
     _ticks: int = 0
     _inventory: zp.Resources = zp.Resources(10, 0, 0, 0, 0, 0, 0, 0)
 
@@ -23,27 +22,11 @@ class AI:
             raise ConnectionError("Invalid response")
         self._login(team_name)
         # init world with empty tiles from world size
-        self._world = [[zp.Tile(False, zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)) for x in range(self._worldSize.width)] for
-                       y in
-                       range(self._worldSize.height)]
         if self.connect_nbr() > 1:
             pass  # TODO: ask word info on broadcast
 
     def draw_map(self):
-        for y in range(self._worldSize.height):
-            for x in range(self._worldSize.width):
-                if self._pos.x == x and self._pos.y == y:
-                    if self._direction == zp.Direction.N:
-                        print("^", end="")
-                    elif self._direction == zp.Direction.E:
-                        print(">", end="")
-                    elif self._direction == zp.Direction.S:
-                        print("v", end="")
-                    elif self._direction == zp.Direction.W:
-                        print("<", end="")
-                    continue
-                print(self._world[y][x], end="")
-            print()
+        print(self._world.__str__((self._pos, self._direction)))
 
     def _on_message(self, direction: zp.Direction, message: str):
         print("Message from " + str(direction) + ": " + message)
@@ -78,7 +61,7 @@ class AI:
         except ValueError:
             raise ConnectionError("Invalid response")
         self._id = res[0]
-        self._worldSize = zp.Size(res[1][0], res[1][1])
+        self._world = zp.World(zp.Size(res[1][0], res[1][1]))
 
     def _get_objects(self, data: str) -> list[zp.Resources]:
         objects: list[zp.Resources] = []
@@ -158,7 +141,7 @@ class AI:
         for lv in range(self._level + 1):
             for i in range(-lv, nb_tiles[lv] - lv):
                 pos = self._at((lv, i))
-                self._world[pos[0]][pos[1]] = zp.Tile(True, res.pop(0))
+                self._world[(pos[0], pos[1])] = zp.Tile(True, res.pop(0))
 
     def inventory(self) -> bool:
         self._comm.send("Inventory\n")
@@ -217,8 +200,8 @@ class AI:
         res: list[str] = self._recv()
         if res == ["ok"]:
             self._inventory[resource] += 1
-            self._world[self._pos.y][self._pos.x].objects[resource] -= 1
-            if self._world[self._pos.y][self._pos.x].objects[resource] <= 0:
+            self._world[(self._pos.y, self._pos.x)].objects[resource] -= 1
+            if self._world[(self._pos.y, self._pos.x)].objects[resource] <= 0:
                 self.look()
             return True
         elif res == ["ko"]:
@@ -233,7 +216,7 @@ class AI:
         res: list[str] = self._recv()
         if res == ["ok"]:
             self._inventory[resource] -= 1
-            self._world[self._pos.y][self._pos.x].objects[resource] += 1
+            self._world[(self._pos.y, self._pos.x)].objects[resource] += 1
             return True
         elif res == ["ko"]:
             return False

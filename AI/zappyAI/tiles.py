@@ -5,14 +5,15 @@ from dataclasses import dataclass
 
 @dataclass
 class Tile:
+    known: bool
+    objects: Resources
+
     def __str__(self):
         if not self.known:
             return "?"
         if len(self.objects) == 0:
             return " "
-        elif ObjectType.PLAYER in self.objects:
+        elif self.objects[ObjectType.PLAYER] > 0:
             return "P"
         else:
             return "!"
-    known: bool
-    objects: Resources
