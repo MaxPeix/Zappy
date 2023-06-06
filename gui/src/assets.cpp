@@ -16,7 +16,6 @@ void Assets::init_assets(int height, int width)
     this->box_size = 1080 / height;
     this->width_checkerboard = box_size * width;
     this->rectangle_width = 1920 - width_checkerboard;
-    //this->rectangle = sf::RectangleShape(sf::Vector2f(this->box_size, this->box_size));
     this->font.loadFromFile("assets/Bronten.ttf");
     this->text_tna.setFont(this->font);
     this->text_tna.setString("Team name: ");

@@ -35,16 +35,6 @@ void GUI::draw_game()
     window.draw(this->assets.text_tna);
     window.draw(this->assets.text_chat);
     window.draw(this->assets.text_info);
-    // for(int i = 0; i < this->width; i++) {
-    //     for(int j = 0; j < this->height; j++) {
-    //         this->assets.rectangle.setPosition(i * this->assets.box_size + this->assets.rectangle_width, j * this->assets.box_size);
-    //         if((i + j) % 2 == 0)
-    //             this->assets.rectangle.setFillColor(sf::Color::Black);
-    //         else
-    //             this->assets.rectangle.setFillColor(sf::Color::White);
-    //         window.draw(this->assets.rectangle);
-    //     }
-    // }
     for (int i = 0; i < this->width; i++) {
         for(int j = 0; j < this->height; j++) {
             window.draw(this->assets.tiles[i][j]);
