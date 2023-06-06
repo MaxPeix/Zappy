@@ -238,3 +238,15 @@ class AI:
     @property
     def inventory(self) -> zp.Resources:
         return self._inventory
+
+    @property
+    def level(self) -> int:
+        return self._level
+
+    @property
+    def ticks(self) -> int:
+        return self._ticks
+
+    @property
+    def direction(self) -> zp.Direction:
+        return self._direction
