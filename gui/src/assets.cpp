@@ -9,7 +9,6 @@
 
 Assets::Assets()
 {
-    std::cout << "Assets created" << std::endl;
 }
 
 void Assets::init_assets(int height, int width)

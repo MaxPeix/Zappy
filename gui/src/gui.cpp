@@ -47,24 +47,28 @@ void GUI::draw_game()
     }
 }
 
+void GUI::check_event()
+{
+    if (this->event.type == sf::Event::Closed)
+        window.close();
+    if (this->event.type == sf::Event::MouseButtonPressed) {
+        if (this->event.mouseButton.button == sf::Mouse::Left) {
+            sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+            if (this->assets.closeButtonSprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                window.close();
+            }
+            if (this->assets.optionsButtonSprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                std::cout << "Options button clicked\n";
+            }
+        }
+    }
+}
+
 void GUI::game_loop()
 {
     while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
-                window.close();
-            if (event.type == sf::Event::MouseButtonPressed) {
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-                    if (this->assets.closeButtonSprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                        window.close();
-                    }
-                    if (this->assets.optionsButtonSprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                        std::cout << "Options button clicked\n";
-                    }
-                }
-            }
+        while (window.pollEvent(this->event)) {
+            check_event();
         }
         window.clear();
         draw_game();
@@ -137,8 +141,8 @@ std::string GUI::ask_server(std::string cmd)
 
 int GUI::connectToServer()
 {
-    int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (clientSocket == -1) {
+    this->clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (this->clientSocket == -1) {
         std::cerr << "Failed to create socket." << std::endl;
         return 1;
     }
@@ -153,31 +157,31 @@ int GUI::connectToServer()
     serverAddress.sin_addr.s_addr = inet_addr(serverIP.c_str());
     serverAddress.sin_port = htons(serverPort);
 
-    if (connect(clientSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1) {
+    if (connect(this->clientSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1) {
         std::cerr << "Failed to connect to the server." << std::endl;
-        close(clientSocket);
+        close(this->clientSocket);
         return 1;
     }
 
     const char *command = "GRAPHIC\n";
-    if (send(clientSocket, command, strlen(command), 0) == -1) {
+    if (send(this->clientSocket, command, strlen(command), 0) == -1) {
         std::cerr << "Failed to send command to the server." << std::endl;
-        close(clientSocket);
+        close(this->clientSocket);
         return 1;
     }
 
     char buffer[BUFFER_SIZE];
     memset(buffer, 0, BUFFER_SIZE);
-    if (recv(clientSocket, buffer, BUFFER_SIZE, 0) == -1) {
+    if (recv(this->clientSocket, buffer, BUFFER_SIZE, 0) == -1) {
         std::cerr << "Failed to receive data from the server." << std::endl;
-        close(clientSocket);
+        close(this->clientSocket);
         return 1;
     }
     char buffer1[BUFFER_SIZE];
     memset(buffer1, 0, BUFFER_SIZE);
-    if (recv(clientSocket, buffer1, BUFFER_SIZE, 0) == -1) {
+    if (recv(this->clientSocket, buffer1, BUFFER_SIZE, 0) == -1) {
         std::cerr << "Failed to receive data from the server." << std::endl;
-        close(clientSocket);
+        close(this->clientSocket);
         return 1;
     }
 
@@ -186,8 +190,6 @@ int GUI::connectToServer()
     line = strtok(buffer1, "\n");
     while (line != nullptr) {
         if (sscanf(line, "msz %d %d", &x, &y) == 2) {
-            std::cout << "Received X: " << x << std::endl;
-            std::cout << "Received Y: " << y << std::endl;
             break;
         }
         line = strtok(nullptr, "\n");
