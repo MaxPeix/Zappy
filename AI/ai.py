@@ -192,10 +192,10 @@ class AI:
         if self._recv() != ["ok"]:
             raise ConnectionError("Invalid response")
 
-    def take(self, resource: zp.objects) -> bool:
+    def take(self, resource: zp.ObjectType) -> bool:
         if resource not in self._inventory:
             return False
-        self._comm.send("Take " + resource.name + "\n")
+        self._comm.send("Take " + str(resource) + "\n")
         self._ticks += 7
         res: list[str] = self._recv()
         if res == ["ok"]:
@@ -208,10 +208,10 @@ class AI:
             return False
         raise ConnectionError("Invalid response")
 
-    def set(self, resource: zp.objects) -> bool:
+    def set(self, resource: zp.ObjectType) -> bool:
         if resource not in self._inventory or self._inventory[resource] <= 0:
             return False
-        self._comm.send("Set " + resource.name + "\n")
+        self._comm.send("Set " + str(resource) + "\n")
         self._ticks += 7
         res: list[str] = self._recv()
         if res == ["ok"]:
