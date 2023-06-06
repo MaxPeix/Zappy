@@ -117,14 +117,14 @@ class Resources:
         return str(self)
 
     def __iter__(self):
-        yield "food"
-        yield "linemate"
-        yield "deraumere"
-        yield "sibur"
-        yield "mendiane"
-        yield "phiras"
-        yield "thystame"
-        yield "player"
+        yield ObjectType.FOOD
+        yield ObjectType.LINEMATE
+        yield ObjectType.DERAUMERE
+        yield ObjectType.SIBUR
+        yield ObjectType.MENDIANE
+        yield ObjectType.PHIRAS
+        yield ObjectType.THYSTAME
+        yield ObjectType.PLAYER
 
     def __add__(self, other: 'Resources') -> 'Resources':
         return Resources(
