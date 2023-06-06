@@ -7,7 +7,7 @@
 
 #include "server.h"
 
-void handle_command_two(client_t *client, server_params_t server_params,
+void handle_command_two(client_t *client, server_params_t *server_params,
     char **args)
 {
     int client_socket = client->socket;
@@ -27,7 +27,7 @@ void handle_command_two(client_t *client, server_params_t server_params,
     send_response(client_socket, "ko\n");
 }
 
-void handle_command(client_t *client, server_params_t server_params,
+void handle_command(client_t *client, server_params_t *server_params,
     char *buffer)
 {
     char **args = get_args_from_client(buffer);

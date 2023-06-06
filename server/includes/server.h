@@ -23,22 +23,16 @@
     #define CLIENT_NAME "Anonymous"
     #define EPITECH_ERROR 84
 
-    enum items {
-        FOOD,
-        LINEMATE,
-        DERAUMERE,
-        SIBUR,
-        MENDIANE,
-        PHIRAS,
-        THYSTAME
-    };
-
     typedef struct mob {
         int x;
         int y;
-        int level;
-        int inventory[7];
-        int nbr_of_inventory_items[7];
+        int food;
+        int linemate;
+        int deraumere;
+        int sibur;
+        int mendiane;
+        int phiras;
+        int thystame;
     } mob_t;
 
     typedef struct client {
@@ -46,6 +40,8 @@
         char *team_name;
         int start_loggin;
         mob_t *mobs;
+        int is_graphical;
+        int level;
     } client_t;
 
     typedef struct server_params {
@@ -55,6 +51,7 @@
         char **team_names;
         int clients_per_team;
         int frequency;
+        mob_t **world;
     } server_params_t;
 
 // Vérifie les erreurs de la ligne de commande
@@ -69,11 +66,11 @@ int create_and_bind_socket(server_params_t params,
 
 // Attend les connexions entrantes et gère les clients connectés
 void wait_for_connections(int server_socket, client_t *clients,
-    struct sockaddr_in address, server_params_t server_params);
+    struct sockaddr_in address, server_params_t *server_params);
 
 // Ajoute un nouveau client à la liste des clients connectés
 void update_client_struct(int new_socket, client_t *clients, server_params_t
-    server_params);
+    *server_params);
 
 // Traite les erreurs du select
 void handle_select_errors(int activity);
@@ -86,7 +83,7 @@ int accept_new_connection(int server_socket, struct sockaddr_in address);
 
 // Vérifie les descripteurs de fichiers des clients connectés une activité
 void check_client_activity(client_t *clients,
-    int server_socket, fd_set *readfds, server_params_t server_params);
+    int server_socket, fd_set *readfds, server_params_t *server_params);
 
 // Envoie une réponse au client
 void send_response(int socket, char *message);
@@ -95,7 +92,7 @@ void send_response(int socket, char *message);
 ssize_t read_method(int socket, char *buffer);
 
 // Gère les commandes du client
-void handle_command(client_t *client, server_params_t server_params,
+void handle_command(client_t *client, server_params_t *server_params,
     char *buffer);
 
 // Initialise la structure client
@@ -114,7 +111,7 @@ void free_array(char **array);
 void parse_args(int argc, char **argv, server_params_t *params);
 
 // handle_graphic_command
-void handle_graphic_command(client_t *client, server_params_t server_params);
+void handle_graphic_command(client_t *client, server_params_t *server_params);
 
 // Initalise la structure par défaut
 server_params_t init_default_server_params(void);
@@ -123,7 +120,7 @@ server_params_t init_default_server_params(void);
 int check_team_name(char *team_name, char **valid_teams);
 
 // send the team info to the client (from protocol of the start)
-void send_team_info(int socket, client_t *client, server_params_t
-    server_params);
+void send_info_loggin(int socket, client_t *client, server_params_t
+    *server_params);
 
 #endif /* !SERVER_H_ */
