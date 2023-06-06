@@ -35,14 +35,19 @@ void GUI::draw_game()
     window.draw(this->assets.text_tna);
     window.draw(this->assets.text_chat);
     window.draw(this->assets.text_info);
-    for(int i = 0; i < this->width; i++) {
+    // for(int i = 0; i < this->width; i++) {
+    //     for(int j = 0; j < this->height; j++) {
+    //         this->assets.rectangle.setPosition(i * this->assets.box_size + this->assets.rectangle_width, j * this->assets.box_size);
+    //         if((i + j) % 2 == 0)
+    //             this->assets.rectangle.setFillColor(sf::Color::Black);
+    //         else
+    //             this->assets.rectangle.setFillColor(sf::Color::White);
+    //         window.draw(this->assets.rectangle);
+    //     }
+    // }
+    for (int i = 0; i < this->width; i++) {
         for(int j = 0; j < this->height; j++) {
-            this->assets.rectangle.setPosition(i * this->assets.box_size + this->assets.rectangle_width, j * this->assets.box_size);
-            if((i + j) % 2 == 0)
-                this->assets.rectangle.setFillColor(sf::Color::Black);
-            else
-                this->assets.rectangle.setFillColor(sf::Color::White);
-            window.draw(this->assets.rectangle);
+            window.draw(this->assets.tiles[i][j]);
         }
     }
 }
@@ -58,7 +63,7 @@ void GUI::check_event()
                 window.close();
             }
             if (this->assets.optionsButtonSprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                std::cout << "Options button clicked\n";
+                std::cout << ask_server("sgt\n") << std::endl;
             }
         }
     }
@@ -135,7 +140,21 @@ void GUI::draw_cmd(sf::RenderWindow window, std::string cmd)
 std::string GUI::ask_server(std::string cmd)
 {
     std::string response;
-    std::cout << cmd;
+    char buffer[BUFFER_SIZE];
+    memset(buffer, 0, BUFFER_SIZE);
+    if (send(this->clientSocket, cmd.c_str(), cmd.length(), 0) == -1) {
+        std::cerr << "Failed to send command to the server." << std::endl;
+        close(this->clientSocket);
+        return "error";
+    }
+    int bytesRead = recv(this->clientSocket, buffer, BUFFER_SIZE - 1, 0);
+    if (bytesRead == -1) {
+        std::cerr << "Failed to receive response from the server." << std::endl;
+        close(this->clientSocket);
+        return "error";
+    }
+    buffer[bytesRead] = '\0';
+    response = buffer;
     return response;
 }
 

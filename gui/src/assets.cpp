@@ -16,7 +16,7 @@ void Assets::init_assets(int height, int width)
     this->box_size = 1080 / height;
     this->width_checkerboard = box_size * width;
     this->rectangle_width = 1920 - width_checkerboard;
-    this->rectangle = sf::RectangleShape(sf::Vector2f(this->box_size, this->box_size));
+    //this->rectangle = sf::RectangleShape(sf::Vector2f(this->box_size, this->box_size));
     this->font.loadFromFile("assets/Bronten.ttf");
     this->text_tna.setFont(this->font);
     this->text_tna.setString("Team name: ");
@@ -48,6 +48,23 @@ void Assets::init_assets(int height, int width)
     this->leftrectangle3 = sf::RectangleShape(sf::Vector2f(this->rectangle_width, 1080 / 3));
     this->leftrectangle3.setPosition(0, 2 * 1080 / 3);
     this->leftrectangle3.setFillColor(sf::Color::Green);
+    this->tileTexture.loadFromFile("assets/tile.png");
+    for (int i = 0; i < width; i++) {
+        std::vector<sf::Sprite> tmp;
+        for(int j = 0; j < height; j++) {
+            tmp.push_back(sf::Sprite());
+        }
+        this->tiles.push_back(tmp);
+    }
+    for (int i = 0; i < width; i++) {
+        for(int j = 0; j < height; j++) {
+            this->tiles[i][j].setTexture(this->tileTexture);
+            float scalingFactor = std::min(static_cast<float>(this->box_size) / this->tileTexture.getSize().x,
+                                           static_cast<float>(this->box_size) / this->tileTexture.getSize().y);
+            this->tiles[i][j].setScale(sf::Vector2f(scalingFactor, scalingFactor));
+            this->tiles[i][j].setPosition(i * this->box_size + this->rectangle_width, j * this->box_size);
+        }
+    }
 }
 
 Assets::~Assets()

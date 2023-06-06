@@ -28,8 +28,9 @@ class Assets {
         sf::Sprite closeButtonSprite;
         sf::Texture optionsButtonTexture;
         sf::Sprite optionsButtonSprite;
-        sf::RectangleShape rectangle;
         sf::RectangleShape leftrectangle1;
         sf::RectangleShape leftrectangle2;
         sf::RectangleShape leftrectangle3;
+        sf::Texture tileTexture;
+        std::vector<std::vector<sf::Sprite>> tiles;
 };
