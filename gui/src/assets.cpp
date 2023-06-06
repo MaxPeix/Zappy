@@ -21,7 +21,7 @@ void Assets::init_assets(int height, int width)
     this->text_tna.setString("Team name: ");
     this->text_tna.setCharacterSize(40);
     this->text_tna.setFillColor(sf::Color::Black);
-    this->text_tna.setPosition(250, 10);
+    this->text_tna.setPosition(310, 10);
     this->text_chat.setFont(this->font);
     this->text_chat.setString("Chat :");
     this->text_chat.setCharacterSize(40);
