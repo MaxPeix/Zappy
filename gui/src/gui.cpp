@@ -231,6 +231,7 @@ void GUI::draw_game()
             }
         }
         window.clear();
+
         window.draw(leftRectangle1);
         window.draw(leftRectangle2);
         window.draw(leftRectangle3);
