@@ -18,12 +18,12 @@
     #include <sys/select.h>
     #include <errno.h>
 
-    #define MAX_CLIENTS 10
+    #define MAX_CLIENTS 30
     #define BUFFER_SIZE 4096
     #define CLIENT_NAME "Anonymous"
     #define EPITECH_ERROR 84
 
-    typedef struct mob {
+    typedef struct tile {
         int x;
         int y;
         int food;
@@ -33,13 +33,13 @@
         int mendiane;
         int phiras;
         int thystame;
-    } mob_t;
+    } tile_t;
 
     typedef struct client {
         int socket;
         char *team_name;
         int start_loggin;
-        mob_t *mobs;
+        tile_t *tiles;
         int is_graphical;
         int level;
     } client_t;
@@ -51,8 +51,19 @@
         char **team_names;
         int clients_per_team;
         int frequency;
-        mob_t **world;
+        tile_t **world;
     } server_params_t;
+
+    typedef struct DistributionParams {
+        server_params_t *params;
+        int total_resource;
+        char resource;
+    } DistributionParams;
+
+    typedef struct {
+        int x;
+        int y;
+    } coordinate_t;
 
 // Vérifie les erreurs de la ligne de commande
 int check_errors(int argc, char **argv, server_params_t params);
@@ -122,5 +133,19 @@ int check_team_name(char *team_name, char **valid_teams);
 // send the team info to the client (from protocol of the start)
 void send_info_loggin(int socket, client_t *client, server_params_t
     *server_params);
+
+// define settings of the world
+void define_settings_world(server_params_t *params);
+
+// distribute resources
+void distribute_resources(server_params_t *params,
+    int total_resource, char resource);
+void distribute_food(server_params_t *params);
+void distribute_linemate(server_params_t *params);
+void distribute_deraumere(server_params_t *params);
+void distribute_sibur(server_params_t *params);
+void distribute_mendiane(server_params_t *params);
+void distribute_phiras(server_params_t *params);
+void distribute_thystame(server_params_t *params);
 
 #endif /* !SERVER_H_ */

@@ -22,8 +22,8 @@ int check_error_params(server_params_t params)
     }
     if ((params.width == 0 || params.width < 10 || params.width > 30) ||
         (params.height == 0 || params.height < 10 || params.height > 30)) {
-        printf("-y or -w option only accepts");
-        printf(" integer values between 2 and 10000\n");
+        printf("-x or -y option only accepts");
+        printf(" integer values between 10 and 30\n");
         return EPITECH_ERROR;
     }
     if (params.frequency == 0 || params.frequency < 2 ||
