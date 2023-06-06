@@ -12,11 +12,12 @@ server_params_t init_default_server_params(void)
     server_params_t params;
 
     params.port = 4242;
-    params.width = 15;
-    params.height = 15;
+    params.width = 10;
+    params.height = 10;
     params.team_names = NULL;
     params.clients_per_team = 2;
     params.frequency = 5000;
+
     return params;
 }
 
@@ -50,6 +51,7 @@ void parse_args(int argc, char **argv, server_params_t *params)
         if (strcmp(argv[i], "-f") == 0)
             params->frequency = atoi(argv[++i]);
     }
+    define_settings_world(params);
 }
 
 int create_and_bind_socket(server_params_t params,

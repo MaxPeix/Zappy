@@ -34,7 +34,7 @@ int accept_new_connection(int server_socket, struct sockaddr_in address)
 }
 
 void update_client_struct(int new_socket, client_t *clients,
-    server_params_t server_params)
+    server_params_t *server_params)
 {
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i].socket == 0) {
@@ -45,15 +45,18 @@ void update_client_struct(int new_socket, client_t *clients,
             size_t len = strlen(buffer);
             buffer[len - 1] = (buffer[len - 1] == '\n') ?
                 '\0' : buffer[len - 1];
-            clients[i].team_name = strdup(buffer);
-            send_team_info(clients[i].socket, &clients[i], server_params);
+            if (strcasecmp(buffer, "GRAPHIC") == 0)
+                clients[i].is_graphical = 1;
+            clients[i].team_name = clients[i].is_graphical == 0
+                ? strdup(buffer) : NULL;
+            send_info_loggin(clients[i].socket, &clients[i], server_params);
             break;
         }
     }
 }
 
 void wait_for_connections(int server_socket, client_t *clients,
-    struct sockaddr_in address, server_params_t server_params)
+    struct sockaddr_in address, server_params_t *server_params)
 {
     int new_socket = 0;
     fd_set readfds = {0};
