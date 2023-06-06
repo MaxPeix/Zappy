@@ -28,3 +28,8 @@ void distribute_thystame(server_params_t *params)
     distribute_resources(thystameParams.params, thystameParams.total_resource,
         thystameParams.resource);
 }
+
+int get_random_coordinate(int limit)
+{
+    return rand() % limit;
+}

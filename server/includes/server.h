@@ -137,6 +137,9 @@ void send_info_loggin(int socket, client_t *client, server_params_t
 // define settings of the world
 void define_settings_world(server_params_t *params);
 
+// lib function to get random coordinate with a limit
+int get_random_coordinate(int limit);
+
 // distribute resources
 void distribute_resources(server_params_t *params,
     int total_resource, char resource);

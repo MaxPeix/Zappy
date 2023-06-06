@@ -8,11 +8,6 @@
 #include "server.h"
 #include <time.h>
 
-int get_random_coordinate(int limit)
-{
-    return rand() % limit;
-}
-
 int get_current_resource(server_params_t *params, int x, int y, char resource)
 {
     int current_resource = 0;
