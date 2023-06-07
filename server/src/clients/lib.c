@@ -11,7 +11,7 @@
 void send_response(int socket, char *message)
 {
     write(socket, message, strlen(message));
-    printf("Message envoyé: %s\n", message);
+    printf("Message envoyé:%s.\n", message);
     fflush(stdout);
 }
 
@@ -24,7 +24,7 @@ ssize_t read_method(int socket, char *buffer)
         return -1;
     }
     buffer[bytes_read] = '\0';
-    printf("Message reçu: %s\n", buffer);
+    printf("Message reçu:%s.\n", buffer);
     return bytes_read;
 }
 

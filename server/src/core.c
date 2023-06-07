@@ -7,14 +7,16 @@
 
 #include "server.h"
 
-void handle_client_request(client_t *client, char *buffer,
-    int buffer_size, server_params_t *server_params)
+void handle_client_request(client_t *clients, char *buffer,
+    int i, server_params_t *server_params)
 {
-    if (!buffer)
-        return;
-    buffer[buffer_size] = '\0';
-    if (buffer && strlen(buffer) > 0)
-        handle_command(client, server_params, buffer);
+    char **args = NULL;
+    if (buffer && strlen(buffer) > 0) {
+        args = get_args_from_buffer(buffer);
+        handle_command(&clients[i], server_params, args);
+        handle_command_with_player_nbr(clients,
+            &clients[i], server_params, args);
+    }
 }
 
 void check_client_activity(client_t *clients,
@@ -33,6 +35,9 @@ void check_client_activity(client_t *clients,
             handle_disconnect(&clients[i]);
             continue;
         }
-        handle_client_request(&clients[i], buffer, valread, server_params);
+        if (!buffer)
+            return;
+        buffer[valread] = '\0';
+        handle_client_request(clients, buffer, i, server_params);
     }
 }

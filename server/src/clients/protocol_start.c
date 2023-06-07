@@ -29,7 +29,6 @@ void send_info_loggin(int socket, client_t *client, server_params_t
     char *output = NULL;
 
     if (check_team_name(client->team_name, server_params->team_names)) {
-        printf("test1");
         slots_str = msprintf("%d\n", server_params->clients_per_team);
         world_dimensions_str = msprintf("%d %d\n", server_params->width,
             server_params->height);

@@ -20,6 +20,7 @@ SRC				=	src/core.c \
 					src/clients/lib.c \
 					src/clients/init.c \
 					src/commands/info_command.c \
+					src/commands/info_command_two.c \
 					src/commands/handle_command.c \
 					src/commands/handle_command_lib.c \
 					src/commands/graphic_command.c \

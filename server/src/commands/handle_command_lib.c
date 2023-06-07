@@ -24,7 +24,7 @@ char **add_arg_to_list(char **args, char *command, int command_count)
     return args;
 }
 
-char **get_args_from_client(char *buffer)
+char **get_args_from_buffer(char *buffer)
 {
     char **args = NULL;
     char *command = NULL;

@@ -120,7 +120,11 @@ ssize_t read_method(int socket, char *buffer);
 
 // Gère les commandes du client
 void handle_command(client_t *client, server_params_t *server_params,
-    char *buffer);
+    char **args);
+
+// Gère les commandes du client avec un numéro de joueur
+void handle_command_with_player_nbr(client_t *clients, client_t *client,
+    server_params_t *server_params, char **args);
 
 // Initialise la structure client
 void init_clients_list(client_t *clients);
@@ -129,7 +133,7 @@ void init_clients_list(client_t *clients);
 void handle_disconnect(client_t *client);
 
 // Récupère les arguments du client
-char **get_args_from_client(char *buffer);
+char **get_args_from_buffer(char *buffer);
 
 // Libère un tableau de char **
 void free_array(char **array);
@@ -154,6 +158,9 @@ void print_sgt(server_params_t *server_params, client_t *client);
 
 // Print bct
 void print_bct(server_params_t *server_params, client_t *client, char **args);
+
+// Print ppo
+void print_ppo(client_t *client, client_t *player);
 
 // concat strings
 char *concat_strings(char *output, char *temp);
