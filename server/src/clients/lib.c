@@ -6,6 +6,7 @@
 */
 
 #include "server.h"
+#include <stdarg.h>
 
 void send_response(int socket, char *message)
 {
@@ -24,4 +25,38 @@ ssize_t read_method(int socket, char *buffer)
     buffer[bytes_read] = '\0';
     printf("Message reçu: %s\n", buffer);
     return bytes_read;
+}
+
+char *msprintf(const char *format, ...)
+{
+    char *str = NULL;
+    va_list args;
+    int len = 0;
+
+    va_start(args, format);
+    len = vsnprintf(NULL, 0, format, args);
+    va_end(args);
+    if (len >= 0) {
+        str = malloc(len + 1);
+        if (str) {
+            va_start(args, format);
+            vsnprintf(str, len + 1, format, args);
+            va_end(args);
+        }
+    }
+    return str;
+}
+
+char *concat_strings(char *output, char *temp)
+{
+    char *new_output;
+
+    if (output == NULL) {
+        new_output = strdup(temp);
+    } else {
+        char *old_output = output;
+        new_output = msprintf("%s%s", old_output, temp);
+        free(old_output);
+    }
+    return new_output;
 }
