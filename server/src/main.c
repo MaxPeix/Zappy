@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     if (errorChecked == 1)
         return 0;
     print_params(params);
-    client_t *clients = malloc(sizeof(client_t) * MAX_CLIENTS);
+    client_t *clients = calloc(MAX_CLIENTS + 1, sizeof(client_t));
     struct sockaddr_in address;
     init_clients_list(clients);
     int server_socket = create_and_bind_socket(params, &address);
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
         return EPITECH_ERROR;
     if (listen(server_socket, 3) < 0)
         return EPITECH_ERROR;
-    wait_for_connections(server_socket, clients, address, params);
+    wait_for_connections(server_socket, clients, address, &params);
     free(clients);
     return 0;
 }
