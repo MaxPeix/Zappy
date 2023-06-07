@@ -1,4 +1,5 @@
 from enum import Enum
+from itertools import cycle
 
 
 class ObjectType(Enum):
@@ -36,7 +37,34 @@ class ObjectType(Enum):
 
 
 class Direction(Enum):
-    def __str__(self) -> str:
+    def __lt__(self, other: 'Direction') -> bool:
+        enum_list = list(Direction)
+        enum_list_rev = list(Direction)
+        enum_list_rev.reverse()
+        enum_list = cycle(enum_list)
+        enum_list_rev = cycle(enum_list_rev)
+        i: int = 0
+        j: int = 0
+        if self == other:
+            return False
+        while next(enum_list) != self:
+            pass
+        while next(enum_list) != other:
+            i = i + 1
+        while next(enum_list_rev) != self:
+            pass
+        while next(enum_list_rev) != other:
+            j = j + 1
+        if i < j:
+            return True
+        return False
+
+    def __gt__(self, other: 'Direction') -> bool:
+        if self == other:
+            return False
+        return not self < other
+
+    def __str__(self):
         if self == Direction.N:
             return "North"
         elif self == Direction.NE:
