@@ -8,7 +8,7 @@ class World:
     _world: list[list[Tile]]
     _size: Size
 
-    def __init__(self, size: Size, default_tile: Tile = Tile(False, Resources(0, 0, 0, 0, 0, 0, 0, 0))):
+    def __init__(self, size: Size, default_tile: Tile = Tile(False, Resources(0, 0, 0, 0, 0, 0, 0, 0))) -> None:
         self._world = [[default_tile for x in range(size.width)] for y in range(size.height)]
         self._size = size
 
@@ -17,17 +17,17 @@ class World:
             pos = (pos.y, pos.x)
         return self._world[pos[0] % self._size.height][pos[1] % self._size.width]
 
-    def __setitem__(self, pos: tuple[int, int] | Pos, value: Tile):
+    def __setitem__(self, pos: tuple[int, int] | Pos, value: Tile) -> None:
         if type(pos) == Pos:
             pos = (pos.y, pos.x)
         self._world[pos[0] % self._size.height][pos[1] % self._size.width] = value
 
-    def __iter__(self):
+    def __iter__(self) -> iter:
         for y in range(self._size.height):
             for x in range(self._size.width):
                 yield self._world[y][x]
 
-    def __str__(self, player: tuple[Pos, Direction] | None = None):
+    def __str__(self, player: tuple[Pos, Direction] | None = None) -> str:
         res: str = ""
         for y in range(self._size.height):
             for x in range(self._size.width):
@@ -47,10 +47,10 @@ class World:
             res += "\n"
         return res
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self._size.width * self._size.height
 
     @property

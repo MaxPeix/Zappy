@@ -6,7 +6,7 @@ class Comm:
     _socket: socket.socket = None
     __logger: logging.Logger = logging.getLogger("Comm")
 
-    def __init__(self, ip: str, port: int, connect: bool = True, log_level: int = logging.WARN):
+    def __init__(self, ip: str, port: int, connect: bool = True, log_level: int = logging.WARN) -> None:
         self.__logger.setLevel(log_level)
         self.__logger.addHandler(logging.StreamHandler())
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -15,7 +15,7 @@ class Comm:
         if connect:
             self.connect(ip, port)
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.close()
         self.__logger.info("Communication deleted")
 
@@ -26,7 +26,7 @@ class Comm:
         except OSError:
             return False
 
-    def connect(self, ip: str, port: int):
+    def connect(self, ip: str, port: int) -> None:
         if self.is_connected():
             self.__logger.warning("Already connected")
             return
@@ -38,7 +38,7 @@ class Comm:
             raise ConnectionRefusedError("Connection refused")
         self.__logger.info("Connected to %s:%d", ip, port)
 
-    def send(self, data: str):
+    def send(self, data: str) -> None:
         if not self.is_connected():
             self.__logger.error("Not connected")
             raise ConnectionError("Not connected")
@@ -83,6 +83,6 @@ class Comm:
             self.__logger.debug("\t%s", current)
         return res
 
-    def close(self):
+    def close(self) -> None:
         self._socket.close()
         self.__logger.info("Connection closed")
