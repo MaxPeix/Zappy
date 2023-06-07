@@ -5,7 +5,6 @@
 ** graphic_command
 */
 
-#include <stdio.h>
 #include "server.h"
 #define _GNU_SOURCE
 

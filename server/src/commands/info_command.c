@@ -6,7 +6,6 @@
 */
 
 #include "server.h"
-#include <stdio.h>
 
 void print_mct(server_params_t *server_params, client_t *client)
 {

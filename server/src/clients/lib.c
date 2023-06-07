@@ -25,3 +25,17 @@ ssize_t read_method(int socket, char *buffer)
     printf("Message reçu: %s\n", buffer);
     return bytes_read;
 }
+
+char *concat_strings(char *output, char *temp)
+{
+    char *new_output;
+
+    if (output == NULL) {
+        new_output = strdup(temp);
+    } else {
+        char *old_output = output;
+        new_output = msprintf("%s%s", old_output, temp);
+        free(old_output);
+    }
+    return new_output;
+}
