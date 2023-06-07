@@ -26,6 +26,18 @@ class AI:
         if self.connect_nbr() > 1:
             pass  # TODO: ask word info on broadcast
 
+    def _add_time(self, time: int) -> None:
+        for i in range(time):
+            self._ticks += 1
+            if self._ticks % 126 == 0:
+                self._inventory[zp.ObjectType.FOOD] -= 1
+                if self._inventory[zp.ObjectType.FOOD] <= 0:
+                    if self.check_inventory():
+                        raise ValueError("Dead")
+                    else:
+                        if self._inventory[zp.ObjectType.FOOD] <= 0:
+                            raise ValueError("Dead")
+
     def draw_map(self) -> None:
         print(self._world.__str__((self._pos, self._direction)))
 
@@ -100,11 +112,11 @@ class AI:
             self._pos.x -= 1
         else:
             raise ValueError("Invalid direction")
-        self._ticks += 7
+        self._add_time(7)
 
     def right(self) -> None:
         self._comm.send("Right\n")
-        self._ticks += 7
+        self._add_time(7)
         if self._recv() != ["ok"]:
             raise ConnectionError("Invalid response")
         self._direction = zp.Direction(
@@ -112,7 +124,7 @@ class AI:
 
     def left(self) -> None:
         self._comm.send("Left\n")
-        self._ticks += 7
+        self._add_time(7)
         if self._recv() != ["ok"]:
             raise ConnectionError("Invalid response")
         self._direction = zp.Direction(
@@ -134,7 +146,7 @@ class AI:
     def look(self) -> None:
         nb_tiles: list[int] = [1, 3, 15, 24, 45, 72, 108, 162, 225, 324, 521]
         self._comm.send("Look\n")
-        self._ticks += 7
+        self._add_time(7)
         data: list[str] = self._recv()
         res: list[zp.Resources] = self._get_objects(data[0])
         if len(res) - 1 != nb_tiles[self._level]:
@@ -146,7 +158,7 @@ class AI:
 
     def check_inventory(self) -> bool:
         self._comm.send("Inventory\n")
-        self._ticks += 1
+        self._add_time(1)
         success: bool = True
         data: list[str] = self._recv()
         datalist: list[str]
@@ -169,7 +181,7 @@ class AI:
 
     def broadcast(self, message: str) -> None:
         self._comm.send("Broadcast " + message + "\n")
-        self._ticks += 7
+        self._add_time(7)
 
     def connect_nbr(self) -> int:
         nb_connect: int = 0
@@ -183,13 +195,13 @@ class AI:
 
     def fork(self) -> None:
         self._comm.send("Fork\n")
-        self._ticks += 42
+        self._add_time(42)
         if self._recv() != ["ok"]:
             raise ConnectionError("Invalid response")
 
     def eject(self) -> None:
         self._comm.send("Eject\n")
-        self._ticks += 7
+        self._add_time(7)
         if self._recv() != ["ok"]:
             raise ConnectionError("Invalid response")
 
@@ -197,7 +209,7 @@ class AI:
         if resource not in self._inventory:
             return False
         self._comm.send("Take " + str(resource) + "\n")
-        self._ticks += 7
+        self._add_time(7)
         res: list[str] = self._recv()
         if res == ["ok"]:
             self._inventory[resource] += 1
@@ -213,7 +225,7 @@ class AI:
         if resource not in self._inventory or self._inventory[resource] <= 0:
             return False
         self._comm.send("Set " + str(resource) + "\n")
-        self._ticks += 7
+        self._add_time(7)
         res: list[str] = self._recv()
         if res == ["ok"]:
             self._inventory[resource] -= 1
@@ -225,7 +237,7 @@ class AI:
 
     def incantation(self) -> None:
         self._comm.send("Incantation\n")
-        self._ticks += 300
+        self._add_time(300)
 
     @property
     def pos(self) -> zp.Pos:
