@@ -124,6 +124,22 @@ void parse_args(int argc, char **argv, server_params_t *params);
 // handle_graphic_command
 void handle_graphic_command(client_t *client, server_params_t *server_params);
 
+// Print mct
+void print_mct(server_params_t *server_params, client_t *client);
+
+// Print tna
+void print_tna(server_params_t *server_params, client_t *client);
+
+
+// Print msz
+void print_msz(server_params_t *server_params, client_t *client);
+
+// Print sgt
+void print_sgt(server_params_t *server_params, client_t *client);
+
+// Print bct
+void print_bct(server_params_t *server_params, client_t *client, char **args);
+
 // Initalise la structure par défaut
 server_params_t init_default_server_params(void);
 

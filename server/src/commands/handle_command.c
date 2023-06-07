@@ -7,6 +7,32 @@
 
 #include "server.h"
 
+void handle_command_three(client_t *client, server_params_t *server_params,
+    char **args)
+{
+    if (strcasecmp(args[1], "sgt\n") == 0) {
+        print_sgt(server_params, client);
+        return;
+    }
+    if (strcasecmp(args[1], "mct\n") == 0) {
+        print_mct(server_params, client);
+        return;
+    }
+    if (strcasecmp(args[1], "msz\n") == 0) {
+        print_msz(server_params, client);
+        return;
+    }
+    if (strcasecmp(args[1], "tna\n") == 0) {
+        print_tna(server_params, client);
+        return;
+    }
+    if (strcasecmp(args[1], "bct\n") == 0) {
+        print_bct(server_params, client, args);
+        return;
+    }
+    send_response(client->socket, "ko\n");
+}
+
 void handle_command_two(client_t *client, server_params_t *server_params,
     char **args)
 {
@@ -24,8 +50,9 @@ void handle_command_two(client_t *client, server_params_t *server_params,
         handle_graphic_command(client, server_params);
         return;
     }
-    send_response(client_socket, "ko\n");
+    handle_command_three(client, server_params, args);
 }
+
 
 void handle_command(client_t *client, server_params_t *server_params,
     char *buffer)
