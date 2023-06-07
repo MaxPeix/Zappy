@@ -65,6 +65,9 @@
         int y;
     } coordinate_t;
 
+// msprintf function
+char *msprintf(const char *format, ...);
+
 // Vérifie les erreurs de la ligne de commande
 int check_errors(int argc, char **argv, server_params_t params);
 
@@ -157,6 +160,9 @@ void define_settings_world(server_params_t *params);
 
 // lib function to get random coordinate with a limit
 int get_random_coordinate(int limit);
+
+// concat strings
+char *concat_strings(char *output, char *temp);
 
 // distribute resources
 void distribute_resources(server_params_t *params,
