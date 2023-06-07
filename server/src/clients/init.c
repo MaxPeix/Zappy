@@ -19,6 +19,14 @@ void init_clients_list(client_t *clients)
         clients[i].x_position = 0;
         clients[i].y_position = 0;
         clients[i].orientation = SOUTH;
+        clients[i].food = 10;
+        clients[i].linemate = 0;
+        clients[i].deraumere = 0;
+        clients[i].sibur = 0;
+        clients[i].mendiane = 0;
+        clients[i].phiras = 0;
+        clients[i].thystame = 0;
+        clients[i].incantation_level = 0;
     }
 }
 
@@ -35,4 +43,12 @@ void handle_disconnect(client_t *client)
     client->x_position = 0;
     client->y_position = 0;
     client->orientation = SOUTH;
+    client->food = 10;
+    client->linemate = 0;
+    client->deraumere = 0;
+    client->sibur = 0;
+    client->mendiane = 0;
+    client->phiras = 0;
+    client->thystame = 0;
+    client->incantation_level = 0;
 }

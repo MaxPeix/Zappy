@@ -10,12 +10,49 @@
 void print_ppo(client_t *client, client_t *player)
 {
     char *output = NULL;
-    if (!player || !client) {
-        printf("Error: player or client is NULL\n");
+    if (player == NULL) {
+        send_response(client->socket, "ko\n");
         return;
     }
     output = msprintf("ppo %d %d %d %d\n", player->id,
         player->x_position, player->y_position, player->orientation);
+    if (!output) {
+        printf("Error: Could not allocate memory for output string\n");
+        return;
+    }
+    send_response(client->socket, output);
+    if (output)
+        free(output);
+}
+
+void print_plv(client_t *client, client_t *player)
+{
+    char *output = NULL;
+    if (player == NULL) {
+        send_response(client->socket, "ko\n");
+        return;
+    }
+    output = msprintf("plv %d\n", player->level);
+    if (!output) {
+        printf("Error: Could not allocate memory for output string\n");
+        return;
+    }
+    send_response(client->socket, output);
+    if (output)
+        free(output);
+}
+
+void print_pin(client_t *client, client_t *player)
+{
+    char *output = NULL;
+    if (player == NULL) {
+        send_response(client->socket, "ko\n");
+        return;
+    }
+    output = msprintf("pin %d %d %d %d %d %d %d %d %d %d\n", player->id,
+        player->x_position, player->y_position, player->food,
+        player->linemate, player->deraumere, player->sibur,
+        player->mendiane, player->phiras, player->thystame);
     if (!output) {
         printf("Error: Could not allocate memory for output string\n");
         return;
@@ -39,12 +76,15 @@ void handle_command_with_player_nbr(client_t *clients, client_t *client,
         }
     }
     if (strcasecmp(args[0], "PPO") == 0) {
-        if (player == NULL) {
-            send_response(client->socket, "ko\n");
-            return;
-        }
         print_ppo(client, player);
         return;
     }
-    printf("fin de handle_command_with_player_nbr\n");
+    if (strcasecmp(args[0], "PLV") == 0) {
+        print_plv(client, player);
+        return;
+    }
+    if (strcasecmp(args[0], "PIN") == 0) {
+        print_pin(client, player);
+        return;
+    }
 }

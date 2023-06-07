@@ -53,8 +53,14 @@
         int socket;
         char *team_name;
         int start_loggin;
-        tile_t *tiles;
         int is_graphical;
+        int food;
+        int linemate;
+        int deraumere;
+        int sibur;
+        int mendiane;
+        int phiras;
+        int thystame;
     } client_t;
 
     typedef struct server_params {
