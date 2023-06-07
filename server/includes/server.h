@@ -23,6 +23,14 @@
     #define CLIENT_NAME "Anonymous"
     #define EPITECH_ERROR 84
 
+    enum direction {
+        FIRST,
+        NORTH,
+        EAST,
+        SOUTH,
+        WEST
+    };
+
     typedef struct tile {
         int x;
         int y;
@@ -36,12 +44,17 @@
     } tile_t;
 
     typedef struct client {
+        int id;
+        int x_position;
+        int y_position;
+        int orientation;
+        int incantation_level;
+        int level;
         int socket;
         char *team_name;
         int start_loggin;
         tile_t *tiles;
         int is_graphical;
-        int level;
     } client_t;
 
     typedef struct server_params {
@@ -163,6 +176,10 @@ int get_random_coordinate(int limit);
 
 // concat strings
 char *concat_strings(char *output, char *temp);
+
+// send notification to the graphical client when a player loggin
+void send_notification_player_loggin(client_t *clients,
+    client_t *client_logged_in, server_params_t *server_params);
 
 // distribute resources
 void distribute_resources(server_params_t *params,

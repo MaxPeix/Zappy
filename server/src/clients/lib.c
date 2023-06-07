@@ -11,6 +11,7 @@
 void send_response(int socket, char *message)
 {
     write(socket, message, strlen(message));
+    printf("Message envoyé: %s\n", message);
     fflush(stdout);
 }
 
@@ -37,7 +38,7 @@ char *msprintf(const char *format, ...)
     len = vsnprintf(NULL, 0, format, args);
     va_end(args);
     if (len >= 0) {
-        str = malloc(len + 1);
+        str = calloc(len + 1, sizeof(char));
         if (str) {
             va_start(args, format);
             vsnprintf(str, len + 1, format, args);

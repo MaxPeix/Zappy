@@ -24,15 +24,20 @@ void send_info_loggin(int socket, client_t *client, server_params_t
         handle_graphic_command(client, server_params);
         return;
     }
-    char slots_str[50];
-    char world_dimensions_str[50];
+    char *slots_str = NULL;
+    char *world_dimensions_str = NULL;
+    char *output = NULL;
 
     if (check_team_name(client->team_name, server_params->team_names)) {
-        sprintf(slots_str, "%d\n", server_params->clients_per_team);
-        send_response(socket, slots_str);
-        sprintf(world_dimensions_str, "%d %d\n", server_params->width,
+        printf("test1");
+        slots_str = msprintf("%d\n", server_params->clients_per_team);
+        world_dimensions_str = msprintf("%d %d\n", server_params->width,
             server_params->height);
-        send_response(socket, world_dimensions_str);
+        output = msprintf("%s%s", slots_str, world_dimensions_str);
+        send_response(socket, output);
     } else
         send_response(socket, "ko\n");
+    free(slots_str);
+    free(world_dimensions_str);
+    free(output);
 }
