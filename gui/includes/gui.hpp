@@ -30,7 +30,7 @@ class GUI {
         void draw_game();
         void game_loop();
         void check_event();
-        void draw_cmd(sf::RenderWindow window, std::string cmd);
+        void draw_cmd(std::string cmd);
         std::string ask_server(std::string cmd);
     private:
         Assets assets;

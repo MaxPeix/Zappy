@@ -44,6 +44,9 @@ void GUI::draw_game()
 
 void GUI::check_event()
 {
+    std::string cmd;
+    std::string server_response;
+
     if (this->event.type == sf::Event::Closed)
         window.close();
     if (this->event.type == sf::Event::MouseButtonPressed) {
@@ -53,13 +56,15 @@ void GUI::check_event()
                 window.close();
             }
             if (this->assets.optionsButtonSprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                std::cout << ask_server("sgt\n") << std::endl;
+                server_response = ask_server("sgt\n");
+                draw_cmd(server_response);
             }
             for (int i = 0; i < this->width; i++) {
                 for(int j = 0; j < this->height; j++) {
                     if (this->assets.tiles[i][j].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                        std::string cmd = "bct " + std::to_string(i) + " " + std::to_string(j) + "\n";
-                        std::cout << ask_server("cmd) << std::endl;
+                        cmd = "bct " + std::to_string(i) + " " + std::to_string(j) + "\n";
+                        server_response = ask_server(cmd);
+                        draw_cmd(server_response);
                     }
                 }
             }
@@ -79,59 +84,102 @@ void GUI::game_loop()
     }
 }
 
-void GUI::draw_cmd(sf::RenderWindow window, std::string cmd)
+void GUI::draw_cmd(std::string cmd)
 {
-    window.display();
-    if (cmd.compare("msz") == 0)
+    std::string cmd_tag = cmd.substr(0, 3);
+
+    if (cmd_tag.compare("bct") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("bct") == 0)
+    }
+    if (cmd_tag.compare("tna") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("tna") == 0)
+    }
+    if (cmd_tag.compare("pnw") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("pnw") == 0)
+    }
+    if (cmd_tag.compare("ppo") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("ppo") == 0)
+    }
+    if (cmd_tag.compare("plv") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("plv") == 0)
+    }
+    if (cmd_tag.compare("pin") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("pin") == 0)
+    }
+    if (cmd_tag.compare("pex") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("pex") == 0)
+    }
+    if (cmd_tag.compare("pbc") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("pbc") == 0)
+    }
+    if (cmd_tag.compare("pic") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("pic") == 0)
+    }
+    if (cmd_tag.compare("pie") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("pie") == 0)
+    }
+    if (cmd_tag.compare("pfk") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("pfk") == 0)
+    }
+    if (cmd_tag.compare("pdr") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("pdr") == 0)
+    }
+    if (cmd_tag.compare("pgt") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("pgt") == 0)
+    }
+    if (cmd_tag.compare("pdi") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("pdi") == 0)
+    }
+    if (cmd_tag.compare("enw") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("enw") == 0)
+    }
+    if (cmd_tag.compare("ebo") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("ebo") == 0)
+    }
+    if (cmd_tag.compare("edi") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("edi") == 0)
+    }
+    if (cmd_tag.compare("sgt") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("sgt") == 0)
+    }
+    if (cmd_tag.compare("sst") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("sst") == 0)
+    }
+    if (cmd_tag.compare("seg") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("seg") == 0)
+    }
+    if (cmd_tag.compare("smg") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("smg") == 0)
+    }
+    if (cmd_tag.compare("suc") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("suc") == 0)
+    }
+    if (cmd_tag.compare("sbp") == 0) {
+        std::cout << cmd << std::endl;
         return;
-    if (cmd.compare("sbp") == 0)
-        return;
-    else
-        return;
+    }
     return;
 }
 
