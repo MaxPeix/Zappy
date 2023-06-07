@@ -55,6 +55,14 @@ void GUI::check_event()
             if (this->assets.optionsButtonSprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                 std::cout << ask_server("sgt\n") << std::endl;
             }
+            for (int i = 0; i < this->width; i++) {
+                for(int j = 0; j < this->height; j++) {
+                    if (this->assets.tiles[i][j].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                        std::string cmd = "bct " + std::to_string(i) + " " + std::to_string(j) + "\n";
+                        std::cout << ask_server("cmd) << std::endl;
+                    }
+                }
+            }
         }
     }
 }
