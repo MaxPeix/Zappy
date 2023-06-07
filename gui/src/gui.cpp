@@ -72,36 +72,53 @@ void GUI::check_event()
     }
 }
 
+void setup_fd_set(fd_set *read_fds, int sockfd)
+{
+    FD_ZERO(read_fds);
+    FD_SET(sockfd, read_fds);
+    FD_SET(STDIN_FILENO, read_fds);
+}
+
+void GUI::handle_read_server()
+{
+    char buf[BUFFER_SIZE];
+    int num_bytes = 0;
+
+    if ((num_bytes = recv(
+        this->clientSocket, buf, BUFFER_SIZE - 1, 0)) <= 0)
+        exit(84);
+    buf[num_bytes] = '\0';
+    char* line = strtok(buf, "\n");
+    while (line != nullptr) {
+        draw_cmd(line);
+
+        line = strtok(nullptr, "\n");
+    }
+}
+
 void GUI::game_loop()
 {
+    fd_set read_fds;
+    struct timeval tv = {
+        .tv_sec = 0,
+        .tv_usec = 100000
+    };
+
     while (window.isOpen()) {
         while (window.pollEvent(this->event)) {
             check_event();
         }
         window.clear();
         draw_game();
-        listen_server();
+        setup_fd_set(&read_fds, this->clientSocket);
+        if (select(this->clientSocket + 1, &read_fds, NULL, NULL, &tv) == -1) {
+            std::cout << "Error: select" << std::endl;
+            exit(84);
+        }
+        if (FD_ISSET(this->clientSocket, &read_fds))
+            handle_read_server();
         window.display();
     }
-}
-
-void GUI::listen_server()
-{
-   std::thread([this]() {
-       std::string server_response;
-       char buffer[BUFFER_SIZE];
-
-       memset(buffer, 0, BUFFER_SIZE);
-       int bytesRead = recv(this->clientSocket, buffer, BUFFER_SIZE - 1, 0);
-       if (bytesRead == -1) {
-           std::cerr << "Failed to receive response from the server." << std::endl;
-            close(this->clientSocket);
-            return;
-       }
-       buffer[bytesRead] = '\0';
-       server_response = buffer;
-       draw_cmd(server_response);
-   }).detach();
 }
 
 void GUI::draw_cmd(std::string cmd)
@@ -109,95 +126,95 @@ void GUI::draw_cmd(std::string cmd)
     std::string cmd_tag = cmd.substr(0, 3);
 
     if (cmd_tag.compare("bct") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("tna") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("pnw") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("ppo") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("plv") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("pin") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("pex") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("pbc") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("pic") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("pie") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("pfk") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("pdr") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("pgt") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("pdi") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("enw") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("ebo") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("edi") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("sgt") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("sst") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("seg") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("smg") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("suc") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("sbp") == 0) {
-        std::cout << cmd << std::endl;
+        std::cout << cmd;
         return;
     }
     return;
