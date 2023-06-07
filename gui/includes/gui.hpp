@@ -15,6 +15,8 @@
 #include <iostream>
 #include <cstring>
 #include "assets.hpp"
+#include <thread>
+#include <future>
 
 const int BUFFER_SIZE = 4096;
 
@@ -31,6 +33,7 @@ class GUI {
         void game_loop();
         void check_event();
         void draw_cmd(std::string cmd);
+        void listen_server();
         std::string ask_server(std::string cmd);
     private:
         Assets assets;

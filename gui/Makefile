@@ -23,7 +23,7 @@ SFML			=	-lsfml-graphics -lsfml-window -lsfml-system
 all: 			$(NAME)
 
 $(NAME):		$(OBJ) $(OBJ_MAIN)
-	g++ -o $(NAME) $(OBJ) $(OBJ_MAIN) $(CPPFLAGS) $(SFML)
+	g++ -o $(NAME) $(OBJ) $(OBJ_MAIN) $(CPPFLAGS) $(SFML) -lpthread
 
 clean:
 	rm -f $(OBJ) $(OBJ_MAIN)

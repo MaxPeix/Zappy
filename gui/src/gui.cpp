@@ -80,8 +80,28 @@ void GUI::game_loop()
         }
         window.clear();
         draw_game();
+        listen_server();
         window.display();
     }
+}
+
+void GUI::listen_server()
+{
+   std::thread([this]() {
+       std::string server_response;
+       char buffer[BUFFER_SIZE];
+
+       memset(buffer, 0, BUFFER_SIZE);
+       int bytesRead = recv(this->clientSocket, buffer, BUFFER_SIZE - 1, 0);
+       if (bytesRead == -1) {
+           std::cerr << "Failed to receive response from the server." << std::endl;
+            close(this->clientSocket);
+            return;
+       }
+       buffer[bytesRead] = '\0';
+       server_response = buffer;
+       draw_cmd(server_response);
+   }).detach();
 }
 
 void GUI::draw_cmd(std::string cmd)
