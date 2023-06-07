@@ -90,8 +90,8 @@ void GUI::handle_read_server()
     buf[num_bytes] = '\0';
     char* line = strtok(buf, "\n");
     while (line != nullptr) {
+        line[strlen(line)] = '\n';
         draw_cmd(line);
-
         line = strtok(nullptr, "\n");
     }
 }
