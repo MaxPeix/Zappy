@@ -54,7 +54,6 @@ void handle_command_two(client_t *client, server_params_t *server_params,
     handle_command_three(client, server_params, args);
 }
 
-
 void handle_command(client_t *client, server_params_t *server_params,
     char **args)
 {

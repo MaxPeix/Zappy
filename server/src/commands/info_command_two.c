@@ -66,25 +66,18 @@ void handle_command_with_player_nbr(client_t *clients, client_t *client,
     server_params_t *server_params, char **args)
 {
     if (!args[0] || !args[1])
-        return;  
+        return;
     int player_id = atoi(args[1]);
     client_t *player = NULL;
-    for (int i = 0; i < MAX_CLIENTS; i++) {
+    for (int i = 0; i < MAX_CLIENTS; i++)
         if (clients[i].id == player_id) {
             player = &clients[i];
             break;
         }
-    }
-    if (strcasecmp(args[0], "PPO") == 0) {
+    if (strcasecmp(args[0], "PPO") == 0)
         print_ppo(client, player);
-        return;
-    }
-    if (strcasecmp(args[0], "PLV") == 0) {
+    if (strcasecmp(args[0], "PLV") == 0)
         print_plv(client, player);
-        return;
-    }
-    if (strcasecmp(args[0], "PIN") == 0) {
+    if (strcasecmp(args[0], "PIN") == 0)
         print_pin(client, player);
-        return;
-    }
 }
