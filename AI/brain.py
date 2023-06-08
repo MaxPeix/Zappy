@@ -90,6 +90,10 @@ class Brain:
         self._cartography_next_tile(start, end, up)
 
     def cartography(self, start: zp.Pos, end: zp.Pos) -> None:
+        if start.x > end.x:
+            start.x, end.x = end.x, start.x
+        if start.y < end.y:
+            start.y, end.y = end.y, start.y
         self.goto(start)
         self.turn(zp.Direction.N)
         self._cartography_next_tile(start, end, True)
