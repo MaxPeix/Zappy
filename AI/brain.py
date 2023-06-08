@@ -90,10 +90,16 @@ class Brain:
         self._cartography_next_tile(start, end, up)
 
     def cartography(self, start: zp.Pos, end: zp.Pos) -> None:
+        if start == end:
+            self._ai.look()
+            return
         if start.x > end.x:
             start.x, end.x = end.x, start.x
         if start.y < end.y:
             start.y, end.y = end.y, start.y
+        if start.x < 0 or start.y < 0 or end.x > self._ai.world.size.width or end.y > self._ai.world.size.height:
+            raise ValueError("start and end must be inside the map")
+
         self.goto(start)
         self.turn(zp.Direction.N)
         self._cartography_next_tile(start, end, True)
