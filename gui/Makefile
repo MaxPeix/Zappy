@@ -10,7 +10,8 @@ NAME			=	zappy_gui
 SRC_MAIN		= 	src/main.cpp
 
 SRC				=	src/gui.cpp			\
-					src/assets.cpp
+					src/assets.cpp		\
+					src/infos.cpp
 
 OBJ				=	$(SRC:.cpp=.o)
 

@@ -30,24 +30,33 @@ int accept_new_connection(int server_socket, struct sockaddr_in address)
         perror("accept failed");
         exit(EPITECH_ERROR);
     }
-    printf("New connection, socket fd is %d, ip is: %s, port: %d \n",
-        new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
-    send_response(new_socket, "WELCOME\n");
     return new_socket;
 }
 
-void update_client_struct(int new_socket, client_t *clients)
+void update_client_struct(int new_socket, client_t *clients,
+    server_params_t *server_params)
 {
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i].socket == 0) {
             clients[i].socket = new_socket;
+            send_response(clients[i].socket, "WELCOME\n");
+            char buffer[BUFFER_SIZE];
+            ssize_t bytes_read = read_method(new_socket, buffer);
+            size_t len = strlen(buffer);
+            buffer[len - 1] = (buffer[len - 1] == '\n') ?
+                '\0' : buffer[len - 1];
+            if (strcasecmp(buffer, "GRAPHIC") == 0)
+                clients[i].is_graphical = 1;
+            clients[i].team_name = clients[i].is_graphical == 0
+                ? strdup(buffer) : NULL;
+            send_info_loggin(clients[i].socket, &clients[i], server_params);
             break;
         }
     }
 }
 
-void wait_for_connections(int server_socket,
-    client_t *clients, struct sockaddr_in address)
+void wait_for_connections(int server_socket, client_t *clients,
+    struct sockaddr_in address, server_params_t *server_params)
 {
     int new_socket = 0;
     fd_set readfds = {0};
@@ -64,8 +73,9 @@ void wait_for_connections(int server_socket,
         handle_select_errors(activity);
         if (FD_ISSET(server_socket, &readfds)) {
             new_socket = accept_new_connection(server_socket, address);
-            update_client_struct(new_socket, clients);
+            update_client_struct(new_socket, clients, server_params);
         }
-        check_client_activity(clients, server_socket, &readfds);
+        check_client_activity(clients,
+            server_socket, &readfds, server_params);
     }
 }

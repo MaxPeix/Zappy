@@ -101,7 +101,7 @@ void GUI::game_loop()
     fd_set read_fds;
     struct timeval tv = {
         .tv_sec = 0,
-        .tv_usec = 100000
+        .tv_usec = 100000000
     };
 
     while (window.isOpen()) {
@@ -116,7 +116,7 @@ void GUI::game_loop()
             exit(84);
         }
         if (FD_ISSET(this->clientSocket, &read_fds))
-            handle_read_server();
+            handle_read_server();   
         window.display();
     }
 }

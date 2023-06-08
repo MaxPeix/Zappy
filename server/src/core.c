@@ -7,35 +7,18 @@
 
 #include "server.h"
 
-void handle_disconnect(client_t *clients, int socket, int index)
-{
-    printf("Client disconnected, socket fd is %d\n", socket);
-    close(socket);
-    clients[index].socket = 0;
-    clients[index].logged_in = 0;
-}
-
-void handle_client_request(client_t *clients, int index,
-    char *buffer, int buffer_size)
+void handle_client_request(client_t *client, char *buffer,
+    int buffer_size, server_params_t *server_params)
 {
     if (!buffer)
         return;
     buffer[buffer_size] = '\0';
-
-    if (clients[index].logged_in == 0) {
-        check_login(clients, index, buffer);
-        if (clients[index].logged_in == 1) {
-            printf("Client connected, socket fd is %d\n",
-                clients[index].socket);
-        }
-        return;
-    }
     if (buffer && strlen(buffer) > 0)
-        handle_command(clients, index, buffer);
+        handle_command(client, server_params, buffer);
 }
 
 void check_client_activity(client_t *clients,
-    int server_socket, fd_set *readfds)
+    int server_socket, fd_set *readfds, server_params_t *server_params)
 {
     int client_socket = 0;
     int valread = 0;
@@ -47,9 +30,9 @@ void check_client_activity(client_t *clients,
         if (!FD_ISSET(client_socket, readfds))
             continue;
         if ((valread = read(client_socket, buffer, BUFFER_SIZE)) == 0) {
-            handle_disconnect(clients, client_socket, i);
+            handle_disconnect(&clients[i]);
             continue;
         }
-        handle_client_request(clients, i, buffer, valread);
+        handle_client_request(&clients[i], buffer, valread, server_params);
     }
 }

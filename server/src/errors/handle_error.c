@@ -6,6 +6,7 @@
 */
 
 #include "server.h"
+#include <ctype.h>
 
 void handle_select_errors(int activity)
 {
@@ -13,7 +14,27 @@ void handle_select_errors(int activity)
         printf("select error");
 }
 
-int check_errors(int argc, char **argv)
+int check_error_params(server_params_t params)
+{
+    if (params.port == 0 || params.port < 1) {
+        printf("Port is not a valid number.\n");
+        return EPITECH_ERROR;
+    }
+    if ((params.width == 0 || params.width < 10 || params.width > 30) ||
+        (params.height == 0 || params.height < 10 || params.height > 30)) {
+        printf("-x or -y option only accepts");
+        printf(" integer values between 10 and 30\n");
+        return EPITECH_ERROR;
+    }
+    if (params.frequency == 0 || params.frequency < 2 ||
+        params.frequency > 10000) {
+        printf("-f option only accepts integer values between 2 and 10000\n");
+        return EPITECH_ERROR;
+    }
+    return 0;
+}
+
+int check_errors(int argc, char **argv, server_params_t params)
 {
     if (!argv || !argv[1])
         return EPITECH_ERROR;
@@ -28,9 +49,7 @@ int check_errors(int argc, char **argv)
             printf("Failed to open helper.txt\n");
         return 1;
     }
-    if (argc != 2)
-        return EPITECH_ERROR;
-    if (atoi(argv[1]) == 0)
+    if (check_error_params(params) == EPITECH_ERROR)
         return EPITECH_ERROR;
     return 0;
 }

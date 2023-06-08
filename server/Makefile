@@ -11,13 +11,18 @@ SRC_MAIN		= src/main.c
 
 SRC				=	src/core.c \
 					src/init_server.c \
+					src/ressources.c \
+					src/distribute_ressource_one.c \
+					src/distribute_ressource_two.c \
 					src/errors/handle_error.c \
-					src/clients/check_login.c \
 					src/clients/client_gestion.c \
+					src/clients/protocol_start.c \
 					src/clients/lib.c \
 					src/clients/init.c \
 					src/commands/handle_command.c \
-					src/commands/handle_command_lib.c
+					src/commands/handle_command_lib.c \
+					src/commands/graphic_command.c
+
 
 SRC_TESTS = tests/tests_main.c
 
