@@ -103,13 +103,13 @@ class AI:
         if self._recv() != ["ok"]:
             raise ConnectionError("Invalid response")
         if self._direction == zp.Direction.N:
-            self._pos.y -= 1
+            self._pos.y = (self._pos.y - 1) % self._world.size.height
         elif self._direction == zp.Direction.E:
-            self._pos.x += 1
+            self._pos.x = (self._pos.x + 1) % self._world.size.width
         elif self._direction == zp.Direction.S:
-            self._pos.y += 1
+            self._pos.y = (self._pos.y + 1) % self._world.size.height
         elif self._direction == zp.Direction.W:
-            self._pos.x -= 1
+            self._pos.x = (self._pos.x - 1) % self._world.size.width
         else:
             raise ValueError("Invalid direction")
         self._add_time(7)
