@@ -29,7 +29,6 @@ SRC				=	src/core.c \
 					src/commands/eject_command.c \
 					src/commands/eject_command_lib.c \
 					src/commands/bct_command.c	\
-					src/commands/bct_command.c	\
 					src/commands/placement_command.c \
 					src/commands/food_command.c	\
 
