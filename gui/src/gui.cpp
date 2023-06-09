@@ -160,7 +160,7 @@ void GUI::draw_cmd(std::string cmd)
         std::cout << cmd;
         return;
     }
-     if (cmd_tag.compare("pbc") == 0) {
+    if (cmd_tag.compare("pbc") == 0) {
         parsed_string.replace(0, 3, "player");
         this->assets.chat_messages_string.push_back(parsed_string);
         sf::Text new_text;
