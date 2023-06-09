@@ -18,7 +18,7 @@ void Assets::init_assets(int height, int width)
     this->rectangle_width = 1920 - width_checkerboard;
     this->font.loadFromFile("assets/Bronten.ttf");
     this->text_tna.setFont(this->font);
-    this->text_tna.setString("Team name: ");
+    this->text_tna.setString("Teams name: ");
     this->text_tna.setCharacterSize(40);
     this->text_tna.setFillColor(sf::Color::Black);
     this->text_tna.setPosition(310, 10);
@@ -33,10 +33,15 @@ void Assets::init_assets(int height, int width)
     this->text_info.setFillColor(sf::Color::Black);
     this->text_info.setPosition(350, 2 * 1080 / 3 + 10);
     this->text_bct.setFont(this->font);
-    this->text_bct.setString("Bct :");
+    this->text_bct.setString("");
     this->text_bct.setCharacterSize(30);
     this->text_bct.setFillColor(sf::Color::Black);
     this->text_bct.setPosition(10, 2 * 1080 / 3 + 60);
+    this->tna_infos.setFont(this->font);
+    this->tna_infos.setString("");
+    this->tna_infos.setCharacterSize(30);
+    this->tna_infos.setFillColor(sf::Color::Black);
+    this->tna_infos.setPosition(10, 60);
     this->closeButtonTexture.loadFromFile("assets/quit-icon.png");
     this->closeButtonSprite.setTexture(this->closeButtonTexture);
     this->closeButtonSprite.setPosition(10, 10);

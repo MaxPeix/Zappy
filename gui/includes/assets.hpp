@@ -9,6 +9,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <vector>
 
 class Assets {
     public:
@@ -25,6 +26,7 @@ class Assets {
         sf::Text text_chat;
         sf::Text text_info;
         sf::Text text_bct;
+        sf::Text tna_infos;
         sf::Texture closeButtonTexture;
         sf::Sprite closeButtonSprite;
         sf::Texture optionsButtonTexture;

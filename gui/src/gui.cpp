@@ -36,6 +36,7 @@ void GUI::draw_game()
     window.draw(this->assets.text_chat);
     window.draw(this->assets.text_info);
     window.draw(this->assets.text_bct);
+    window.draw(this->assets.tna_infos);
     for (int i = 0; i < this->width; i++) {
         for(int j = 0; j < this->height; j++) {
             window.draw(this->assets.tiles[i][j]);
@@ -48,6 +49,8 @@ void GUI::check_event()
     std::string cmd;
     std::string server_response;
 
+    server_response = ask_server("tna\n");
+    draw_cmd(server_response);
     if (this->event.type == sf::Event::Closed)
         window.close();
     if (this->event.type == sf::Event::MouseButtonPressed) {
@@ -131,7 +134,7 @@ void GUI::draw_cmd(std::string cmd)
         return;
     }
     if (cmd_tag.compare("tna") == 0) {
-        std::cout << cmd;
+        this->assets.tna_infos.setString(cmd);
         return;
     }
     if (cmd_tag.compare("pnw") == 0) {
