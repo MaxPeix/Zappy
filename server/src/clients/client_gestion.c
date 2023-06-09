@@ -48,6 +48,7 @@ void update_client_struct(int new_socket, client_t *clients,
     int i = find_empty_slot(clients);
     if (i != -1) {
         clients[i].socket = new_socket;
+        clients[i].is_connected = 1;
         send_response(clients[i].socket, "WELCOME\n");
         char buffer[BUFFER_SIZE];
         ssize_t bytes_read = read_method(new_socket, buffer);

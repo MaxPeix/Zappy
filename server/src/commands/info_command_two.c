@@ -11,7 +11,11 @@ void print_ppo(client_t *client, client_t *player)
 {
     char *output = NULL;
     if (player == NULL) {
-        send_response(client->socket, "ko\n");
+        send_response(client->socket, "sbp\n");
+        return;
+    }
+    if (player->is_graphical == 0) {
+        send_response(client->socket, "sbp\n");
         return;
     }
     output = msprintf("ppo %d %d %d %d\n", player->id,
