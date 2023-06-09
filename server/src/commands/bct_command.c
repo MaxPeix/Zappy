@@ -56,22 +56,18 @@ char *build_message_bct(server_params_t *server_params, long x, long y)
 void print_bct(server_params_t *server_params, client_t *client, char **args)
 {
     char *buffer_bct = NULL;
+
     if (check_null_args(args, client->socket))
         return;
-
     long x = convert_strtol(args[1], client->socket);
     if (x == -1)
         return;
-
     long y = convert_strtol(args[2], client->socket);
     if (y == -1)
         return;
-
     if (check_bounds(x, y, server_params, client->socket))
         return;
-
     buffer_bct = build_message_bct(server_params, x, y);
-
     if (buffer_bct) {
         send_response(client->socket, buffer_bct);
         free(buffer_bct);
