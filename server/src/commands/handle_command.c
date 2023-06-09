@@ -8,7 +8,8 @@
 #include "server.h"
 #include <stdbool.h>
 
-bool handle_command_four(client_t *client, server_params_t *server_params, char **args)
+bool handle_command_four(client_t *client,
+    server_params_t *server_params, char **args)
 {
     if (strcasecmp(args[0], "BCT") == 0) {
         print_bct(server_params, client, args);
@@ -29,7 +30,8 @@ bool handle_command_four(client_t *client, server_params_t *server_params, char 
     return false;
 }
 
-bool handle_command_three(client_t *client, server_params_t *server_params, char **args)
+bool handle_command_three(client_t *client,
+    server_params_t *server_params, char **args)
 {
     if (strcasecmp(args[0], "SGT") == 0) {
         print_sgt(server_params, client);
@@ -52,7 +54,8 @@ bool handle_command_three(client_t *client, server_params_t *server_params, char
     return false;
 }
 
-bool handle_command_two(client_t *client, server_params_t *server_params, char **args)
+bool handle_command_two(client_t *client,
+    server_params_t *server_params, char **args)
 {
     if (strcasecmp(args[0], "INVENTORY") == 0) {
         print_inventory(server_params, client);
@@ -67,7 +70,8 @@ bool handle_command_two(client_t *client, server_params_t *server_params, char *
     return false;
 }
 
-void handle_command(client_t *client, server_params_t *server_params, char **args)
+void handle_command(client_t *client,
+    server_params_t *server_params, char **args)
 {
     int client_socket = client->socket;
 
