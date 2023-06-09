@@ -40,9 +40,11 @@ void print_tna(server_params_t *server_params, client_t *client)
     if (!server_params->team_names)
         return;
     for (int i = 0; server_params->team_names[i]; i++) {
-        send_response(client->socket, "tna ");
-        send_response(client->socket, server_params->team_names[i]);
-        send_response(client->socket, "\n");
+        char *message = msprintf("tna %s\n", server_params->team_names[i]);
+        if (message) {
+            send_response(client->socket, message);
+            free(message);
+        }
     }
 }
 

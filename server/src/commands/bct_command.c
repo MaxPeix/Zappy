@@ -55,6 +55,7 @@ char *build_message_bct(server_params_t *server_params, long x, long y)
 
 void print_bct(server_params_t *server_params, client_t *client, char **args)
 {
+    char *buffer_bct = NULL;
     if (check_null_args(args, client->socket))
         return;
 
@@ -69,7 +70,7 @@ void print_bct(server_params_t *server_params, client_t *client, char **args)
     if (check_bounds(x, y, server_params, client->socket))
         return;
 
-    char *buffer_bct = build_message_bct(server_params, x, y);
+    buffer_bct = build_message_bct(server_params, x, y);
 
     if (buffer_bct) {
         send_response(client->socket, buffer_bct);
