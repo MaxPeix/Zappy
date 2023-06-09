@@ -32,11 +32,14 @@ void GUI::draw_game()
     window.draw(this->assets.leftrectangle3);
     window.draw(this->assets.closeButtonSprite);
     window.draw(this->assets.optionsButtonSprite);
-    window.draw(this->assets.text_tna);
-    window.draw(this->assets.text_chat);
-    window.draw(this->assets.text_info);
+    window.draw(this->assets.title_tna);
+    window.draw(this->assets.title_chat);
+    window.draw(this->assets.title_info);
     window.draw(this->assets.text_bct);
-    window.draw(this->assets.tna_infos);
+    window.draw(this->assets.tna_text);
+    for (auto& text : this->assets.chat_texts) {
+        window.draw(text);
+    }
     for (int i = 0; i < this->width; i++) {
         for(int j = 0; j < this->height; j++) {
             window.draw(this->assets.tiles[i][j]);
@@ -88,8 +91,7 @@ void GUI::handle_read_server()
     char buf[BUFFER_SIZE];
     int num_bytes = 0;
 
-    if ((num_bytes = recv(
-        this->clientSocket, buf, BUFFER_SIZE - 1, 0)) <= 0)
+    if ((num_bytes = recv(this->clientSocket, buf, BUFFER_SIZE - 1, 0)) <= 0)
         exit(84);
     buf[num_bytes] = '\0';
     char* line = strtok(buf, "\n");
@@ -128,13 +130,14 @@ void GUI::game_loop()
 void GUI::draw_cmd(std::string cmd)
 {
     std::string cmd_tag = cmd.substr(0, 3);
+    std::string parsed_string = cmd;
 
     if (cmd_tag.compare("bct") == 0) {
         this->assets.text_bct.setString(cmd);
         return;
     }
     if (cmd_tag.compare("tna") == 0) {
-        this->assets.tna_infos.setString(cmd);
+        this->assets.tna_text.setString(cmd);
         return;
     }
     if (cmd_tag.compare("pnw") == 0) {
@@ -157,9 +160,19 @@ void GUI::draw_cmd(std::string cmd)
         std::cout << cmd;
         return;
     }
-    if (cmd_tag.compare("pbc") == 0) {
-        std::cout << cmd;
-        return;
+     if (cmd_tag.compare("pbc") == 0) {
+        parsed_string.replace(0, 3, "player");
+        this->assets.chat_messages_string.push_back(parsed_string);
+        sf::Text new_text;
+        new_text.setFont(this->assets.font);
+        new_text.setCharacterSize(30);
+        new_text.setFillColor(sf::Color::Black);
+        
+        for (unsigned int i = 0; i < this->assets.chat_messages_string.size(); i++) {
+            new_text.setString(this->assets.chat_messages_string[i]);
+            new_text.setPosition(10, 1080 / 3 + 60 + (i * 30));
+            this->assets.chat_texts.push_back(new_text);
+        }
     }
     if (cmd_tag.compare("pic") == 0) {
         std::cout << cmd;

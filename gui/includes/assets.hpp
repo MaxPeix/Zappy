@@ -22,11 +22,14 @@ class Assets {
         sf::Texture texture;
         sf::Sprite sprite;
         sf::Font font;
-        sf::Text text_tna;
-        sf::Text text_chat;
-        sf::Text text_info;
+        sf::Text title_tna;
+        sf::Text title_chat;
+        sf::Text title_info;
         sf::Text text_bct;
-        sf::Text tna_infos;
+        sf::Text tna_text;
+        std::vector<sf::Text> chat_texts;
+        sf::Text chat_text;
+        std::vector<std::string> chat_messages_string;
         sf::Texture closeButtonTexture;
         sf::Sprite closeButtonSprite;
         sf::Texture optionsButtonTexture;
