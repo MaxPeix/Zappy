@@ -35,6 +35,7 @@ void GUI::draw_game()
     window.draw(this->assets.text_tna);
     window.draw(this->assets.text_chat);
     window.draw(this->assets.text_info);
+    window.draw(this->assets.text_bct);
     for (int i = 0; i < this->width; i++) {
         for(int j = 0; j < this->height; j++) {
             window.draw(this->assets.tiles[i][j]);
@@ -101,7 +102,7 @@ void GUI::game_loop()
     fd_set read_fds;
     struct timeval tv = {
         .tv_sec = 0,
-        .tv_usec = 100000000
+        .tv_usec = 100000
     };
 
     while (window.isOpen()) {
@@ -126,7 +127,7 @@ void GUI::draw_cmd(std::string cmd)
     std::string cmd_tag = cmd.substr(0, 3);
 
     if (cmd_tag.compare("bct") == 0) {
-        std::cout << cmd;
+        this->assets.text_bct.setString(cmd);
         return;
     }
     if (cmd_tag.compare("tna") == 0) {

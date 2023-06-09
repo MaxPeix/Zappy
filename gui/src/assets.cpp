@@ -32,6 +32,11 @@ void Assets::init_assets(int height, int width)
     this->text_info.setCharacterSize(40);
     this->text_info.setFillColor(sf::Color::Black);
     this->text_info.setPosition(350, 2 * 1080 / 3 + 10);
+    this->text_bct.setFont(this->font);
+    this->text_bct.setString("Bct :");
+    this->text_bct.setCharacterSize(30);
+    this->text_bct.setFillColor(sf::Color::Black);
+    this->text_bct.setPosition(10, 2 * 1080 / 3 + 60);
     this->closeButtonTexture.loadFromFile("assets/quit-icon.png");
     this->closeButtonSprite.setTexture(this->closeButtonTexture);
     this->closeButtonSprite.setPosition(10, 10);

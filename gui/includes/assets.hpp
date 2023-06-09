@@ -24,6 +24,7 @@ class Assets {
         sf::Text text_tna;
         sf::Text text_chat;
         sf::Text text_info;
+        sf::Text text_bct;
         sf::Texture closeButtonTexture;
         sf::Sprite closeButtonSprite;
         sf::Texture optionsButtonTexture;
