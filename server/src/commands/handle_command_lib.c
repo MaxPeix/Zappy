@@ -40,6 +40,7 @@ char **get_args_from_buffer(char *buffer)
         command = strtok(NULL, " \r\n");
         command_count++;
     }
+    args[command_count] = NULL;
     return args;
 }
 

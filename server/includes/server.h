@@ -150,6 +150,10 @@ void parse_args(int argc, char **argv, server_params_t *params);
 // handle_graphic_command
 void handle_graphic_command(client_t *client, server_params_t *server_params);
 
+// handle_graphic_command_two
+void handle_broadcast_command(client_t *clients,
+    client_t *client, char **args);
+
 // Print mct
 void print_mct(server_params_t *server_params, client_t *client);
 

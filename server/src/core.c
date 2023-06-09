@@ -16,6 +16,7 @@ void handle_client_request(client_t *clients, char *buffer,
         handle_command(&clients[i], server_params, args);
         handle_command_with_player_nbr(clients,
             &clients[i], server_params, args);
+        handle_broadcast_command(clients, &clients[i], args);
     }
 }
 

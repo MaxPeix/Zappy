@@ -24,7 +24,8 @@ SRC				=	src/core.c \
 					src/commands/handle_command.c \
 					src/commands/handle_command_lib.c \
 					src/commands/graphic_command.c \
-					src/commands/graphic_connection_player.c
+					src/commands/graphic_connection_player.c \
+					src/commands/broadcast_command.c
 
 SRC_TESTS = tests/tests_main.c
 
