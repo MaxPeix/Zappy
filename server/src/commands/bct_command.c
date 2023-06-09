@@ -70,7 +70,7 @@ void print_bct(server_params_t *server_params, client_t *client, char **args)
         return;
 
     char *buffer_bct = build_message_bct(server_params, x, y);
-    
+
     if (buffer_bct) {
         send_response(client->socket, buffer_bct);
         free(buffer_bct);
