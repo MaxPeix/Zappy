@@ -46,6 +46,7 @@ void handle_broadcast_command(client_t *clients,
             return;
         }
         send_to_graphical_clients(clients, output);
+        send_response(client->socket, "ok\n");
         free(output);
     }
 }
