@@ -11,7 +11,7 @@ void init_clients_list(client_t *clients)
 {
     for (int i = 0; i < MAX_CLIENTS; i++) {
         clients[i].socket = 0;
-        clients[i].id = i + 1;
+        clients[i].id = i;
         clients[i].start_loggin = 0;
         clients[i].is_graphical = 0;
         clients[i].team_name = NULL;
@@ -27,6 +27,7 @@ void init_clients_list(client_t *clients)
         clients[i].phiras = 0;
         clients[i].thystame = 0;
         clients[i].incantation_level = 0;
+        clients[i].is_connected = 0;
     }
 }
 
@@ -51,4 +52,5 @@ void handle_disconnect(client_t *client)
     client->phiras = 0;
     client->thystame = 0;
     client->incantation_level = 0;
+    client->is_connected = 0;
 }

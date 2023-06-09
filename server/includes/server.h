@@ -41,6 +41,7 @@
         int mendiane;
         int phiras;
         int thystame;
+        int eggs;
     } tile_t;
 
     typedef struct client {
@@ -61,6 +62,7 @@
         int mendiane;
         int phiras;
         int thystame;
+        int is_connected;
     } client_t;
 
     typedef struct server_params {
@@ -120,6 +122,10 @@ void check_client_activity(client_t *clients,
 
 // Envoie une réponse au client
 void send_response(int socket, char *message);
+
+// Mets à jour la position des joueurs apres qu'ils se soient fait ejectés
+void update_client_position(client_t *client, int orientation,
+    server_params_t *server_params);
 
 // Lis le message du client
 ssize_t read_method(int socket, char *buffer);

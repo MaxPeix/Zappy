@@ -27,6 +27,7 @@ SRC				=	src/core.c \
 					src/commands/graphic_connection_player.c \
 					src/commands/broadcast_command.c \
 					src/commands/eject_command.c \
+					src/commands/eject_command_lib.c \
 					src/commands/bct_command.c
 
 SRC_TESTS = tests/tests_main.c
