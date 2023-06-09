@@ -27,7 +27,9 @@ SRC				=	src/core.c \
 					src/commands/graphic_connection_player.c \
 					src/commands/broadcast_command.c \
 					src/commands/eject_command.c \
-					src/commands/bct_command.c
+					src/commands/bct_command.c	\
+					src/commands/placement_command.c \
+					src/commands/food_command.c	\
 
 SRC_TESTS = tests/tests_main.c
 
@@ -51,7 +53,7 @@ tests_run: $(OBJ)
 	rm unit_tests
 
 clean:
-	rm -f $(OBJ)
+	rm -f $(OBJ) $(OBJ_MAIN)
 	rm -f *.o
 	rm -f *.gcda
 	rm -f *.gcno
