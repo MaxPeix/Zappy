@@ -132,6 +132,14 @@ void handle_command(client_t *client, server_params_t *server_params,
 void handle_command_with_player_nbr(client_t *clients, client_t *client,
     server_params_t *server_params, char **args);
 
+// handle_graphic_command_two
+void handle_broadcast_command(client_t *clients,
+    client_t *client, char **args);
+
+// handle_graphic_command_three
+void handle_eject_command(client_t *clients, client_t *client,
+    server_params_t *server_params, char **args);
+
 // Initialise la structure client
 void init_clients_list(client_t *clients);
 
@@ -149,10 +157,6 @@ void parse_args(int argc, char **argv, server_params_t *params);
 
 // handle_graphic_command
 void handle_graphic_command(client_t *client, server_params_t *server_params);
-
-// handle_graphic_command_two
-void handle_broadcast_command(client_t *clients,
-    client_t *client, char **args);
 
 // Print mct
 void print_mct(server_params_t *server_params, client_t *client);

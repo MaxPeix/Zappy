@@ -26,23 +26,6 @@ void print_mct(server_params_t *server_params, client_t *client)
     }
 }
 
-void print_bct(server_params_t *server_params, client_t *client, char **args)
-{
-    char buffer_bct[200];
-
-    int i = atoi(args[2]);
-    int j = atoi(args[3]);
-    sprintf(buffer_bct, "bct %d %d %d %d %d %d %d %d %d\n", j, i,
-        server_params->world[i][j].food,
-        server_params->world[i][j].linemate,
-        server_params->world[i][j].deraumere,
-        server_params->world[i][j].sibur,
-        server_params->world[i][j].mendiane,
-        server_params->world[i][j].phiras,
-        server_params->world[i][j].thystame);
-    send_response(client->socket, buffer_bct);
-}
-
 void print_msz(server_params_t *server_params, client_t *client)
 {
     char buffer_msz[50];
