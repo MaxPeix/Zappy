@@ -28,7 +28,7 @@ class Assets {
         sf::Text text_bct;
         sf::Text tna_text;
         std::vector<sf::Text> chat_texts;
-        sf::Text chat_text;
+        sf::Text new_text;
         std::vector<std::string> chat_messages_string;
         sf::Texture closeButtonTexture;
         sf::Sprite closeButtonSprite;

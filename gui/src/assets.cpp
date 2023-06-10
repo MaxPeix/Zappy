@@ -42,11 +42,9 @@ void Assets::init_assets(int height, int width)
     this->tna_text.setCharacterSize(30);
     this->tna_text.setFillColor(sf::Color::Black);
     this->tna_text.setPosition(10, 100);
-    this->chat_text.setFont(this->font);
-    this->chat_text.setString("");
-    this->chat_text.setCharacterSize(30);
-    this->chat_text.setFillColor(sf::Color::Black);
-    this->chat_text.setPosition(10, 1080 / 3 + 60);
+    new_text.setFont(this->font);
+    new_text.setCharacterSize(30);
+    new_text.setFillColor(sf::Color::Black);
     this->chat_messages_string = {};
     this->chat_texts = {};
     this->closeButtonTexture.loadFromFile("assets/quit-icon.png");
