@@ -163,13 +163,15 @@ void GUI::draw_cmd(std::string cmd)
     if (cmd_tag.compare("pbc") == 0) {
         parsed_string.replace(0, 3, "player");
         this->assets.chat_messages_string.push_back(parsed_string);
-        for (unsigned int i = 0; i < this->assets.chat_messages_string.size(); i++) {
-            this->assets.new_text.setString(this->assets.chat_messages_string[i]);
-            this->assets.new_text.setPosition(10, 1080 / 3 + 60 + (i * 30));
-            this->assets.chat_texts.push_back(this->assets.new_text);
-            if (this->assets.chat_texts.size() == 6) {
-                this->assets.chat_texts.erase(this->assets.chat_texts.begin());
-                this->assets.new_text.setPosition(10, 1080 / 3 + 60);
+        this->assets.new_text.setString(parsed_string);
+        this->assets.new_text.setPosition(10, 1080 / 3 + 60 + (this->assets.chat_messages_string.size() - 1) * 30);
+        this->assets.chat_texts.push_back(this->assets.new_text);
+
+        if (this->assets.chat_texts.size() > 5) {
+            this->assets.chat_texts.erase(this->assets.chat_texts.begin());
+            this->assets.chat_messages_string.erase(this->assets.chat_messages_string.begin());
+            for (unsigned int i = 0; i < this->assets.chat_texts.size(); i++) {
+                this->assets.chat_texts[i].setPosition(10, 1080 / 3 + 60 + i * 30);
             }
         }
     }

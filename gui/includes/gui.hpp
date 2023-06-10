@@ -15,7 +15,6 @@
 #include <iostream>
 #include <cstring>
 #include "assets.hpp"
-#include "infos.hpp"
 #include <thread>
 #include <future>
 
@@ -40,7 +39,6 @@ class GUI {
         void handle_read_server();
     private:
         Assets assets;
-        Info info;
         int port;
         std::string machine;
         int clientSocket;
