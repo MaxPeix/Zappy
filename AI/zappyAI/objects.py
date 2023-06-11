@@ -116,6 +116,18 @@ class Resources:
     def __repr__(self) -> str:
         return str(self)
 
+    def __dict__(self) -> dict:
+        return {
+            "food": self.food,
+            "linemate": self.linemate,
+            "deraumere": self.deraumere,
+            "sibur": self.sibur,
+            "mendiane": self.mendiane,
+            "phiras": self.phiras,
+            "thystame": self.thystame,
+            "player": self.player
+        }
+
     def __iter__(self) -> iter:
         yield ObjectType.FOOD
         yield ObjectType.LINEMATE

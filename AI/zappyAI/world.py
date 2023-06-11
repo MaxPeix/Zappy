@@ -2,6 +2,7 @@ from zappyAI.tiles import Tile
 from zappyAI.struct import Size, Pos
 from zappyAI.objects import Resources
 from zappyAI.enums import Direction
+import json
 
 
 class World:
@@ -42,9 +43,16 @@ class World:
                         res += "<"
                     continue
                 res += str(self._world[y][x])
-                if "P" in res:
-                    print("wtf")
             res += "\n"
+        return res
+
+    def __dict__(self) -> dict:
+        res: dict = {"size": self._size.__dict__(), "tiles": []}
+        for y in range(self._size.height):
+            tmp = {y: []}
+            for x in range(self._size.width):
+                tmp[y].append(self._world[y][x].__dict__())
+            res["tiles"].append(tmp[y])
         return res
 
     def __repr__(self) -> str:

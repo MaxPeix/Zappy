@@ -1,3 +1,5 @@
+import json
+
 import utils
 import zappyAI as zp
 
@@ -238,6 +240,19 @@ class AI:
     def incantation(self) -> None:
         self._comm.send("Incantation\n")
         self._add_time(300)
+
+    def __dict__(self) -> dict:
+        return {
+            "pos": self._pos.__dict__(),
+            "world": self._world.__dict__(),
+            "inventory": self._inventory.__dict__(),
+            "level": self._level,
+            "ticks": self._ticks,
+            "direction": self._direction.__repr__()
+        }
+
+    def to_json(self) -> str:
+        return json.dumps(self.__dict__())
 
     @property
     def pos(self) -> zp.Pos:
