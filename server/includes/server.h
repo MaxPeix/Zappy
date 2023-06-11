@@ -45,27 +45,27 @@ typedef struct tile
     int eggs;
 } tile_t;
 
-    typedef struct client
-    {
-        int id;
-        int x_position;
-        int y_position;
-        int orientation;
-        int incantation_level;
-        int level;
-        int socket;
-        char *team_name;
-        int start_loggin;
-        int is_graphical;
-        int food;
-        int linemate;
-        int deraumere;
-        int sibur;
-        int mendiane;
-        int phiras;
-        int thystame;
-        int is_connected;
-    } client_t;
+typedef struct client
+{
+    int id;
+    int x_position;
+    int y_position;
+    int orientation;
+    int incantation_level;
+    int level;
+    int socket;
+    char *team_name;
+    int start_loggin;
+    int is_graphical;
+    int food;
+    int linemate;
+    int deraumere;
+    int sibur;
+    int mendiane;
+    int phiras;
+    int thystame;
+    int is_connected;
+} client_t;
 
 typedef struct server_params
 {
@@ -232,5 +232,7 @@ void handle_left_command(client_t *client, char **args);
 
 // client food
 void print_inventory(server_params_t *server_params, client_t *client);
+void take_command(server_params_t *server_params, client_t *client, char **argv);
+void set_command(server_params_t *server_params, client_t *client, char **argv);
 
 #endif /* !SERVER_H_ */

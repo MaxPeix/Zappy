@@ -8,8 +8,24 @@
 #include "server.h"
 #include <stdbool.h>
 
+bool handle_command_five(client_t *client,
+                         server_params_t *server_params,
+                         char **args)
+{
+    if (strcasecmp(args[0], "TAKE") == 0) {
+        take_command(server_params, client, args);
+        return true;
+    }
+    if (strcasecmp(args[0], "SET") == 0) {
+        set_command(server_params, client, args);
+        return true;
+    }
+    return false;
+}
+
 bool handle_command_four(client_t *client,
-    server_params_t *server_params, char **args)
+                         server_params_t *server_params,
+                         char **args)
 {
     if (strcasecmp(args[0], "BCT") == 0) {
         print_bct(server_params, client, args);
@@ -27,11 +43,14 @@ bool handle_command_four(client_t *client,
         handle_left_command(client, args);
         return true;
     }
+    if (handle_command_five(client, server_params, args) == true)
+        return true;
     return false;
 }
 
 bool handle_command_three(client_t *client,
-    server_params_t *server_params, char **args)
+                          server_params_t *server_params,
+                          char **args)
 {
     if (strcasecmp(args[0], "SGT") == 0) {
         print_sgt(server_params, client);
@@ -55,7 +74,8 @@ bool handle_command_three(client_t *client,
 }
 
 bool handle_command_two(client_t *client,
-    server_params_t *server_params, char **args)
+                        server_params_t *server_params,
+                        char **args)
 {
     if (strcasecmp(args[0], "INVENTORY") == 0) {
         print_inventory(server_params, client);
@@ -71,7 +91,8 @@ bool handle_command_two(client_t *client,
 }
 
 void handle_command(client_t *client,
-    server_params_t *server_params, char **args)
+                    server_params_t *server_params,
+                    char **args)
 {
     int client_socket = client->socket;
 
