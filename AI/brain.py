@@ -48,7 +48,7 @@ class Brain:
                 self.right()
             elif self._ai.pos.x > pos.x:
                 self.left()
-            if self._ai.pos.y < pos.y:
+            elif self._ai.pos.y < pos.y:
                 self.down()
             elif self._ai.pos.y > pos.y:
                 self.up()
