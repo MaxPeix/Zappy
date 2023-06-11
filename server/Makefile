@@ -31,6 +31,7 @@ SRC				=	src/core.c \
 					src/commands/bct_command.c	\
 					src/commands/placement_command.c \
 					src/commands/food_command.c	\
+					src/commands/client_command.c \
 
 SRC_TESTS = tests/tests_main.c
 
