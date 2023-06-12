@@ -51,7 +51,10 @@ class World:
         for y in range(self._size.height):
             tmp = {y: []}
             for x in range(self._size.width):
-                tmp[y].append(self._world[y][x].__dict__())
+                if self._world[y][x].known:
+                    tmp[y].append(self._world[y][x].__dict__())
+                else:
+                    tmp[y].append(None)
             res["tiles"].append(tmp[y])
         return res
 
