@@ -33,6 +33,8 @@ SRC				=	src/core.c \
 					src/commands/food_command.c	\
 					src/commands/client_command.c \
 					src/commands/incantation_command.c \
+					src/commands/fork_command.c \
+					src/commands/look_command.c \
 
 SRC_TESTS = tests/tests_main.c
 
@@ -40,7 +42,7 @@ OBJ				=			$(SRC:.c=.o)
 
 OBJ_MAIN		=			$(SRC_MAIN:.c=.o)
 
-CFLAGS 			= 			-I./includes
+CFLAGS 			= 			-I./includes -g
 
 CRITERION		= 			--coverage -lcriterion
 

@@ -22,6 +22,8 @@ void handle_client_request(client_t *clients,
         handle_broadcast_command(clients, &clients[i], args);
         handle_eject_command(clients, &clients[i], server_params, args);
         handle_incantation_command(clients, &clients[i], server_params, args);
+        handle_fork_command(&clients[i], server_params, args);
+        handle_look_command(clients, &clients[i], server_params, args);
     }
 }
 
