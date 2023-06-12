@@ -30,7 +30,7 @@ void handle_command_four(client_t *client,
         return;
     }
     if (strcasecmp(args[0], "FORWARD") == 0) {
-        handle_forward_command(client, args);
+        handle_forward_command(server_params, client, args);
         return;
     }
     if (strcasecmp(args[0], "RIGHT") == 0) {
