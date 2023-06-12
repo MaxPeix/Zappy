@@ -100,8 +100,25 @@ typedef struct
     int y;
 } coordinate_t;
 
+typedef struct command_info {
+    const char *name;
+    double execution_time_factor;
+} command_info_t;
+
 // msprintf function
 char *msprintf(const char *format, ...);
+
+// free command args
+void free_command_args(char **args);
+
+// duplicate args
+char **duplicate_args(char **args);
+
+// remove executed command
+void remove_executed_command(client_t *client, int command_index);
+
+// add command to client
+void add_command_to_client(client_t *client, command_t *new_command);
 
 // Vérifie les erreurs de la ligne de commande
 int check_errors(int argc, char **argv, server_params_t params);

@@ -18,6 +18,7 @@ SRC				=	src/core.c \
 					src/clients/client_gestion.c \
 					src/clients/protocol_start.c \
 					src/clients/lib.c \
+					src/clients/lib_two.c \
 					src/clients/init.c \
 					src/commands/info_command.c \
 					src/commands/info_command_two.c \
