@@ -241,10 +241,12 @@ void handle_left_command(client_t *client, char **args);
 
 // client food
 void print_inventory(server_params_t *server_params, client_t *client);
-void take_command(server_params_t *server_params, client_t *client, char **argv);
-void set_command(server_params_t *server_params, client_t *client, char **argv);
+void take_command(server_params_t *server_params,
+    client_t *client, char **argv);
+void set_command(server_params_t *server_params,
+    client_t *client, char **argv);
 
 // client command
 void handle_connect_nbr_command(client_t *clients, client_t *client,
-                          server_params_t *server_params, char **args);
+                        server_params_t *server_params, char **args);
 #endif /* !SERVER_H_ */

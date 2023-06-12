@@ -81,7 +81,7 @@ void handle_client_request(client_t *clients, char *buffer, int i, server_params
         }
 
         command_t *new_command = create_new_command(args, server_params);
-        if(new_command == NULL) {
+        if (new_command == NULL) {
             send_response(clients[i].socket, "ko\n");
             return;
         }
@@ -105,9 +105,12 @@ void execute_commands_if_ready(client_t *clients,
 {
     for (int j = 0; j < client->command_count; j++) {
         if (time(NULL) >= client->commands[j].execution_time) {
-            handle_command(client, server_params, client->commands[j].args);
-            handle_connect_nbr_command(clients, client, server_params, client->commands[j].args);
-            handle_command_with_player_nbr(clients, client, server_params, client->commands[j].args);
+            handle_command(client, server_params,
+                client->commands[j].args);
+            handle_connect_nbr_command(clients, client, server_params,
+                client->commands[j].args);
+            handle_command_with_player_nbr(clients, client,
+                server_params, client->commands[j].args);
             handle_broadcast_command(clients, client, client->commands[j].args);
             handle_eject_command(clients, client, server_params, client->commands[j].args);
             remove_executed_command(client, j);
@@ -125,16 +128,13 @@ void check_client_activity(client_t *clients, int server_socket, fd_set *readfds
 
         execute_commands_if_ready(clients, &clients[i], server_params);
 
-        if (!FD_ISSET(client_socket, readfds)) {
+        if (!FD_ISSET(client_socket, readfds))
             continue;
-        }
-        if ((valread = read(client_socket, buffer, BUFFER_SIZE)) == 0) {
+        if ((valread = read(client_socket, buffer, BUFFER_SIZE)) == 0)
             handle_disconnect(&clients[i]);
             continue;
-        }
-        if (!buffer) {
+        if (!buffer)
             return;
-        }
         buffer[valread] = '\0';
         handle_client_request(clients, buffer, i, server_params);
     }

@@ -73,9 +73,8 @@ bool handle_command_three(client_t *client,
     return false;
 }
 
-bool handle_command_two(client_t *client,
-                        server_params_t *server_params,
-                        char **args)
+bool handle_command_two(client_t *client, server_params_t *server_params,
+    char **args)
 {
     if (strcasecmp(args[0], "INVENTORY") == 0) {
         print_inventory(server_params, client);
