@@ -2,9 +2,11 @@ import json
 
 import utils
 import zappyAI as zp
+import base64
 
 
 class AI:
+    _msg_key: bytes
     _dead: bool = False
     _direction: zp.Direction = zp.Direction.N
     _comm: utils.Comm
@@ -27,6 +29,7 @@ class AI:
         # init world with empty tiles from world size
         if self.connect_nbr() > 1:
             pass  # TODO: ask word info on broadcast
+        self._msg_key = utils.generate_key(self._teamName)
 
     def _add_time(self, time: int) -> None:
         for i in range(time):
@@ -44,7 +47,8 @@ class AI:
         print(self._world.__str__((self._pos, self._direction)))
 
     def _on_message(self, direction: zp.Direction, message: str) -> None:
-        print("Message from " + str(direction) + ": " + message)
+        decoded: str = base64.b64decode(utils.decrypt(message.encode(), self._msg_key)).decode("utf-8")
+        print("Message from " + str(direction) + ": " + decoded)
 
     def _recv(self) -> list[str]:
         data: list[str] = self._comm.recv()
@@ -182,8 +186,13 @@ class AI:
         return success
 
     def broadcast(self, message: str) -> None:
-        self._comm.send("Broadcast " + message + "\n")
+        encoded: bytes = base64.b64encode(message.encode())
+        print(self._msg_key)
+        encrypted: str = utils.encrypt(encoded, self._msg_key).decode("utf-8")
+        self._comm.send("Broadcast " + encrypted + "\n")
         self._add_time(7)
+        if self._recv() != ["ok"]:
+            raise ConnectionError("Invalid response")
 
     def connect_nbr(self) -> int:
         nb_connect: int = 0
