@@ -113,6 +113,10 @@ void execute_commands_if_ready(client_t *clients,
                 server_params, client->commands[j].args);
             handle_incantation_command(clients, client,
                 server_params, client->commands[j].args);
+            handle_fork_command(client, server_params,
+                client->commands[j].args);
+            handle_look_command(clients, client, server_params,
+                client->commands[j].args);
             remove_executed_command(client, j);
         }
     }

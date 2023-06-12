@@ -252,7 +252,8 @@ void distribute_thystame(server_params_t *params);
 
 // client movement
 
-void handle_forward_command(client_t *client, char **args);
+void handle_forward_command(server_params_t *params, client_t *client,
+                            char **args);
 void handle_right_command(client_t *client, char **args);
 void handle_left_command(client_t *client, char **args);
 
@@ -272,5 +273,13 @@ void handle_incantation_command(client_t *clients,
                                 client_t *client,
                                 server_params_t *server_params,
                                 char **args);
+
+// client fork
+void handle_fork_command(client_t *client, server_params_t *server_params,
+                         char **args);
+
+// client look
+void handle_look_command(client_t *clients, client_t *client,
+                                server_params_t *server_params, char **args);
 
 #endif /* !SERVER_H_ */
