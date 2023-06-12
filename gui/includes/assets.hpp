@@ -19,8 +19,10 @@ class Assets {
         int box_size;
         int width_checkerboard;
         int rectangle_width;
-        sf::Texture texture;
-        sf::Sprite sprite;
+        std::vector<sf::Sprite> monster_sprites;
+        void create_monster(int x, int y);
+        sf::Texture monster_texture;
+        sf::Sprite monster_sprite;
         sf::Font font;
         sf::Text title_tna;
         sf::Text title_chat;

@@ -54,6 +54,9 @@ void GUI::draw_game()
             window.draw(this->assets.tiles[i][j]);
         }
     }
+    for (auto &monster_sprite : assets.monster_sprites) {
+        window.draw(monster_sprite);
+    }
 }
 
 void GUI::check_event()
@@ -162,6 +165,9 @@ void GUI::draw_cmd(std::string cmd)
             std::cout << "Error: pnw" << std::endl;
             return;
         }
+        std::cout << "pnw : " << player_info.number << " " << player_info.x << " " << player_info.y << " "
+        << player_info.orientation << " " << player_info.level << " " << player_info.team << std::endl;
+        assets.create_monster(player_info.x, player_info.y);
     }
     if (cmd_tag.compare("ppo") == 0) {
         std::cout << cmd;

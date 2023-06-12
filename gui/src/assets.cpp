@@ -81,6 +81,25 @@ void Assets::init_assets(int height, int width)
     }
 }
 
+// void Assets::create_monster(int x, int y)
+// {
+//     this->monster_texture.loadFromFile("assets/monster.png");
+//     this->monster_sprite.setTexture(this->monster_texture);
+//     this->monster_sprite.setScale(sf::Vector2f(0.5, 0.5));
+//     x = x * this->box_size + this->rectangle_width;
+//     y = y * this->box_size;
+//     this->monster_sprite.setPosition(x, y);
+// }
+
+void Assets::create_monster(int x, int y)
+{
+    this->monster_texture.loadFromFile("assets/monster.png");
+    this->monster_sprite.setTexture(monster_texture);
+    monster_sprite.setPosition(x * this->box_size + this->rectangle_width, y * this->box_size);
+    monster_sprite.setScale(sf::Vector2f(0.5, 0.5));
+    this->monster_sprites.push_back(monster_sprite);
+}
+
 Assets::~Assets()
 {
 }
