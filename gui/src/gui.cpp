@@ -133,7 +133,7 @@ void GUI::draw_cmd(std::string cmd)
     std::string parsed_string = cmd;
 
     if (cmd_tag.compare("bct") == 0) {
-        this->assets.text_bct.setString(cmd);
+        this->draw_bct(cmd);
         return;
     }
     if (cmd_tag.compare("tna") == 0) {

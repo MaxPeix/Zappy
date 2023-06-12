@@ -37,6 +37,7 @@ class GUI {
         std::string ask_server(std::string cmd);
         void handle_stdin_input();
         void handle_read_server();
+        void draw_bct(std::string cmd);
     private:
         Assets assets;
         int port;
