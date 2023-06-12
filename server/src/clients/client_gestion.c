@@ -70,12 +70,16 @@ void wait_for_connections(int server_socket, client_t *clients,
     fd_set readfds = {0};
     int max_fd = server_socket;
     int activity = 0;
+    struct timeval tv;
+
+    tv.tv_sec = 0;
+    tv.tv_usec = 100000;
 
     while (1) {
         FD_ZERO(&readfds);
         FD_SET(server_socket, &readfds);
         max_fd = set_clients_sockets(clients, &readfds, server_socket);
-        activity = select(max_fd + 1, &readfds, NULL, NULL, NULL);
+        activity = select(max_fd + 1, &readfds, NULL, NULL, &tv);
         if ((activity < 0) && (errno != EINTR))
             continue;
         handle_select_errors(activity);

@@ -45,6 +45,13 @@ typedef struct tile
     int eggs;
 } tile_t;
 
+typedef struct command
+{
+    char *name;
+    char **args;
+    time_t execution_time;
+} command_t;
+
 typedef struct client
 {
     int id;
@@ -65,6 +72,8 @@ typedef struct client
     int phiras;
     int thystame;
     int is_connected;
+    command_t* commands;
+    int command_count;
 } client_t;
 
 typedef struct server_params
