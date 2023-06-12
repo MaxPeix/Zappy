@@ -1,4 +1,4 @@
-# Zappy project :plate_with_cutlery:
+# Zappy project :video_game:
 
 ## Done by Melissa, Maxime, Gauthier, Hugo, Max and Nicolas - Epitech 2023 :mortar_board:
 
