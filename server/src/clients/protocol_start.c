@@ -10,7 +10,6 @@
 int check_team_name(char *team_name, char **valid_teams)
 {
     for (int i = 0; valid_teams[i]; i++) {
-        printf("valid team: %s, team_name: %s.\n", valid_teams[i], team_name);
         if (strcasecmp(team_name, valid_teams[i]) == 0)
             return 1;
     }

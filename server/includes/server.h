@@ -45,6 +45,13 @@ typedef struct tile
     int eggs;
 } tile_t;
 
+typedef struct command
+{
+    char *name;
+    char **args;
+    time_t execution_time;
+} command_t;
+
 typedef struct client
 {
     int id;
@@ -65,6 +72,8 @@ typedef struct client
     int phiras;
     int thystame;
     int is_connected;
+    command_t* commands;
+    int command_count;
 } client_t;
 
 typedef struct server_params
@@ -91,8 +100,25 @@ typedef struct
     int y;
 } coordinate_t;
 
+typedef struct command_info {
+    const char *name;
+    double execution_time_factor;
+} command_info_t;
+
 // msprintf function
 char *msprintf(const char *format, ...);
+
+// free command args
+void free_command_args(char **args);
+
+// duplicate args
+char **duplicate_args(char **args);
+
+// remove executed command
+void remove_executed_command(client_t *client, int command_index);
+
+// add command to client
+void add_command_to_client(client_t *client, command_t *new_command);
 
 // Vérifie les erreurs de la ligne de commande
 int check_errors(int argc, char **argv, server_params_t params);
@@ -232,15 +258,19 @@ void handle_left_command(client_t *client, char **args);
 
 // client food
 void print_inventory(server_params_t *server_params, client_t *client);
-void take_command(server_params_t *server_params, client_t *client, char **argv);
-void set_command(server_params_t *server_params, client_t *client, char **argv);
+void take_command(server_params_t *server_params,
+    client_t *client, char **argv);
+void set_command(server_params_t *server_params,
+    client_t *client, char **argv);
 
 // client command
 void handle_connect_nbr_command(client_t *clients, client_t *client,
-                          server_params_t *server_params, char **args);
+    server_params_t *server_params, char **args);
 
 // client incantation
-void handle_incantation_command(client_t *clients, client_t *client,
-                                server_params_t *server_params, char **args);
+void handle_incantation_command(client_t *clients,
+                                client_t *client,
+                                server_params_t *server_params,
+                                char **args);
 
 #endif /* !SERVER_H_ */

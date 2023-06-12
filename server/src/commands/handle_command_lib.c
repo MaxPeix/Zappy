@@ -18,7 +18,6 @@ char **add_arg_to_list(char **args, char *command, int command_count)
     args[command_count] = strdup(command);
     if (args[command_count] == NULL) {
         free_array(args);
-        free(command);
         return NULL;
     }
     return args;

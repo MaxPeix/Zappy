@@ -33,7 +33,15 @@ void send_to_graphical_clients(client_t *clients, char *output)
 void handle_broadcast_command(client_t *clients,
     client_t *client, char **args)
 {
+    if (!args)
+        return;
+    if (args[0] == NULL)
+        return;
     if (strcasecmp(args[0], "BROADCAST") == 0) {
+        if (args[1] == NULL) {
+            send_response(client->socket, "ko\n");
+            return;
+        }
         char *message = build_message(args);
         if (!message) {
             printf("Error: Could not allocate memory for message\n");
