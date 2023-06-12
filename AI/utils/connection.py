@@ -1,6 +1,8 @@
 import socket
 import logging
 
+BUFF_SIZE: int = 1024
+
 
 class Comm:
     _socket: socket.socket = None
@@ -51,9 +53,9 @@ class Comm:
             raise ConnectionError("Not connected")
         res: bytes = b""
         while True:
-            data: bytes = self._socket.recv(1024)
+            data: bytes = self._socket.recv(BUFF_SIZE)
             res += data
-            if not data or len(data) != 1024 or data[1024] == b"":
+            if not data or len(data) != BUFF_SIZE or data[BUFF_SIZE - 1] == b"":
                 break
         if res == b"":
             return None
