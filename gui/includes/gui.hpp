@@ -38,6 +38,7 @@ class GUI {
         void handle_stdin_input();
         void handle_read_server();
         void draw_bct(std::string cmd);
+        void draw_tna(std::string cmd);
     private:
         Assets assets;
         int port;

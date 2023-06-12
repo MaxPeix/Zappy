@@ -35,3 +35,32 @@ void GUI::draw_bct(std::string cmd)
     parsed_cmd += "\n";
     this->assets.text_bct.setString(parsed_cmd);
 }
+
+void GUI::draw_tna(std::string cmd)
+{
+    std::string parsed_cmd = "";
+
+    std::vector<std::string> teamNames;
+    std::string currentTeamName = "";
+    for (std::string::size_type i = 4; i < cmd.size(); i++) {
+        if (cmd[i] == '\n' || cmd[i] == '\0') {
+            if (!currentTeamName.empty()) {
+                teamNames.push_back(currentTeamName);
+                currentTeamName.clear();
+                i += 4;
+            }
+        } else {
+            currentTeamName += cmd[i];
+        }
+    }
+
+    for (std::vector<std::string>::size_type i = 0; i < teamNames.size(); i++) {
+        parsed_cmd += teamNames[i];
+
+        if (i < teamNames.size() - 1) {
+            parsed_cmd += "\n\n";
+        }
+    }
+
+    this->assets.tna_text.setString(parsed_cmd);
+}

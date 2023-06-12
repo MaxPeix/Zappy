@@ -137,7 +137,7 @@ void GUI::draw_cmd(std::string cmd)
         return;
     }
     if (cmd_tag.compare("tna") == 0) {
-        this->assets.tna_text.setString(cmd);
+        this->draw_tna(cmd);
         return;
     }
     if (cmd_tag.compare("pnw") == 0) {
