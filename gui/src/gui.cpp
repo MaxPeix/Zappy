@@ -19,7 +19,7 @@ GUI::~GUI()
 
 void GUI::init_game()
 {
-    this->window.create(sf::VideoMode(1920, 1080), "Trantor");
+    this->window.create(sf::VideoMode(1920, 1080), "Trantor", sf::Style::Fullscreen);
     this->window.setFramerateLimit(60);
     this->assets = Assets();
     this->assets.init_assets(this->height, this->width);
@@ -32,6 +32,8 @@ void GUI::draw_game()
     window.draw(this->assets.leftrectangle3);
     window.draw(this->assets.closeButtonSprite);
     window.draw(this->assets.optionsButtonSprite);
+    window.draw(this->assets.optionsPlusButtonSprite);
+    window.draw(this->assets.optionsMinusButtonSprite);
     window.draw(this->assets.title_tna);
     window.draw(this->assets.title_chat);
     window.draw(this->assets.title_info);
@@ -39,6 +41,7 @@ void GUI::draw_game()
     window.draw(this->assets.text_pin);
     window.draw(this->assets.text_plv);
     window.draw(this->assets.text_pid);
+    window.draw(this->assets.text_sgt);
     window.draw(this->assets.tna_text);
     for (auto& text : this->assets.chat_texts) {
         window.draw(text);
@@ -77,6 +80,27 @@ void GUI::check_event()
             }
             if (this->assets.optionsButtonSprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                 server_response = ask_server("sgt\n");
+                this->sgt = atoi(server_response.c_str());
+                draw_cmd(server_response);
+            }
+            if (this->assets.optionsPlusButtonSprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                if (this->sgt == 1)
+                    this->sgt = 10;
+                else
+                    this->sgt += 10;
+                server_response = ask_server("sst " + std::to_string(this->sgt) + "\n");
+                server_response = ask_server("sgt\n");
+                this->sgt = atoi(server_response.c_str());
+                draw_cmd(server_response);
+            }
+            if (this->assets.optionsMinusButtonSprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                if (this->sgt - 10 <= 0)
+                    this->sgt = 1;
+                else
+                    this->sgt -= 10;
+                server_response = ask_server("sst " + std::to_string(this->sgt) + "\n");
+                server_response = ask_server("sgt\n");
+                this->sgt = atoi(server_response.c_str());
                 draw_cmd(server_response);
             }
             for (auto &monster_sprite : assets.monster_sprites) {
@@ -155,6 +179,7 @@ void GUI::draw_cmd(std::string cmd)
     std::string parsed_string = cmd;
 
     if (cmd_tag.compare("bct") == 0) {
+        std::cout << cmd << std::endl;
         this->draw_bct(cmd);
         return;
     }
@@ -235,6 +260,7 @@ void GUI::draw_cmd(std::string cmd)
     }
     if (cmd_tag.compare("sgt") == 0) {
         std::cout << cmd;
+        this->assets.text_sgt.setString(cmd.substr(4, cmd.size() - 4));
         return;
     }
     if (cmd_tag.compare("sst") == 0) {

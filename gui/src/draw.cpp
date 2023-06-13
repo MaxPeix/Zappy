@@ -9,28 +9,51 @@
 
 void GUI::draw_bct(std::string cmd)
 {
-    std::string parsed_cmd = "Tile content :\n";
+    std::string parsed_cmd = "Tile content : ";
+    int x = 0;
+    int y = 0;
+    int food = 0;
+    int linemate = 0;
+    int deraumere = 0;
+    int sibur = 0;
+    int mendiane = 0;
+    int phiras = 0;
+    int thystame = 0;
 
-    parsed_cmd += "Food: ";
-    parsed_cmd += cmd[4];
+    sscanf(cmd.c_str(), "bct %d %d %d %d %d %d %d %d %d\n",
+        &x,
+        &y,
+        &food,
+        &linemate,
+        &deraumere,
+        &sibur,
+        &mendiane,
+        &phiras,
+        &thystame);
+    parsed_cmd += std::to_string(x);
+    parsed_cmd += " ";
+    parsed_cmd += std::to_string(y);
     parsed_cmd += "\n";
-    parsed_cmd += "Linemate: ";
-    parsed_cmd += cmd[6];
+    parsed_cmd += "Food : ";
+    parsed_cmd += std::to_string(food);
     parsed_cmd += "\n";
-    parsed_cmd += "Deraumere: ";
-    parsed_cmd += cmd[8];
+    parsed_cmd += "Linemate : ";
+    parsed_cmd += std::to_string(linemate);
     parsed_cmd += "\n";
-    parsed_cmd += "Sibur: ";
-    parsed_cmd += cmd[10];
+    parsed_cmd += "Deraumere : ";
+    parsed_cmd += std::to_string(deraumere);
     parsed_cmd += "\n";
-    parsed_cmd += "Mendiane: ";
-    parsed_cmd += cmd[12];
+    parsed_cmd += "Sibur : ";
+    parsed_cmd += std::to_string(sibur);
     parsed_cmd += "\n";
-    parsed_cmd += "Phiras: ";
-    parsed_cmd += cmd[14];
+    parsed_cmd += "Mendiane : ";
+    parsed_cmd += std::to_string(mendiane);
     parsed_cmd += "\n";
-    parsed_cmd += "Thystame: ";
-    parsed_cmd += cmd[16];
+    parsed_cmd += "Phiras : ";
+    parsed_cmd += std::to_string(phiras);
+    parsed_cmd += "\n";
+    parsed_cmd += "Thystame : ";
+    parsed_cmd += std::to_string(thystame);
     parsed_cmd += "\n";
     this->assets.text_bct.setString(parsed_cmd);
 }

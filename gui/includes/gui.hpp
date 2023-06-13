@@ -55,6 +55,7 @@ class GUI {
     private:
         Assets assets;
         int port;
+        int sgt = 100;
         std::string machine;
         int clientSocket;
         int height;

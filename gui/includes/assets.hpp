@@ -34,6 +34,7 @@ class Assets {
         sf::Text text_plv;
         sf::Text text_pid;
         sf::Text tna_text;
+        sf::Text text_sgt;
         std::vector<sf::Text> chat_texts;
         sf::Text new_text;
         std::vector<std::string> chat_messages_string;
@@ -41,6 +42,10 @@ class Assets {
         sf::Sprite closeButtonSprite;
         sf::Texture optionsButtonTexture;
         sf::Sprite optionsButtonSprite;
+        sf::Texture optionsPlusButtonTexture;
+        sf::Sprite optionsPlusButtonSprite;
+        sf::Texture optionsMinusButtonTexture;
+        sf::Sprite optionsMinusButtonSprite;
         sf::RectangleShape leftrectangle1;
         sf::RectangleShape leftrectangle2;
         sf::RectangleShape leftrectangle3;
