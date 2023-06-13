@@ -4,16 +4,18 @@ import utils
 import zappyAI as zp
 import base64
 
-
 OBJECTIVES = [
-    zp.Resources(0, 1, 0, 0, 0, 0, 0, 1),
-    zp.Resources(0, 1, 1, 1, 0, 0, 0, 2),
-    zp.Resources(0, 2, 0, 1, 0, 2, 0, 2),
-    zp.Resources(0, 1, 1, 2, 0, 1, 0, 2),
-    zp.Resources(0, 1, 2, 1, 3, 0, 0, 4),
-    zp.Resources(0, 1, 2, 3, 0, 1, 0, 4),
-    zp.Resources(0, 2, 2, 2, 2, 2, 1, 6)
+    zp.Resources(0, 1, 0, 0, 0, 0, 0, 0),
+    zp.Resources(0, 1, 1, 1, 0, 0, 0, 1),
+    zp.Resources(0, 2, 0, 1, 0, 2, 0, 1),
+    zp.Resources(0, 1, 1, 2, 0, 1, 0, 1),
+    zp.Resources(0, 1, 2, 1, 3, 0, 0, 3),
+    zp.Resources(0, 1, 2, 3, 0, 1, 0, 3),
+    zp.Resources(0, 2, 2, 2, 2, 2, 1, 5),
+    zp.Resources(0, 0, 0, 0, 0, 0, 0, 0) # Last one must be empty
 ]
+
+FOOD_WANTED = 10
 
 LVL_MAX = len(OBJECTIVES) - 1
 
@@ -63,10 +65,12 @@ class AI:
             current += 1
             if current % 126 == 0:
                 food_left -= 1
+        print("Food left: ", food_left)
         return food_left
 
     def draw_map(self) -> None:
         print(self._world.__str__((self._pos, self._direction)))
+        print(str(self._inventory))
 
     def _on_message(self, direction: zp.Direction, message: str) -> None:
         decoded: str = base64.b64decode(utils.decrypt(message.encode(), self._msg_key)).decode("utf-8")
@@ -270,23 +274,40 @@ class AI:
             return False
         raise ConnectionError("Invalid response")
 
-    def incantation(self, drop_items: bool = True, take_back: bool = False) -> None:
+    def incantation(self, drop_items: bool = True) -> bool:
         if drop_items:
+            self.check_inventory()
             for resource in self._inventory:
-                missing: int = OBJECTIVES[self._level - 1][resource] - self._world[(self._pos.y, self._pos.x)].objects[resource]
+                missing: int = OBJECTIVES[self._level - 1][resource] - self._world[(self._pos.y, self._pos.x)].objects[
+                    resource]
                 if self._inventory[resource] < missing:
-                    raise ValueError("Not enough resources")
-            for resource in self._inventory: # this code is duplicated because we need check all ressources before dropping them
-                missing: int = OBJECTIVES[self._level - 1][resource] - self._world[(self._pos.y, self._pos.x)].objects[resource]
+                    raise ValueError("Not enough resources (drop)")
+            # this code is duplicated because we need check all resources before dropping them
+            for resource in self._inventory:
+                missing: int = OBJECTIVES[self._level - 1][resource] - self._world[(self._pos.y, self._pos.x)].objects[
+                    resource]
                 for _ in range(missing):
                     self.set(resource)
         for resource in self._world[(self._pos.y, self._pos.x)].objects:
             if self._world[(self._pos.y, self._pos.x)].objects[resource] < OBJECTIVES[self._level - 1][resource]:
                 raise ValueError("Not enough resources")
-        if self._check_time(300):
+        if self._check_time(300) < 1:
             raise TimeoutError("Not enough time")
         self._comm.send("Incantation\n")
+        res = self._recv()
+        if res == ["ko"]:
+            return False
+        if res != ["Elevation underway"]:
+            raise ConnectionError("Invalid response")
         self._add_time(300)
+        res = self._recv()
+        if len(res) != 1 or not res[0].startswith("Current level: "):
+            raise ConnectionError("Invalid response")
+        try:
+            self._level = int(res[0][len("Current level: "):])
+        except ValueError:
+            raise ConnectionError("Invalid response")
+        return True
 
     def __dict__(self) -> dict:
         return {
