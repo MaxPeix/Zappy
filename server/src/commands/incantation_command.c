@@ -27,10 +27,8 @@ static bool check_stone(tile_t *tile, int level)
     return true;
 }
 
-void handle_incantation_command(client_t *clients,
-                                client_t *client,
-                                server_params_t *server_params,
-                                char **args)
+void handle_incantation_command(client_t *clients, client_t *client,
+                                server_params_t *server_params, char **args)
 {
     tile_t *tile =
         &server_params->world[client->y_position][client->x_position];
@@ -39,9 +37,10 @@ void handle_incantation_command(client_t *clients,
 
     if (strcasecmp(args[0], "INCANTATION") != 0)
         return;
-    for (int i = 0; i < server_params->clients_per_team; i++) {
+    for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i].x_position == client->x_position
-            && clients[i].y_position == client->x_position)
+            && clients[i].y_position == client->x_position
+            && strcmp(clients[i].team_name, client->team_name) == 0)
             nb_player_on_tile++;
     }
     if (client->level < 8) {
@@ -54,38 +53,43 @@ void handle_incantation_command(client_t *clients,
 }
 
 int can_do_incantation(client_t *clients, client_t *client,
-    server_params_t *server_params, char **args)
+                       server_params_t *server_params, char **args)
 {
     int nb_player[7] = { 1, 2, 2, 4, 4, 6, 6 };
     int nb_player_on_tile = 0;
 
-    for (int i = 0; i < server_params->clients_per_team; i++) {
+    for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i].x_position == client->x_position
-            && clients[i].y_position == client->x_position)
+            && clients[i].y_position == client->x_position
+            && strcmp(clients[i].team_name, client->team_name) == 0)
             nb_player_on_tile++;
     }
     if (client->level < 8) {
         if (nb_player_on_tile >= nb_player[client->level - 1]
             && check_stone(
-                &server_params->world[client->y_position][client->x_position],
-                client->level) == true)
+                   &server_params->world[client->y_position][client->x_position],
+                   client->level) == true)
             return 1;
     }
     return 0;
 }
 
 void send_message_to_graphical_start_incantation(client_t *clients,
-    client_t *client, server_params_t *server_params, char **args)
+                                                 client_t *client,
+                                                 server_params_t *server_params,
+                                                 char **args)
 {
     int nb_player[7] = { 1, 2, 2, 4, 4, 6, 6 };
-    char message[1024] = {0};
-    sprintf(message, "pic %d %d %d",
-        client->x_position, client->y_position, client->level);
+    char message[1024] = { 0 };
+    sprintf(message,"pic %d %d %d", client->x_position,
+            client->y_position,
+            client->level);
 
     int nb_player_on_tile = 0;
-    for (int i = 0; i < server_params->clients_per_team; i++) {
+    for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i].x_position == client->x_position
-            && clients[i].y_position == client->x_position) {
+            && clients[i].y_position == client->x_position
+            && strcmp(clients[i].team_name, client->team_name) == 0) {
             char player_num[10];
             sprintf(player_num, " %d", clients[i].id);
             strcat(message, player_num);
@@ -96,10 +100,8 @@ void send_message_to_graphical_start_incantation(client_t *clients,
     if (client->level < 8) {
         if (nb_player_on_tile >= nb_player[client->level - 1]
             && check_stone(
-                &server_params->world[client->y_position][client->x_position],
-                client->level) == true)
+                   &server_params->world[client->y_position][client->x_position],
+                   client->level) == true)
             send_message_to_graphical(clients, message);
     }
 }
-
-// TODO: Check if nb_player_on_tile works when the 'look' command is done
