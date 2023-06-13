@@ -19,16 +19,23 @@ static bool check_stone(tile_t *tile, int level)
 
     if (level > 0 && level < 8 && tile->linemate < linemate[level - 1]
         || tile->deraumere < deraumere[level - 1]
-        || tile->sibur < sibur[level - 1]
+        || tile->sibur < sibur[level - 1] || tile->phiras < phiras[level - 1]
         || tile->mendiane < mendiane[level - 1]
-        || tile->phiras < phiras[level - 1]
         || tile->thystame < thystame[level - 1])
         return false;
+    tile->linemate -= linemate[level - 1];
+    tile->deraumere -= deraumere[level - 1];
+    tile->sibur -= sibur[level - 1];
+    tile->mendiane -= mendiane[level - 1];
+    tile->phiras -= phiras[level - 1];
+    tile->thystame -= thystame[level - 1];
     return true;
 }
 
-void handle_incantation_command(client_t *clients, client_t *client,
-                                server_params_t *server_params, char **args)
+void handle_incantation_command(client_t *clients,
+                                client_t *client,
+                                server_params_t *server_params,
+                                char **args)
 {
     tile_t *tile =
         &server_params->world[client->y_position][client->x_position];
@@ -52,8 +59,10 @@ void handle_incantation_command(client_t *clients, client_t *client,
     }
 }
 
-int can_do_incantation(client_t *clients, client_t *client,
-                       server_params_t *server_params, char **args)
+int can_do_incantation(client_t *clients,
+                       client_t *client,
+                       server_params_t *server_params,
+                       char **args)
 {
     int nb_player[7] = { 1, 2, 2, 4, 4, 6, 6 };
     int nb_player_on_tile = 0;
@@ -66,9 +75,10 @@ int can_do_incantation(client_t *clients, client_t *client,
     }
     if (client->level < 8) {
         if (nb_player_on_tile >= nb_player[client->level - 1]
-            && check_stone(
-                   &server_params->world[client->y_position][client->x_position],
-                   client->level) == true)
+            && check_stone(&server_params
+                                ->world[client->y_position][client->x_position],
+                           client->level)
+                   == true)
             return 1;
     }
     return 0;
@@ -81,7 +91,9 @@ void send_message_to_graphical_start_incantation(client_t *clients,
 {
     int nb_player[7] = { 1, 2, 2, 4, 4, 6, 6 };
     char message[1024] = { 0 };
-    sprintf(message,"pic %d %d %d", client->x_position,
+    sprintf(message,
+            "pic %d %d %d",
+            client->x_position,
             client->y_position,
             client->level);
 
@@ -99,9 +111,10 @@ void send_message_to_graphical_start_incantation(client_t *clients,
     strcat(message, "\n");
     if (client->level < 8) {
         if (nb_player_on_tile >= nb_player[client->level - 1]
-            && check_stone(
-                   &server_params->world[client->y_position][client->x_position],
-                   client->level) == true)
+            && check_stone(&server_params
+                                ->world[client->y_position][client->x_position],
+                           client->level)
+                   == true)
             send_message_to_graphical(clients, message);
     }
 }
