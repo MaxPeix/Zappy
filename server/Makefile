@@ -71,6 +71,6 @@ clean:
 fclean:			clean
 	rm -f $(NAME)
 
-re:	$(NAME)
+re:	fclean all
 
 .PHONY: all $(NAME) fclean tests_run clean re make
