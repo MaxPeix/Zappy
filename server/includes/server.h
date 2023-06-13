@@ -287,6 +287,10 @@ void handle_fork_command(client_t *client, server_params_t *server_params,
 
 // client look
 void handle_look_command(client_t *clients, client_t *client,
-                                server_params_t *server_params, char **args);
+    server_params_t *server_params, char **args);
+
+// check if client can do incantation
+int can_do_incantation(client_t *clients, client_t *client,
+    server_params_t *server_params, char **args);
 
 #endif /* !SERVER_H_ */

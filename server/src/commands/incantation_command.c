@@ -53,6 +53,27 @@ void handle_incantation_command(client_t *clients,
     }
 }
 
+int can_do_incantation(client_t *clients, client_t *client,
+    server_params_t *server_params, char **args)
+{
+    int nb_player[7] = { 1, 2, 2, 4, 4, 6, 6 };
+    int nb_player_on_tile = 0;
+
+    for (int i = 0; i < server_params->clients_per_team; i++) {
+        if (clients[i].x_position == client->x_position
+            && clients[i].y_position == client->x_position)
+            nb_player_on_tile++;
+    }
+    if (client->level < 8) {
+        if (nb_player_on_tile >= nb_player[client->level - 1]
+            && check_stone(
+                &server_params->world[client->y_position][client->x_position],
+                client->level) == true)
+            return 1;
+    }
+    return 0;
+}
+
 void send_message_to_graphical_start_incantation(client_t *clients,
     client_t *client, server_params_t *server_params, char **args)
 {
