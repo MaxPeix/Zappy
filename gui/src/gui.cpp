@@ -7,6 +7,15 @@
 
 #include "gui.hpp"
 
+typedef struct info_player_s {
+    int number;
+    int x;
+    int y;
+    int orientation;
+    int level;
+    char team[6];
+} info_player_t;
+
 GUI::GUI(int port, std::string machine)
 {
     this->port = port;
@@ -44,6 +53,9 @@ void GUI::draw_game()
         for(int j = 0; j < this->height; j++) {
             window.draw(this->assets.tiles[i][j]);
         }
+    }
+    for (auto &monster_sprite : assets.monster_sprites) {
+        window.draw(monster_sprite);
     }
 }
 
@@ -131,6 +143,7 @@ void GUI::draw_cmd(std::string cmd)
 {
     std::string cmd_tag = cmd.substr(0, 3);
     std::string parsed_string = cmd;
+    info_player_t player_info;
 
     if (cmd_tag.compare("bct") == 0) {
         this->draw_bct(cmd);
@@ -141,8 +154,20 @@ void GUI::draw_cmd(std::string cmd)
         return;
     }
     if (cmd_tag.compare("pnw") == 0) {
-        std::cout << cmd;
-        return;
+        int num_values_parsed = sscanf(parsed_string.c_str(), "pnw %d %d %d %d %d %s\n",
+            &player_info.number, 
+            &player_info.x, 
+            &player_info.y, 
+            &player_info.orientation, 
+            &player_info.level,
+            player_info.team);
+        if (num_values_parsed != 6) {
+            std::cout << "Error: pnw" << std::endl;
+            return;
+        }
+        std::cout << "pnw : " << player_info.number << " " << player_info.x << " " << player_info.y << " "
+        << player_info.orientation << " " << player_info.level << " " << player_info.team << std::endl;
+        assets.create_monster(player_info.x, player_info.y);
     }
     if (cmd_tag.compare("ppo") == 0) {
         std::cout << cmd;
