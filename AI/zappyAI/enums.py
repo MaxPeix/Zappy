@@ -95,3 +95,15 @@ class Direction(Enum):
     NW = 6
     N = 7
     NE = 8
+
+
+class Status(Enum):
+    DYING = 0
+    NOTHING = 1
+    SEARCHING = 2
+    MOVING = 3
+
+
+class Evt(Enum):
+    ON_TILE = 0
+    ON_LOOK = 1
