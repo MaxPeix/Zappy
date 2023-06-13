@@ -7,7 +7,8 @@
 
 #include "server.h"
 
-static void handle_north_south(client_t *client, server_params_t *server_params)
+static void handle_north_south(client_t *client,
+    server_params_t *server_params)
 {
     if (client->orientation == NORTH) {
         client->y_position = client->y_position - 1;

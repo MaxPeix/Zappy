@@ -22,9 +22,7 @@ static tile_t *get_tile(server_params_t *server_params, int x, int y)
 }
 
 static tile_t *get_relative_tile(server_params_t *server_params,
-                                 client_t *client,
-                                 int x,
-                                 int y)
+    client_t *client, int x, int y)
 {
     int relative_x = client->x_position + x;
     int relative_y = client->y_position + y;

@@ -8,8 +8,7 @@
 #include "server.h"
 
 void handle_command_five(client_t *client,
-                         server_params_t *server_params,
-                         char **args)
+    server_params_t *server_params, char **args)
 {
     if (strcasecmp(args[0], "TAKE") == 0) {
         take_command(server_params, client, args);
@@ -22,8 +21,7 @@ void handle_command_five(client_t *client,
 }
 
 void handle_command_four(client_t *client,
-                         server_params_t *server_params,
-                         char **args)
+    server_params_t *server_params, char **args)
 {
     if (strcasecmp(args[0], "BCT") == 0) {
         print_bct(server_params, client, args);
@@ -44,8 +42,7 @@ void handle_command_four(client_t *client,
 }
 
 void handle_command_three(client_t *client,
-                          server_params_t *server_params,
-                          char **args)
+    server_params_t *server_params, char **args)
 {
     if (strcasecmp(args[0], "SGT") == 0) {
         print_sgt(server_params, client);

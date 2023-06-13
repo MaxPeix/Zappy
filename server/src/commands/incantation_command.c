@@ -53,4 +53,32 @@ void handle_incantation_command(client_t *clients,
     }
 }
 
+void send_message_to_graphical_start_incantation(client_t *clients,
+    client_t *client, server_params_t *server_params, char **args)
+{
+    int nb_player[7] = { 1, 2, 2, 4, 4, 6, 6 };
+    char message[1024] = {0};
+    sprintf(message, "pic %d %d %d",
+        client->x_position, client->y_position, client->level);
+
+    int nb_player_on_tile = 0;
+    for (int i = 0; i < server_params->clients_per_team; i++) {
+        if (clients[i].x_position == client->x_position
+            && clients[i].y_position == client->x_position) {
+            char player_num[10];
+            sprintf(player_num, " %d", clients[i].id);
+            strcat(message, player_num);
+            nb_player_on_tile++;
+        }
+    }
+    strcat(message, "\n");
+    if (client->level < 8) {
+        if (nb_player_on_tile >= nb_player[client->level - 1]
+            && check_stone(
+                &server_params->world[client->y_position][client->x_position],
+                client->level) == true)
+            send_message_to_graphical(clients, message);
+    }
+}
+
 // TODO: Check if nb_player_on_tile works when the 'look' command is done

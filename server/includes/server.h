@@ -250,6 +250,13 @@ void distribute_mendiane(server_params_t *params);
 void distribute_phiras(server_params_t *params);
 void distribute_thystame(server_params_t *params);
 
+// send message to graphical
+void send_message_to_graphical(client_t *clients, char *message);
+
+// send message to graphical start incantation
+void send_message_to_graphical_start_incantation(client_t *clients,
+    client_t *client, server_params_t *server_params, char **args);
+
 // client movement
 
 void handle_forward_command(server_params_t *params, client_t *client,
@@ -276,7 +283,7 @@ void handle_incantation_command(client_t *clients,
 
 // client fork
 void handle_fork_command(client_t *client, server_params_t *server_params,
-                         char **args);
+    char **args);
 
 // client look
 void handle_look_command(client_t *clients, client_t *client,

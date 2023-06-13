@@ -34,7 +34,8 @@ static void take_object(const client_t *client,
         write(client->socket, "ko\n", 3);
 }
 
-void take_command(server_params_t *server_params, client_t *client, char **argv)
+void take_command(server_params_t *server_params,
+    client_t *client, char **argv)
 {
     tile_t *tile =
         &server_params->world[client->y_position][client->x_position];
@@ -70,7 +71,8 @@ static void set_object(const client_t *client,
         write(client->socket, "ko\n", 3);
 }
 
-void set_command(server_params_t *server_params, client_t *client, char **argv)
+void set_command(server_params_t *server_params,
+    client_t *client, char **argv)
 {
     tile_t *tile =
         &server_params->world[client->y_position][client->x_position];

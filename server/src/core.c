@@ -57,12 +57,13 @@ command_t *create_new_command(char **args, server_params_t *server_params)
             free(new_command);
         return NULL;
     }
-    for (command_info_t *command = commands_list; command->name; ++command)
+    for (command_info_t *command = commands_list; command->name; ++command) {
         if (strcmp(new_command->name, command->name) == 0) {
             new_command->execution_time = time(NULL) +
                 command->execution_time_factor / server_params->frequency;
             return new_command;
         }
+    }
     free_command_args(new_command->args);
     if (new_command->name && strlen(new_command->name) > 0)
         free(new_command->name);
@@ -84,6 +85,12 @@ void handle_client_request(client_t *clients,
     }
     if (args[0] == NULL) {
         free_array(args);
+        return;
+    }
+    char *output_incantation = NULL;
+    if (strcmp(args[0], "Incantation") == 0) {
+        send_message_to_graphical_start_incantation(clients,
+            &clients[i], server_params, args);
         return;
     }
     command_t *new_command = create_new_command(args, server_params);
@@ -108,7 +115,8 @@ void execute_commands_if_ready(client_t *clients,
                 client->commands[j].args);
             handle_command_with_player_nbr(clients, client,
                 server_params, client->commands[j].args);
-            handle_broadcast_command(clients, client, client->commands[j].args);
+            handle_broadcast_command(clients, client,
+                client->commands[j].args);
             handle_eject_command(clients, client,
                 server_params, client->commands[j].args);
             handle_incantation_command(clients, client,
