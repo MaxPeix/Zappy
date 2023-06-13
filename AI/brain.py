@@ -184,17 +184,21 @@ class Brain:
         self.turn(zp.Direction.N)
         self.on_look()
         for idx in range(ops[0]):
-            for _ in range(self._ai.level + (1 if idx == ops[0] - 1 else 1)):
+            for _ in range(self._ai.level + 1):
                 self.up()
             self.on_look()
+            if idx == ops[0] - 1:
+                self.up()
 
     def _cartography_down_column(self, ops: list[int, int, int]) -> None:
         self.turn(zp.Direction.S)
         self.on_look()
         for idx in range(ops[0]):
-            for _ in range(self._ai.level + (1 if idx == ops[0] - 1 else 1)):
+            for _ in range(self._ai.level + 1):
                 self.down()
             self.on_look()
+            if idx == ops[0] - 1:
+                self.down()
 
     def cartography(self, start: zp.Pos, end: zp.Pos) -> None:
         if start == end:
@@ -204,7 +208,7 @@ class Brain:
             start.x, end.x = end.x, start.x
         if start.y < end.y:
             start.y, end.y = end.y, start.y
-        if start.x < 0 or start.y < 0 or end.x > self._ai.world.size.width or end.y > self._ai.world.size.height:
+        if start.x < 0 or start.y < 0 or end.x > self._ai.world.size.width - 1 or end.y > self._ai.world.size.height - 1:
             raise ValueError("start and end must be inside the map")
 
         print("cartography from", start, "to", end)
@@ -219,8 +223,8 @@ class Brain:
             print("##############################################################################################")
             self._cartography_up_column(ops)
             ops[1] -= 1
-            self._cartography_next_column()
             if ops[2] > 0:
+                self._cartography_next_column()
                 self._cartography_down_column(ops)
                 ops[2] -= 1
                 if ops[1] > 0:
