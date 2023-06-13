@@ -96,9 +96,8 @@ void GUI::draw_pnw(std::string cmd)
         &player_info.orientation, 
         &player_info.level,
         player_info.team);
-    if (num_values_parsed != 6) {
+    if (num_values_parsed != 6)
         return;
-    }
     assets.create_player(player_info.x, player_info.y, player_info.number);
 }
 
@@ -106,6 +105,30 @@ void GUI::draw_pdi(std::string cmd)
 {
     sscanf(cmd.c_str(), "pdi %d\n", &player_info.number);
     this->assets.delete_player(player_info.number);
+}
+
+void GUI::draw_enw(std::string cmd)
+{
+    int x, y, id;
+    int tmp;
+    int num_values_parsed = sscanf(cmd.c_str(), "enw %d %d %d %d\n",
+        &id,
+        &tmp,
+        &x,
+        &y);
+    if (num_values_parsed != 4)
+        return;
+    assets.create_egg(x, y, id);
+}
+
+
+void GUI::draw_edi(std::string cmd)
+{
+    int id;
+    int num_values_parsed = sscanf(cmd.c_str(), "edi %d\n", &id);
+    if (num_values_parsed != 1)
+        return;
+    assets.delete_egg(id);
 }
 
 void GUI::draw_ppo(std::string cmd)
@@ -141,4 +164,21 @@ void GUI::draw_pin(std::string cmd)
     parsed_cmd += cmd[16];
     parsed_cmd += "\n";
     this->assets.text_pin.setString(parsed_cmd);
+}
+
+void GUI::draw_pbc(std::string cmd)
+{
+    cmd.replace(0, 3, "Player");
+    this->assets.chat_messages_string.push_back(cmd);
+    this->assets.new_text.setString(cmd);
+    this->assets.new_text.setPosition(10, 1080 / 3 + 60 + (this->assets.chat_messages_string.size() - 1) * 30);
+    this->assets.chat_texts.push_back(this->assets.new_text);
+
+    if (this->assets.chat_texts.size() > 5) {
+        this->assets.chat_texts.erase(this->assets.chat_texts.begin());
+        this->assets.chat_messages_string.erase(this->assets.chat_messages_string.begin());
+        for (unsigned int i = 0; i < this->assets.chat_texts.size(); i++) {
+            this->assets.chat_texts[i].setPosition(10, 1080 / 3 + 60 + i * 30);
+        }
+    }
 }

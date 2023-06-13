@@ -23,8 +23,13 @@ class Assets {
         std::map<int, sf::Sprite> monster_sprites;
         void create_player(int x, int y, int n);
         void delete_player(int n);
+        void create_egg(int x, int y, int e);
+        void delete_egg(int e);
         sf::Texture monster_texture;
         sf::Sprite monster_sprite;
+        sf::Texture egg_texture;
+        sf::Sprite egg_sprite;
+        std::map<int, sf::Sprite> egg_sprites;
         sf::Font font;
         sf::Text title_tna;
         sf::Text title_chat;

@@ -52,6 +52,9 @@ class GUI {
         void draw_pnw(std::string cmd);
         void draw_ppo(std::string cmd);
         void draw_pin(std::string cmd);
+        void draw_enw(std::string cmd);
+        void draw_edi(std::string cmd);
+        void draw_pbc(std::string cmd);
     private:
         Assets assets;
         int port;

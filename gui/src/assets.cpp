@@ -110,6 +110,9 @@ void Assets::init_assets(int height, int width)
     }
     this->monster_texture.loadFromFile("assets/monster.png");
     this->monster_sprite.setTexture(monster_texture);
+    this->egg_texture.loadFromFile("assets/egg.png");
+    this->egg_sprite.setTexture(egg_texture);
+    this->egg_sprite.setOrigin(sf::Vector2f(this->egg_texture.getSize().x / 2, this->egg_texture.getSize().y / 2));
 }
 
 void Assets::create_player(int x, int y, int n)
@@ -122,6 +125,19 @@ void Assets::create_player(int x, int y, int n)
 void Assets::delete_player(int n)
 {
     this->monster_sprites.erase(n);
+}
+
+void Assets::create_egg(int x, int y, int e)
+{
+    egg_sprite.setPosition(x * this->box_size + this->rectangle_width + (this->box_size / 2), y * this->box_size + (this->box_size / 2));
+    egg_sprite.setScale(sf::Vector2f(0.1, 0.1));
+    this->egg_sprites.insert(std::pair<int, sf::Sprite>(e, egg_sprite));
+    this->egg_sprites[e].setScale(sf::Vector2f(0.1, 0.1));
+}
+
+void Assets::delete_egg(int e)
+{
+    this->egg_sprites.erase(e);
 }
 
 Assets::~Assets()

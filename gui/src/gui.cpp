@@ -55,6 +55,9 @@ void GUI::draw_game()
     for (auto &monster_sprite : assets.monster_sprites) {
         window.draw(monster_sprite.second);
     }
+    for (auto &egg_sprite : assets.egg_sprites) {
+        window.draw(egg_sprite.second);
+    }
 }
 
 void GUI::check_event()
@@ -198,19 +201,8 @@ void GUI::draw_cmd(std::string cmd)
         return;
     }
     if (cmd_tag.compare("pbc") == 0) {
-        parsed_string.replace(0, 3, "player");
-        this->assets.chat_messages_string.push_back(parsed_string);
-        this->assets.new_text.setString(parsed_string);
-        this->assets.new_text.setPosition(10, 1080 / 3 + 60 + (this->assets.chat_messages_string.size() - 1) * 30);
-        this->assets.chat_texts.push_back(this->assets.new_text);
-
-        if (this->assets.chat_texts.size() > 5) {
-            this->assets.chat_texts.erase(this->assets.chat_texts.begin());
-            this->assets.chat_messages_string.erase(this->assets.chat_messages_string.begin());
-            for (unsigned int i = 0; i < this->assets.chat_texts.size(); i++) {
-                this->assets.chat_texts[i].setPosition(10, 1080 / 3 + 60 + i * 30);
-            }
-        }
+        this->draw_pbc(cmd);
+        return;
     }
     if (cmd_tag.compare("pic") == 0) {
         std::cout << cmd;
@@ -237,7 +229,7 @@ void GUI::draw_cmd(std::string cmd)
         return;
     }
     if (cmd_tag.compare("enw") == 0) {
-        std::cout << cmd;
+        this->draw_enw(cmd);
         return;
     }
     if (cmd_tag.compare("ebo") == 0) {
@@ -245,7 +237,7 @@ void GUI::draw_cmd(std::string cmd)
         return;
     }
     if (cmd_tag.compare("edi") == 0) {
-        std::cout << cmd;
+        this->draw_edi(cmd);
         return;
     }
     if (cmd_tag.compare("sgt") == 0) {
@@ -253,7 +245,7 @@ void GUI::draw_cmd(std::string cmd)
         return;
     }
     if (cmd_tag.compare("seg") == 0) {
-        std::cout << cmd;
+        this->window.close();
         return;
     }
     if (cmd_tag.compare("smg") == 0) {
