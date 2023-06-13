@@ -28,6 +28,7 @@ void init_clients_list(client_t *clients)
         clients[i].thystame = 0;
         clients[i].incantation_level = 0;
         clients[i].is_connected = 0;
+        clients[i].is_dead = 0;
     }
 }
 
@@ -53,4 +54,5 @@ void handle_disconnect(client_t *client)
     client->thystame = 0;
     client->incantation_level = 0;
     client->is_connected = 0;
+    client->is_dead = 0;
 }

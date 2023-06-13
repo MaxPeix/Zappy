@@ -74,6 +74,7 @@ typedef struct client
     int is_connected;
     command_t* commands;
     int command_count;
+    int is_dead;
 } client_t;
 
 typedef struct server_params
@@ -292,5 +293,16 @@ void handle_look_command(client_t *clients, client_t *client,
 // check if client can do incantation
 int can_do_incantation(client_t *clients, client_t *client,
     server_params_t *server_params, char **args);
+
+// check if player is dead
+void check_death_player(client_t *clients,
+    client_t *client, server_params_t *server_params);
+
+// handle client request
+void handle_client_request(client_t *clients,
+    char *buffer, int i, server_params_t *server_params);
+
+// create new command
+command_t *create_new_command(char **args, server_params_t *server_params);
 
 #endif /* !SERVER_H_ */
