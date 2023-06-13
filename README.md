@@ -5,7 +5,7 @@
 ### Overview :eyes:
 
 This project is a part of the **second** year of Epitech. <br>
-It was made in **groups of 6**, and it was our final year project. <br>
+It was made in **groups of 6**, and it was our final project of the year. <br>
 We had **1 month** to complete it. :spiral_calendar: <br>
 
 The goal of this project was to create a **game** in **C**, **C++** and **python**. <br>
