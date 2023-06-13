@@ -71,18 +71,15 @@ command_t *create_new_command(char **args, server_params_t *server_params)
 }
 
 void handle_client_request(client_t *clients,
-                           char *buffer,
-                           int i,
-                           server_params_t *server_params)
+    char *buffer, int i, server_params_t *server_params)
 {
     if (!buffer || strlen(buffer) == 0) {
         return;
     }
 
     char **args = get_args_from_buffer(buffer);
-    if (args == NULL) {
+    if (args == NULL)
         return;
-    }
     if (args[0] == NULL) {
         free_array(args);
         return;

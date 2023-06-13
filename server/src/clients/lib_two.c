@@ -14,15 +14,24 @@ void free_command_args(char **args)
     free(args);
 }
 
-char **duplicate_args(char **args)
+int count_args(char **args)
 {
     if (args == NULL) {
-        printf("args is NULL. Exiting duplicate_args\n");
-        return NULL;
+        printf("args is NULL. Exiting count_args\n");
+        return -1;
     }
     int arg_count = 0;
     while (args[arg_count] != NULL)
         arg_count++;
+    return arg_count;
+}
+
+char **duplicate_args(char **args)
+{
+    int arg_count = count_args(args);
+    if (arg_count == -1)
+        return NULL;
+
     char **new_args = calloc(arg_count + 1, sizeof(char *));
     if (new_args == NULL)
         return NULL;
