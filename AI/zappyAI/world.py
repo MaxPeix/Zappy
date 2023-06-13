@@ -15,12 +15,12 @@ class World:
 
     def __getitem__(self, pos: tuple[int, int] | Pos) -> Tile:
         if type(pos) == Pos:
-            pos = (pos.y, pos.x)
+            pos: tuple[int, int] = (pos.y, pos.x)
         return self._world[pos[0] % self._size.height][pos[1] % self._size.width]
 
     def __setitem__(self, pos: tuple[int, int] | Pos, value: Tile) -> None:
         if type(pos) == Pos:
-            pos = (pos.y, pos.x)
+            pos: tuple[int, int] = (pos.y, pos.x)
         self._world[pos[0] % self._size.height][pos[1] % self._size.width] = value
 
     def __iter__(self) -> iter:
@@ -59,7 +59,7 @@ class World:
         return res
 
     def __repr__(self) -> str:
-        return str(self)
+        return str({"size": self._size, "tiles": self._world})
 
     def __len__(self) -> int:
         return self._size.width * self._size.height
