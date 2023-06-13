@@ -205,11 +205,11 @@ void GUI::draw_cmd(std::string cmd)
         return;
     }
     if (cmd_tag.compare("pic") == 0) {
-        std::cout << cmd;
+        this->draw_pic(cmd);
         return;
     }
     if (cmd_tag.compare("pie") == 0) {
-        std::cout << cmd;
+        this->draw_pie(cmd);
         return;
     }
     if (cmd_tag.compare("pfk") == 0) {

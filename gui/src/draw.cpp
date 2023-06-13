@@ -133,35 +133,61 @@ void GUI::draw_edi(std::string cmd)
 
 void GUI::draw_ppo(std::string cmd)
 {
-    int id = std::stoi(cmd.substr(4, 1));
-    int x = std::stoi(cmd.substr(6, 1));
-    int y = std::stoi(cmd.substr(8, 1));
+    int id, x, y;
+    int num_values_parsed = sscanf(cmd.c_str(), "ppo %d %d %d\n",
+        &id,
+        &x,
+        &y);
+    if (num_values_parsed != 3)
+        return;
     this->assets.monster_sprites[id].setPosition(x * this->assets.box_size + this->assets.rectangle_width, y * this->assets.box_size);
 }
 
 void GUI::draw_pin(std::string cmd)
 {
     std::string parsed_cmd = "Inventory :\n";
+    int n = 0;
+    int x = 0;
+    int y = 0;
+    int food = 0;
+    int linemate = 0;
+    int deraumere = 0;
+    int sibur = 0;
+    int mendiane = 0;
+    int phiras = 0;
+    int thystame = 0;
+
+    sscanf(cmd.c_str(), "pin %d %d %d %d %d %d %d %d %d %d\n",
+        &n,
+        &x,
+        &y,
+        &food,
+        &linemate,
+        &deraumere,
+        &sibur,
+        &mendiane,
+        &phiras,
+        &thystame);
     parsed_cmd += "Food: ";
-    parsed_cmd += cmd[4];
+    parsed_cmd += std::to_string(food);
     parsed_cmd += "\n";
     parsed_cmd += "Linemate: ";
-    parsed_cmd += cmd[6];
+    parsed_cmd += std::to_string(linemate);
     parsed_cmd += "\n";
     parsed_cmd += "Deraumere: ";
-    parsed_cmd += cmd[8];
+    parsed_cmd += std::to_string(deraumere);
     parsed_cmd += "\n";
     parsed_cmd += "Sibur: ";
-    parsed_cmd += cmd[10];
+    parsed_cmd += std::to_string(sibur);
     parsed_cmd += "\n";
     parsed_cmd += "Mendiane: ";
-    parsed_cmd += cmd[12];
+    parsed_cmd += std::to_string(mendiane);
     parsed_cmd += "\n";
     parsed_cmd += "Phiras: ";
-    parsed_cmd += cmd[14];
+    parsed_cmd += std::to_string(phiras);
     parsed_cmd += "\n";
     parsed_cmd += "Thystame: ";
-    parsed_cmd += cmd[16];
+    parsed_cmd += std::to_string(thystame);
     parsed_cmd += "\n";
     this->assets.text_pin.setString(parsed_cmd);
 }
@@ -180,5 +206,37 @@ void GUI::draw_pbc(std::string cmd)
         for (unsigned int i = 0; i < this->assets.chat_texts.size(); i++) {
             this->assets.chat_texts[i].setPosition(10, 1080 / 3 + 60 + i * 30);
         }
+    }
+}
+
+void GUI::draw_pic(std::string cmd)
+{
+    std::istringstream iss(cmd);
+    std::string prefix;
+    int X, Y, L;
+    std::vector<int> ns;
+
+    if (iss >> prefix >> X >> Y >> L) {
+        int n;
+        while (iss >> n) {
+        ns.push_back(n);
+        }
+    }
+
+    std::cout << "X: " << X << std::endl;
+    std::cout << "Y: " << Y << std::endl;
+    std::cout << "L: " << L << std::endl;
+
+    for (int n : ns) {
+        this->assets.monster_sprites[n].setTexture(this->assets.monster_evolving_texture);
+        this->evolving.push_back(n);
+    }
+}
+
+void GUI::draw_pie(std::string cmd)
+{
+    std::cout << cmd << std::endl;
+    for (int n : this->evolving) {
+        this->assets.monster_sprites[n].setTexture(this->assets.monster_texture);
     }
 }

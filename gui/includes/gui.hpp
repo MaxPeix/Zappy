@@ -17,6 +17,7 @@
 #include "assets.hpp"
 #include <thread>
 #include <future>
+#include <sstream>
 
 const int BUFFER_SIZE = 4096;
 
@@ -55,6 +56,8 @@ class GUI {
         void draw_enw(std::string cmd);
         void draw_edi(std::string cmd);
         void draw_pbc(std::string cmd);
+        void draw_pic(std::string cmd);
+        void draw_pie(std::string cmd);
     private:
         Assets assets;
         int port;
@@ -67,4 +70,5 @@ class GUI {
         info_player_t player_info;
         sf::RenderWindow window;
         sf::Event event;
+        std::vector<int> evolving;
 };

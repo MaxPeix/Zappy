@@ -110,6 +110,7 @@ void Assets::init_assets(int height, int width)
     }
     this->monster_texture.loadFromFile("assets/monster.png");
     this->monster_sprite.setTexture(monster_texture);
+    this->monster_evolving_texture.loadFromFile("assets/monster_evolving.png");
     this->egg_texture.loadFromFile("assets/egg.png");
     this->egg_sprite.setTexture(egg_texture);
     this->egg_sprite.setOrigin(sf::Vector2f(this->egg_texture.getSize().x / 2, this->egg_texture.getSize().y / 2));

@@ -27,6 +27,7 @@ class Assets {
         void delete_egg(int e);
         sf::Texture monster_texture;
         sf::Sprite monster_sprite;
+        sf::Texture monster_evolving_texture;
         sf::Texture egg_texture;
         sf::Sprite egg_sprite;
         std::map<int, sf::Sprite> egg_sprites;

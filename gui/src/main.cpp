@@ -7,7 +7,7 @@
 
 #include "gui.hpp"
 
-int parseArguments(int ac, char **av, int& port, std::string& machine)
+int parseArguments(int ac, char **av, int &port, std::string &machine)
 {
     if (ac != 5) {
         std::cout << "USAGE: " << av[0] << " -p port -h machine" << std::endl;
