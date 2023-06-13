@@ -5,6 +5,19 @@ import zappyAI as zp
 import base64
 
 
+OBJECTIVES = [
+    zp.Resources(0, 1, 0, 0, 0, 0, 0, 1),
+    zp.Resources(0, 1, 1, 1, 0, 0, 0, 2),
+    zp.Resources(0, 2, 0, 1, 0, 2, 0, 2),
+    zp.Resources(0, 1, 1, 2, 0, 1, 0, 2),
+    zp.Resources(0, 1, 2, 1, 3, 0, 0, 4),
+    zp.Resources(0, 1, 2, 3, 0, 1, 0, 4),
+    zp.Resources(0, 2, 2, 2, 2, 2, 1, 6)
+]
+
+LVL_MAX = len(OBJECTIVES) - 1
+
+
 class AI:
     _msg_key: bytes
     _dead: bool = False
@@ -38,10 +51,19 @@ class AI:
                 self._inventory[zp.ObjectType.FOOD] -= 1
                 if self._inventory[zp.ObjectType.FOOD] <= 0:
                     if self.check_inventory():
-                        raise ValueError("Dead")
+                        raise TimeoutError("Dead")
                     else:
                         if self._inventory[zp.ObjectType.FOOD] <= 0:
-                            raise ValueError("Dead")
+                            raise TimeoutError("Dead")
+
+    def _check_time(self, time: int) -> int:
+        current: int = self._ticks
+        food_left: int = self._inventory[zp.ObjectType.FOOD]
+        for i in range(time):
+            current += 1
+            if current % 126 == 0:
+                food_left -= 1
+        return food_left
 
     def draw_map(self) -> None:
         print(self._world.__str__((self._pos, self._direction)))
@@ -80,7 +102,7 @@ class AI:
         except ValueError:
             raise ConnectionError("Invalid response")
         self._id = res[0]
-        self._world = zp.World(zp.Size(res[1][0], res[1][1]))
+        self._world = zp.World(zp.Size(res[1][1], res[1][0]))
 
     def _get_objects(self, data: str) -> list[zp.Resources]:
         objects: list[zp.Resources] = []
@@ -136,21 +158,23 @@ class AI:
         self._direction = zp.Direction(
             (self._direction.value - (1 if self._direction.value % 2 == 0 else 2) if self._direction.value > 2 else 7))
 
-    def _at(self, relative_pos: tuple[int, int]) -> tuple[int, int]:
+    def _at(self, relative_pos: tuple[int, int] | zp.Pos) -> tuple[int, int]:
+        if type(relative_pos) == zp.Pos:
+            relative_pos = (relative_pos.y, relative_pos.x)
         y, x = relative_pos
         if self._direction == zp.Direction.S:
             return self._pos.y + y, self._pos.x + x
         elif self._direction == zp.Direction.E:
-            return self._pos.y - x, self._pos.x + y
+            return self._pos.y + x, self._pos.x + y
         elif self._direction == zp.Direction.N:
-            return self._pos.y - y, self._pos.x - x
+            return self._pos.y - y, self._pos.x + x
         elif self._direction == zp.Direction.W:
-            return self._pos.y - x, self._pos.x - y
+            return self._pos.y + x, self._pos.x - y
         else:
             raise ValueError("Invalid direction")
 
     def look(self) -> None:
-        nb_tiles: list[int] = [1, 3, 15, 24, 45, 72, 108, 162, 225, 324, 521]
+        nb_tiles: list[int] = [1, 3, 5, 7, 9, 11, 13, 15, 17]
         self._comm.send("Look\n")
         self._add_time(7)
         data: list[str] = self._recv()
@@ -246,7 +270,21 @@ class AI:
             return False
         raise ConnectionError("Invalid response")
 
-    def incantation(self) -> None:
+    def incantation(self, drop_items: bool = True, take_back: bool = False) -> None:
+        if drop_items:
+            for resource in self._inventory:
+                missing: int = OBJECTIVES[self._level - 1][resource] - self._world[(self._pos.y, self._pos.x)].objects[resource]
+                if self._inventory[resource] < missing:
+                    raise ValueError("Not enough resources")
+            for resource in self._inventory: # this code is duplicated because we need check all ressources before dropping them
+                missing: int = OBJECTIVES[self._level - 1][resource] - self._world[(self._pos.y, self._pos.x)].objects[resource]
+                for _ in range(missing):
+                    self.set(resource)
+        for resource in self._world[(self._pos.y, self._pos.x)].objects:
+            if self._world[(self._pos.y, self._pos.x)].objects[resource] < OBJECTIVES[self._level - 1][resource]:
+                raise ValueError("Not enough resources")
+        if self._check_time(300):
+            raise TimeoutError("Not enough time")
         self._comm.send("Incantation\n")
         self._add_time(300)
 
