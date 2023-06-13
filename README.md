@@ -15,29 +15,85 @@ The goal of this project was to create a **game** in **C++**, **C** and **python
 ### Running the project locally :building_construction:
 
 > **Warning**
-> 
-> Make sure you have **CMake** installed on your computer. <br>
+>
+> Make sure you have **CMake** and the **SFML** library installed on your computer.
+> <br>
 > If you don't, the project will **not compile**. <br>
 
 * Clone this repository locally
 * Create a folder `build` at the root of the repository
 * Go in it and run the command `cmake ..`
 * Then you can do a `make`
-* And
-  run `./zappy`
+* And run `./zappy_<server|ai|gui> <options>`
 
-> **Warning**
->
-> Make sure you Cmake installed, or it won't work <br>
 
 To try this program, you can to use this **command**: :computer: <br>
 
 ```bash
-mkdir -p build && cd build && cmake .. && make && ./zappy
+mkdir -p build && cd build && cmake .. && make && ./zappy<server|ai|gui> <options>
 ```
 
-[//]: # (Talk about the 3 binaries)
-[//]: # (Give the rules of the game and how to play)
+There are 3 binaries in this project: <br>
+- `zappy_server` : the server of the game
+Where the **options** are:
+  - `-p` : the port of the server
+  - `-x` : the width of the map
+  - `-y` : the height of the map
+  - `-n` : the name of the teams
+  - `-c` : the number of clients allowed at the same time on the server on the same team (default: 2)
+  - `-f` : the frequency of the server (default: 2)
+- `zappy_ai` : the AI of the game
+Where the **options** are:
+  - `-p` : the port of the server
+  - `-h` : the name of the machine; `localhost` by default
+- `zappy_gui` : the graphic interface of the game
+Where the **options** are:
+  - `-p` : the port of the server
+  - `-n` : the name of the teams
+  - `-h` : the name of the machine; `localhost` by default
+
+In example, you can run the server with this command: <br>
+```bash
+./zappy_server -p 8000 -x 10 -y 10 -n team1 team2 -f 2
+```
+
+Or, you can run the AI with this command: <br>
+```bash
+./zappy_ai -p 8000
+```
+
+Or, you can run the graphic interface with this command: <br>
+```bash
+./zappy_graphic -p 8000 -n team1
+```
+
+The goal of the game is to have all your team elevate to level 6. <br>
+To do that, you have to collect resources and elevate yourself. <br>
+You can collect resources by moving on it and then take it. <br>
+You can elevate yourself by collecting resources and then do an `incantation`. <br>
+You have to *be careful* because you can die if you don't have enough food. <br>
+You can also comunicate with other players by sending messages using the `broadcast <msg>` command. <br>
+
+The different commands you can use are: <br>
+- `Forward` : move forward
+- `Right` : turn right
+- `Left` : turn left
+- `Look` : look around you
+- `Inventory` : look at your inventory
+- `Broadcast <msg>` : send a message to all players
+- `Connect_nbr` : look at the number of clients allowed on the server on the same team
+- `Take <resource>` : take a resource on the ground
+- `Set <resource>` : set a resource on the ground
+- `Eject` : eject all players on the same tile including eggs
+- `Fork` : lay an egg
+- `Incantation` : start an incantation to elevate yourself to the next level
+
+Here is the different resources you can collect: <br>
+- `food` : food to eat
+
+
+Here is what you need to elevate yourself from the different levels: <br>
+- `level 1` : 1 player, 1 linemate, 1 deraumere, 1 sibur, 1 mendiane, 1 phiras, 1 thystame
 
 ### Output :outbox_tray:
 
