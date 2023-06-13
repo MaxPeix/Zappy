@@ -89,6 +89,8 @@ The different commands you can use are: <br>
 - `Fork` : lay an egg
 - `Incantation` : start an incantation to elevate yourself to the next level
 
+[//]: # (Put the different output of the commands)
+
 Here is the different resources you can collect: <br>
 - `food` : food to eat
 - `linemate` : stone to elevate yourself
@@ -100,7 +102,7 @@ Here is the different resources you can collect: <br>
 
 
 Here is what you need to elevate yourself from the different levels: <br>
-- `level 1 to level2` : 1 player, 1 linemate, 0 deraumere, 0 sibur, 0 mendiane, 0 phiras, 0 thystame
+- `level 1 to level 2` : 1 player, 1 linemate, 0 deraumere, 0 sibur, 0 mendiane, 0 phiras, 0 thystame
 - `level 2 to level 3` : 2 players, 1 linemate, 1 deraumere, 1 sibur, 0 mendiane, 0 phiras, 0 thystame
 - `level 3 to level 4` : 2 players, 2 linemate, 0 deraumere, 1 sibur, 0 mendiane, 2 phiras, 0 thystame
 - `level 4 to level 5` : 4 players, 1 linemate, 1 deraumere, 2 sibur, 0 mendiane, 1 phiras, 0 thystame
