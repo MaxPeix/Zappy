@@ -26,6 +26,7 @@ The goal of this project was to create a **game** in **C++**, **C** and **python
 * Then you can do a `make`
 * And run `./zappy_<server|ai|gui> <options>`
 
+[//]: # (Put the different commands to run the project)
 
 To try this program, you can to use this **command**: :computer: <br>
 
@@ -90,10 +91,22 @@ The different commands you can use are: <br>
 
 Here is the different resources you can collect: <br>
 - `food` : food to eat
+- `linemate` : stone to elevate yourself
+- `deraumere` : stone to elevate yourself
+- `sibur` : stone to elevate yourself
+- `mendiane` : stone to elevate yourself
+- `phiras` : stone to elevate yourself
+- `thystame` : stone to elevate yourself
 
 
 Here is what you need to elevate yourself from the different levels: <br>
-- `level 1` : 1 player, 1 linemate, 1 deraumere, 1 sibur, 1 mendiane, 1 phiras, 1 thystame
+- `level 1 to level2` : 1 player, 1 linemate, 0 deraumere, 0 sibur, 0 mendiane, 0 phiras, 0 thystame
+- `level 2 to level 3` : 2 players, 1 linemate, 1 deraumere, 1 sibur, 0 mendiane, 0 phiras, 0 thystame
+- `level 3 to level 4` : 2 players, 2 linemate, 0 deraumere, 1 sibur, 0 mendiane, 2 phiras, 0 thystame
+- `level 4 to level 5` : 4 players, 1 linemate, 1 deraumere, 2 sibur, 0 mendiane, 1 phiras, 0 thystame
+- `level 5 to level 6` : 4 players, 1 linemate, 2 deraumere, 1 sibur, 3 mendiane, 0 phiras, 1 thystame
+- `level 6 to level 7` : 6 players, 1 linemate, 2 deraumere, 3 sibur, 0 mendiane, 1 phiras, 0 thystame
+- `level 7 to level 8` : 6 players, 2 linemate, 2 deraumere, 2 sibur, 2 mendiane, 2 phiras, 1 thystame
 
 ### Output :outbox_tray:
 
@@ -111,9 +124,16 @@ An **output** you can get from this program can be:
 
 Here, you can find our [commit norm](doc/COMMIT.md). :memo:
 
-[//]: # (Talk about the organization of the project)
+### Organization :file_folder:
+To organize our work, we used a **GitHub project**. <br>
+We made **issues** and **branches** to work on the project. <br>
+We also made **milestones** to know what we had to do in which part, like the server, the AI or the graphic interface or the documentation. <br>
 
-### Our GitHub: :octocat:
+![Issues](assets/screenshot_issues.png)
+
+Here is the link of our [**GitHub project**](https://github.com/orgs/EpitechPromo2026/projects/727). :octocat:
+
+### Our GitHub accounts: :octocat:
 
 * [Maxime SENARD](https://github.com/RedCommand)
 * [Melissa LAGET](https://github.com/Ackfire)
