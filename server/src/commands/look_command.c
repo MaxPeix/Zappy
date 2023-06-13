@@ -22,23 +22,23 @@ static tile_t *get_tile(server_params_t *server_params, int x, int y)
 }
 
 static tile_t *get_relative_tile(server_params_t *server_params,
-    client_t *client, int x, int y)
+                                 client_t *client, int x, int y)
 {
     int relative_x = client->x_position + x;
     int relative_y = client->y_position + y;
 
     if (client->orientation == NORTH) {
-        relative_x = client->x_position - y;
-        relative_y = client->y_position + x;
+        relative_x = client->x_position + x;
+        relative_y = client->y_position - y;
     } else if (client->orientation == EAST) {
+        relative_x = client->x_position + y;
+        relative_y = client->y_position + x;
+    } else if (client->orientation == SOUTH) {
         relative_x = client->x_position + x;
         relative_y = client->y_position + y;
-    } else if (client->orientation == SOUTH) {
-        relative_x = client->x_position + y;
-        relative_y = client->y_position - x;
     } else if (client->orientation == WEST) {
-        relative_x = client->x_position - x;
-        relative_y = client->y_position - y;
+        relative_x = client->x_position - y;
+        relative_y = client->y_position + x;
     }
     return get_tile(server_params, relative_x, relative_y);
 }
@@ -98,7 +98,7 @@ void handle_look_command(client_t *clients,
     tile_t *tile = NULL;
     bool is_item = false;
 
-    if (strcasecmp(args[0], "LOOK") != 0)
+    if (strcmp(args[0], "Look") != 0)
         return;
     strncpy(tiles_content, "[ ", BUFFER_SIZE);
     for (int lv = 0; lv <= client->level; lv++)
