@@ -23,6 +23,7 @@ void GUI::init_game()
     this->window.setFramerateLimit(60);
     this->assets = Assets();
     this->assets.init_assets(this->height, this->width);
+    this->assets.text_sgt.setString(std::to_string(this->sgt));
 }
 
 void GUI::draw_game()
@@ -72,35 +73,25 @@ void GUI::check_event()
     }
     if (this->event.type == sf::Event::Closed)
         window.close();
-    if (this->event.type == sf::Event::MouseButtonPressed) {
+    if (this->event.type == sf::Event::MouseButtonReleased) {
         if (this->event.mouseButton.button == sf::Mouse::Left) {
             sf::Vector2i mousePos = sf::Mouse::getPosition(window);
             if (this->assets.closeButtonSprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                 window.close();
             }
-            if (this->assets.optionsButtonSprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                server_response = ask_server("sgt\n");
-                this->sgt = atoi(server_response.c_str());
-                draw_cmd(server_response);
-            }
             if (this->assets.optionsPlusButtonSprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                if (this->sgt == 1)
+                if (this->sgt == 2)
                     this->sgt = 10;
                 else
                     this->sgt += 10;
                 server_response = ask_server("sst " + std::to_string(this->sgt) + "\n");
-                server_response = ask_server("sgt\n");
-                this->sgt = atoi(server_response.c_str());
                 draw_cmd(server_response);
             }
             if (this->assets.optionsMinusButtonSprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                if (this->sgt - 10 <= 0)
-                    this->sgt = 1;
-                else
-                    this->sgt -= 10;
+                this->sgt -= 10;
+                if (this->sgt <= 1)
+                    this->sgt = 2;
                 server_response = ask_server("sst " + std::to_string(this->sgt) + "\n");
-                server_response = ask_server("sgt\n");
-                this->sgt = atoi(server_response.c_str());
                 draw_cmd(server_response);
             }
             for (auto &monster_sprite : assets.monster_sprites) {
@@ -179,7 +170,6 @@ void GUI::draw_cmd(std::string cmd)
     std::string parsed_string = cmd;
 
     if (cmd_tag.compare("bct") == 0) {
-        std::cout << cmd << std::endl;
         this->draw_bct(cmd);
         return;
     }
@@ -259,12 +249,7 @@ void GUI::draw_cmd(std::string cmd)
         return;
     }
     if (cmd_tag.compare("sgt") == 0) {
-        std::cout << cmd;
         this->assets.text_sgt.setString(cmd.substr(4, cmd.size() - 4));
-        return;
-    }
-    if (cmd_tag.compare("sst") == 0) {
-        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("seg") == 0) {
@@ -354,10 +339,14 @@ int GUI::connectToServer()
     }
 
     int x, y;
+    int sgt;
     char *line = strtok(buffer, "\n");
     line = strtok(buffer1, "\n");
     while (line != nullptr) {
         if (sscanf(line, "msz %d %d", &x, &y) == 2) {
+            break;
+        }
+        if (sscanf(line, "sgt %d", &sgt) == 1) {
             break;
         }
         line = strtok(nullptr, "\n");
@@ -367,5 +356,6 @@ int GUI::connectToServer()
         std::cerr << "Failed to parse server response." << std::endl;
     this->width = x;
     this->height = y;
+    this->sgt = sgt;
     return 0;
 }

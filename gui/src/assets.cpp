@@ -53,7 +53,7 @@ void Assets::init_assets(int height, int width)
     this->text_pid.setFillColor(sf::Color::Black);
     this->text_pid.setPosition(350, 2 * 1080 / 3 + 60);
     this->text_sgt.setFont(this->font);
-    this->text_sgt.setString("0");
+    this->text_sgt.setString("");
     this->text_sgt.setCharacterSize(30);
     this->text_sgt.setFillColor(sf::Color::Black);
     this->text_sgt.setPosition(160, 60);
@@ -76,11 +76,11 @@ void Assets::init_assets(int height, int width)
     this->optionsButtonSprite.setScale(sf::Vector2f(0.55, 0.55));
     this->optionsPlusButtonTexture.loadFromFile("assets/plus.png");
     this->optionsPlusButtonSprite.setTexture(this->optionsPlusButtonTexture);
-    this->optionsPlusButtonSprite.setPosition(90, 10);
+    this->optionsPlusButtonSprite.setPosition(200, 10);
     this->optionsPlusButtonSprite.setScale(sf::Vector2f(0.5, 0.5));
     this->optionsMinusButtonTexture.loadFromFile("assets/minus.png");
     this->optionsMinusButtonSprite.setTexture(this->optionsMinusButtonTexture);
-    this->optionsMinusButtonSprite.setPosition(200, 10);
+    this->optionsMinusButtonSprite.setPosition(90, 10);
     this->optionsMinusButtonSprite.setScale(sf::Vector2f(0.5, 0.5));
     this->leftrectangle1 = sf::RectangleShape(sf::Vector2f(this->rectangle_width, 1080 / 3));
     this->leftrectangle1.setPosition(0, 0);
