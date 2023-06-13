@@ -91,8 +91,7 @@ void handle_client_request(client_t *clients,
             free(output_incantation);
             free_array(args);
             return;
-        } else
-            dprintf(clients[i].socket, "Elevation underway\n");
+        }
         send_message_to_graphical_start_incantation(clients,
             &clients[i], server_params, args);
     }

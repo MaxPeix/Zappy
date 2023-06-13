@@ -17,6 +17,7 @@
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <stdbool.h>
 
     #define MAX_CLIENTS 30
     #define BUFFER_SIZE 4096
@@ -106,6 +107,12 @@ typedef struct command_info {
     const char *name;
     double execution_time_factor;
 } command_info_t;
+
+// remove stones
+void remove_stones(tile_t *tile, int level);
+
+// check stone
+bool check_stone(tile_t *tile, int level);
 
 // msprintf function
 char *msprintf(const char *format, ...);

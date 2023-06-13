@@ -33,13 +33,14 @@ SRC				=	src/core.c \
 					src/commands/broadcast_command.c \
 					src/commands/eject_command.c \
 					src/commands/eject_command_lib.c \
-					src/commands/bct_command.c	\
+					src/commands/bct_command.c \
 					src/commands/placement_command.c \
 					src/commands/food_command.c	\
 					src/commands/client_command.c \
 					src/commands/incantation_command.c \
+					src/commands/incantation_command_lib.c \
 					src/commands/fork_command.c \
-					src/commands/look_command.c \
+					src/commands/look_command.c
 
 SRC_TESTS = tests/tests_main.c
 
