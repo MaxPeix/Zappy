@@ -18,11 +18,25 @@ SRC				=	src/core.c \
 					src/clients/client_gestion.c \
 					src/clients/protocol_start.c \
 					src/clients/lib.c \
+					src/clients/lib_two.c \
 					src/clients/init.c \
+					src/clients/send_message_to_graphical.c \
+					src/commands/info_command.c \
+					src/commands/info_command_two.c \
 					src/commands/handle_command.c \
 					src/commands/handle_command_lib.c \
-					src/commands/graphic_command.c
-
+					src/commands/graphic_command.c \
+					src/commands/graphic_connection_player.c \
+					src/commands/broadcast_command.c \
+					src/commands/eject_command.c \
+					src/commands/eject_command_lib.c \
+					src/commands/bct_command.c	\
+					src/commands/placement_command.c \
+					src/commands/food_command.c	\
+					src/commands/client_command.c \
+					src/commands/incantation_command.c \
+					src/commands/fork_command.c \
+					src/commands/look_command.c \
 
 SRC_TESTS = tests/tests_main.c
 
@@ -30,7 +44,7 @@ OBJ				=			$(SRC:.c=.o)
 
 OBJ_MAIN		=			$(SRC_MAIN:.c=.o)
 
-CFLAGS 			= 			-I./includes
+CFLAGS 			= 			-I./includes -g
 
 CRITERION		= 			--coverage -lcriterion
 
@@ -46,7 +60,7 @@ tests_run: $(OBJ)
 	rm unit_tests
 
 clean:
-	rm -f $(OBJ)
+	rm -f $(OBJ) $(OBJ_MAIN)
 	rm -f *.o
 	rm -f *.gcda
 	rm -f *.gcno

@@ -18,13 +18,12 @@ char **add_arg_to_list(char **args, char *command, int command_count)
     args[command_count] = strdup(command);
     if (args[command_count] == NULL) {
         free_array(args);
-        free(command);
         return NULL;
     }
     return args;
 }
 
-char **get_args_from_client(char *buffer)
+char **get_args_from_buffer(char *buffer)
 {
     char **args = NULL;
     char *command = NULL;
@@ -40,6 +39,7 @@ char **get_args_from_client(char *buffer)
         command = strtok(NULL, " \r\n");
         command_count++;
     }
+    args[command_count] = NULL;
     return args;
 }
 

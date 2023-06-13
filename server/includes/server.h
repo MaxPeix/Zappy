@@ -8,65 +8,117 @@
 #ifndef SERVER_H_
     #define SERVER_H_
 
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <string.h>
-    #include <unistd.h>
-    #include <sys/socket.h>
-    #include <netinet/in.h>
-    #include <arpa/inet.h>
-    #include <sys/select.h>
-    #include <errno.h>
+#include <arpa/inet.h>
+#include <errno.h>
+#include <netinet/in.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
     #define MAX_CLIENTS 30
     #define BUFFER_SIZE 4096
     #define CLIENT_NAME "Anonymous"
     #define EPITECH_ERROR 84
 
-    typedef struct tile {
-        int x;
-        int y;
-        int food;
-        int linemate;
-        int deraumere;
-        int sibur;
-        int mendiane;
-        int phiras;
-        int thystame;
-    } tile_t;
+    enum direction {
+        FIRST,
+        NORTH,
+        EAST,
+        SOUTH,
+        WEST
+    };
 
-    typedef struct client {
-        int socket;
-        char *team_name;
-        int start_loggin;
-        tile_t *tiles;
-        int is_graphical;
-        int level;
-    } client_t;
+typedef struct tile
+{
+    int x;
+    int y;
+    int food;
+    int linemate;
+    int deraumere;
+    int sibur;
+    int mendiane;
+    int phiras;
+    int thystame;
+    int eggs;
+} tile_t;
 
-    typedef struct server_params {
-        int port;
-        int width;
-        int height;
-        char **team_names;
-        int clients_per_team;
-        int frequency;
-        tile_t **world;
-    } server_params_t;
+typedef struct command
+{
+    char *name;
+    char **args;
+    time_t execution_time;
+} command_t;
 
-    typedef struct DistributionParams {
-        server_params_t *params;
-        int total_resource;
-        char resource;
-    } DistributionParams;
+typedef struct client
+{
+    int id;
+    int x_position;
+    int y_position;
+    int orientation;
+    int incantation_level;
+    int level;
+    int socket;
+    char *team_name;
+    int start_loggin;
+    int is_graphical;
+    int food;
+    int linemate;
+    int deraumere;
+    int sibur;
+    int mendiane;
+    int phiras;
+    int thystame;
+    int is_connected;
+    command_t* commands;
+    int command_count;
+} client_t;
 
-    typedef struct {
-        int x;
-        int y;
-    } coordinate_t;
+typedef struct server_params
+{
+    int port;
+    int width;
+    int height;
+    char **team_names;
+    int clients_per_team;
+    int frequency;
+    tile_t **world;
+} server_params_t;
+
+typedef struct DistributionParams
+{
+    server_params_t *params;
+    int total_resource;
+    char resource;
+} DistributionParams;
+
+typedef struct
+{
+    int x;
+    int y;
+} coordinate_t;
+
+typedef struct command_info {
+    const char *name;
+    double execution_time_factor;
+} command_info_t;
 
 // msprintf function
 char *msprintf(const char *format, ...);
+
+// free command args
+void free_command_args(char **args);
+
+// duplicate args
+char **duplicate_args(char **args);
+
+// remove executed command
+void remove_executed_command(client_t *client, int command_index);
+
+// add command to client
+void add_command_to_client(client_t *client, command_t *new_command);
 
 // Vérifie les erreurs de la ligne de commande
 int check_errors(int argc, char **argv, server_params_t params);
@@ -102,12 +154,28 @@ void check_client_activity(client_t *clients,
 // Envoie une réponse au client
 void send_response(int socket, char *message);
 
+// Mets à jour la position des joueurs apres qu'ils se soient fait ejectés
+void update_client_position(client_t *client, int orientation,
+    server_params_t *server_params);
+
 // Lis le message du client
 ssize_t read_method(int socket, char *buffer);
 
 // Gère les commandes du client
 void handle_command(client_t *client, server_params_t *server_params,
-    char *buffer);
+    char **args);
+
+// Gère les commandes du client avec un numéro de joueur
+void handle_command_with_player_nbr(client_t *clients, client_t *client,
+    server_params_t *server_params, char **args);
+
+// handle_graphic_command_two
+void handle_broadcast_command(client_t *clients,
+    client_t *client, char **args);
+
+// handle_graphic_command_three
+void handle_eject_command(client_t *clients, client_t *client,
+    server_params_t *server_params, char **args);
 
 // Initialise la structure client
 void init_clients_list(client_t *clients);
@@ -116,7 +184,7 @@ void init_clients_list(client_t *clients);
 void handle_disconnect(client_t *client);
 
 // Récupère les arguments du client
-char **get_args_from_client(char *buffer);
+char **get_args_from_buffer(char *buffer);
 
 // Libère un tableau de char **
 void free_array(char **array);
@@ -126,6 +194,27 @@ void parse_args(int argc, char **argv, server_params_t *params);
 
 // handle_graphic_command
 void handle_graphic_command(client_t *client, server_params_t *server_params);
+
+// Print mct
+void print_mct(server_params_t *server_params, client_t *client);
+
+// Print tna
+void print_tna(server_params_t *server_params, client_t *client);
+
+// Print msz
+void print_msz(server_params_t *server_params, client_t *client);
+
+// Print sgt
+void print_sgt(server_params_t *server_params, client_t *client);
+
+// Print bct
+void print_bct(server_params_t *server_params, client_t *client, char **args);
+
+// Print ppo
+void print_ppo(client_t *client, client_t *player);
+
+// concat strings
+char *concat_strings(char *output, char *temp);
 
 // Initalise la structure par défaut
 server_params_t init_default_server_params(void);
@@ -146,6 +235,10 @@ int get_random_coordinate(int limit);
 // concat strings
 char *concat_strings(char *output, char *temp);
 
+// send notification to the graphical client when a player loggin
+void send_notification_player_loggin(client_t *clients,
+    client_t *client_logged_in, server_params_t *server_params);
+
 // distribute resources
 void distribute_resources(server_params_t *params,
     int total_resource, char resource);
@@ -156,5 +249,48 @@ void distribute_sibur(server_params_t *params);
 void distribute_mendiane(server_params_t *params);
 void distribute_phiras(server_params_t *params);
 void distribute_thystame(server_params_t *params);
+
+// send message to graphical
+void send_message_to_graphical(client_t *clients, char *message);
+
+// send message to graphical start incantation
+void send_message_to_graphical_start_incantation(client_t *clients,
+    client_t *client, server_params_t *server_params, char **args);
+
+// client movement
+
+void handle_forward_command(server_params_t *params, client_t *client,
+                            char **args);
+void handle_right_command(client_t *client, char **args);
+void handle_left_command(client_t *client, char **args);
+
+// client food
+void print_inventory(server_params_t *server_params, client_t *client);
+void take_command(server_params_t *server_params,
+    client_t *client, char **argv);
+void set_command(server_params_t *server_params,
+    client_t *client, char **argv);
+
+// client command
+void handle_connect_nbr_command(client_t *clients, client_t *client,
+    server_params_t *server_params, char **args);
+
+// client incantation
+void handle_incantation_command(client_t *clients,
+                                client_t *client,
+                                server_params_t *server_params,
+                                char **args);
+
+// client fork
+void handle_fork_command(client_t *client, server_params_t *server_params,
+    char **args);
+
+// client look
+void handle_look_command(client_t *clients, client_t *client,
+    server_params_t *server_params, char **args);
+
+// check if client can do incantation
+int can_do_incantation(client_t *clients, client_t *client,
+    server_params_t *server_params, char **args);
 
 #endif /* !SERVER_H_ */

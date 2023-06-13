@@ -33,25 +33,33 @@ int accept_new_connection(int server_socket, struct sockaddr_in address)
     return new_socket;
 }
 
+int find_empty_slot(client_t *clients)
+{
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        if (clients[i].socket == 0)
+            return i;
+    }
+    return -1;
+}
+
 void update_client_struct(int new_socket, client_t *clients,
     server_params_t *server_params)
 {
-    for (int i = 0; i < MAX_CLIENTS; i++) {
-        if (clients[i].socket == 0) {
-            clients[i].socket = new_socket;
-            send_response(clients[i].socket, "WELCOME\n");
-            char buffer[BUFFER_SIZE];
-            ssize_t bytes_read = read_method(new_socket, buffer);
-            size_t len = strlen(buffer);
-            buffer[len - 1] = (buffer[len - 1] == '\n') ?
-                '\0' : buffer[len - 1];
-            if (strcasecmp(buffer, "GRAPHIC") == 0)
-                clients[i].is_graphical = 1;
-            clients[i].team_name = clients[i].is_graphical == 0
-                ? strdup(buffer) : NULL;
-            send_info_loggin(clients[i].socket, &clients[i], server_params);
-            break;
-        }
+    int i = find_empty_slot(clients);
+    if (i != -1) {
+        clients[i].socket = new_socket;
+        clients[i].is_connected = 1;
+        send_response(clients[i].socket, "WELCOME\n");
+        char buffer[BUFFER_SIZE];
+        ssize_t bytes_read = read_method(new_socket, buffer);
+        size_t len = strlen(buffer);
+        buffer[len - 1] = (buffer[len - 1] == '\n') ? '\0' : buffer[len - 1];
+        if (strcasecmp(buffer, "GRAPHIC") == 0)
+            clients[i].is_graphical = 1;
+        clients[i].team_name =
+            clients[i].is_graphical == 0 ? msprintf("%s", buffer) : NULL;
+        send_info_loggin(clients[i].socket, &clients[i], server_params);
+        send_notification_player_loggin(clients, &clients[i], server_params);
     }
 }
 
@@ -62,12 +70,16 @@ void wait_for_connections(int server_socket, client_t *clients,
     fd_set readfds = {0};
     int max_fd = server_socket;
     int activity = 0;
+    struct timeval tv;
+
+    tv.tv_sec = 0;
+    tv.tv_usec = 100000;
 
     while (1) {
         FD_ZERO(&readfds);
         FD_SET(server_socket, &readfds);
         max_fd = set_clients_sockets(clients, &readfds, server_socket);
-        activity = select(max_fd + 1, &readfds, NULL, NULL, NULL);
+        activity = select(max_fd + 1, &readfds, NULL, NULL, &tv);
         if ((activity < 0) && (errno != EINTR))
             continue;
         handle_select_errors(activity);
