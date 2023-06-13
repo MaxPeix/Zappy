@@ -10,8 +10,9 @@
 void update_client_per_team_after_fork(client_t *client, client_t *clients)
 {
     for (int i = 0; i < MAX_CLIENTS; i++) {
-        if (clients[i].is_connected == 1
-            && strcasecmp(client->team_name, clients[i].team_name) == 0)
+        if (clients[i].is_connected == 0 || clients[i].is_graphical == 1)
+            continue;
+        if (strcasecmp(client->team_name, clients[i].team_name) == 0)
             client->team_max_clients++;
     }
 }
@@ -22,6 +23,7 @@ void handle_fork_command(client_t *client,
     tile_t *tile =
         &server_params->world[client->y_position][client->x_position];
     if (strcasecmp(args[0], "FORK") == 0) {
+        update_client_per_team_after_fork(client, clients);
         tile->eggs++;
         send_response(client->socket, "ok\n");
     }

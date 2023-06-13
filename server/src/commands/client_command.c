@@ -14,11 +14,12 @@ static void print_connect_nbr(server_params_t *server_params,
     char *output = NULL;
 
     for (int i = 0; i < MAX_CLIENTS; i++) {
-        if (clients[i].is_connected == 1
-            && strcasecmp(client->team_name, clients[i].team_name) == 0)
+        if (clients[i].is_connected == 0 || clients[i].is_graphical == 1)
+            continue;
+        if (strcasecmp(client->team_name, clients[i].team_name) == 0)
             count++;
     }
-    output = msprintf("%d\n", server_params->clients_per_team - count);
+    output = msprintf("%d\n", client->team_max_clients - count);
     send_response(client->socket, output);
     free(output);
 }
