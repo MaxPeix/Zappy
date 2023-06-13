@@ -75,6 +75,7 @@ typedef struct client
     command_t* commands;
     int command_count;
     int is_dead;
+    int team_max_clients;
 } client_t;
 
 typedef struct server_params
@@ -125,7 +126,7 @@ void add_command_to_client(client_t *client, command_t *new_command);
 int check_errors(int argc, char **argv, server_params_t params);
 
 // Initialise la liste des clients connectés
-void init_clients_list(client_t *clients);
+void init_clients_list(client_t *clients, server_params_t *server_params);
 
 // Crée le socket et le lie à l'adresse du serveur
 int create_and_bind_socket(server_params_t params,
@@ -178,11 +179,8 @@ void handle_broadcast_command(client_t *clients,
 void handle_eject_command(client_t *clients, client_t *client,
     server_params_t *server_params, char **args);
 
-// Initialise la structure client
-void init_clients_list(client_t *clients);
-
 // Gère la deconnexion du client
-void handle_disconnect(client_t *client);
+void handle_disconnect(client_t *client, server_params_t *server_params);
 
 // Récupère les arguments du client
 char **get_args_from_buffer(char *buffer);
@@ -283,8 +281,8 @@ void handle_incantation_command(client_t *clients,
                                 char **args);
 
 // client fork
-void handle_fork_command(client_t *client, server_params_t *server_params,
-    char **args);
+void handle_fork_command(client_t *client,
+    client_t *clients, server_params_t *server_params, char **args);
 
 // client look
 void handle_look_command(client_t *clients, client_t *client,

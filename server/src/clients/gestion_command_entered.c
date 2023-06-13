@@ -84,16 +84,18 @@ void handle_client_request(client_t *clients,
     }
     char *output_incantation = NULL;
     if (strcmp(args[0], "Incantation") == 0) {
-        if (can_do_incantation(clients, &clients[i], server_params, args) == 0) {
+        if (can_do_incantation(clients, &clients[i],
+            server_params, args) == 0) {
             output_incantation = msprintf("ko\n");
             send_response(clients[i].socket, output_incantation);
             free(output_incantation);
             free_array(args);
             return;
+        } else {
+            dprintf(clients[i].socket, "Elevation underway\n");
         }
         send_message_to_graphical_start_incantation(clients,
             &clients[i], server_params, args);
-        return;
     }
     command_t *new_command = create_new_command(args, server_params);
     if (!new_command) {

@@ -27,7 +27,7 @@ void execute_commands_if_ready(client_t *clients,
                 server_params, client->commands[j].args);
             handle_incantation_command(clients, client,
                 server_params, client->commands[j].args);
-            handle_fork_command(client, server_params,
+            handle_fork_command(client, clients, server_params,
                 client->commands[j].args);
             handle_look_command(clients, client, server_params,
                 client->commands[j].args);
@@ -50,7 +50,7 @@ void check_client_activity(client_t *clients,
             continue;
         valread = read(client_socket, buffer, BUFFER_SIZE - 1);
         if (valread <= 0 ) {
-            handle_disconnect(&clients[i]);
+            handle_disconnect(&clients[i], server_params);
             continue;
         }
         buffer[valread] = '\0';

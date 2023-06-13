@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     print_params(params);
     client_t *clients = calloc(MAX_CLIENTS, sizeof(client_t));
     struct sockaddr_in address;
-    init_clients_list(clients);
+    init_clients_list(clients, &params);
     int server_socket = create_and_bind_socket(params, &address);
     if (server_socket == -1)
         return EPITECH_ERROR;

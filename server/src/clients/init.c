@@ -7,7 +7,7 @@
 
 #include "server.h"
 
-void init_clients_list(client_t *clients)
+void init_clients_list(client_t *clients, server_params_t *server_params)
 {
     for (int i = 0; i < MAX_CLIENTS; i++) {
         clients[i].socket = 0;
@@ -29,10 +29,11 @@ void init_clients_list(client_t *clients)
         clients[i].incantation_level = 0;
         clients[i].is_connected = 0;
         clients[i].is_dead = 0;
+        clients[i].team_max_clients = server_params->clients_per_team;
     }
 }
 
-void handle_disconnect(client_t *client)
+void handle_disconnect(client_t *client, server_params_t *server_params)
 {
     close(client->socket);
     client->socket = 0;
@@ -55,4 +56,5 @@ void handle_disconnect(client_t *client)
     client->incantation_level = 0;
     client->is_connected = 0;
     client->is_dead = 0;
+    client->team_max_clients = server_params->clients_per_team;
 }
