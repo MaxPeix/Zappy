@@ -5,9 +5,12 @@
 ### Overview :eyes:
 
 This project is a part of the **second** year of Epitech. <br>
+It was made in **groups of 6**, and it was our final year project. <br>
 We had **1 month** to complete it. :spiral_calendar: <br>
 
-The goal of this project was to create a **game** in **C++**, **C** and **python**. :pizza:<br>
+The goal of this project was to create a **game** in **C**, **C++** and **python**. <br>
+The game is a **multiplayer** game where you have to **collect resources** and **elevate yourself**. <br>
+The game is composed of a **server** made in C :computer:, an **AI** made in python :robot: and a **graphic interface** made in C++ :art:. <br>
 
 [//]: # (Talk about the features of the game)
 [//]: # (Talke about the architecture of the project)
