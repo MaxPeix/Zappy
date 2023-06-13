@@ -36,6 +36,9 @@ void GUI::draw_game()
     window.draw(this->assets.title_chat);
     window.draw(this->assets.title_info);
     window.draw(this->assets.text_bct);
+    window.draw(this->assets.text_pin);
+    window.draw(this->assets.text_plv);
+    window.draw(this->assets.text_pid);
     window.draw(this->assets.tna_text);
     for (auto& text : this->assets.chat_texts) {
         window.draw(text);
@@ -54,9 +57,16 @@ void GUI::check_event()
 {
     std::string cmd;
     std::string server_response;
+    std::string player_position;
+    std::string player_level;
+    std::string player_inventory;
 
     server_response = ask_server("tna\n");
     draw_cmd(server_response);
+    for (auto &monster_sprite : assets.monster_sprites) {
+        player_position = ask_server("ppo " + std::to_string(monster_sprite.first) + "\n");
+        draw_cmd(player_position);
+    }
     if (this->event.type == sf::Event::Closed)
         window.close();
     if (this->event.type == sf::Event::MouseButtonPressed) {
@@ -68,6 +78,15 @@ void GUI::check_event()
             if (this->assets.optionsButtonSprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                 server_response = ask_server("sgt\n");
                 draw_cmd(server_response);
+            }
+            for (auto &monster_sprite : assets.monster_sprites) {
+                if (monster_sprite.second.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                    this->assets.text_pid.setString("Player : " + std::to_string(monster_sprite.first));
+                    player_level = ask_server("plv " + std::to_string(monster_sprite.first) + "\n");
+                    draw_cmd(player_level);
+                    player_inventory = ask_server("pin " + std::to_string(monster_sprite.first) + "\n");
+                    draw_cmd(player_inventory);
+                }
             }
             for (int i = 0; i < this->width; i++) {
                 for(int j = 0; j < this->height; j++) {
@@ -148,15 +167,15 @@ void GUI::draw_cmd(std::string cmd)
         return;
     }
     if (cmd_tag.compare("ppo") == 0) {
-        std::cout << cmd;
+        this->draw_ppo(cmd);
         return;
     }
     if (cmd_tag.compare("plv") == 0) {
-        std::cout << cmd;
+        this->assets.text_plv.setString("level: " + cmd.substr(6, 1));
         return;
     }
     if (cmd_tag.compare("pin") == 0) {
-        std::cout << cmd;
+        this->draw_pin(cmd);
         return;
     }
     if (cmd_tag.compare("pex") == 0) {

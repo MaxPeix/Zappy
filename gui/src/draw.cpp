@@ -11,26 +11,25 @@ void GUI::draw_bct(std::string cmd)
 {
     std::string parsed_cmd = "Tile content :\n";
 
-
-    parsed_cmd += "food: ";
+    parsed_cmd += "Food: ";
     parsed_cmd += cmd[4];
     parsed_cmd += "\n";
-    parsed_cmd += "linemate: ";
+    parsed_cmd += "Linemate: ";
     parsed_cmd += cmd[6];
     parsed_cmd += "\n";
-    parsed_cmd += "deraumere: ";
+    parsed_cmd += "Deraumere: ";
     parsed_cmd += cmd[8];
     parsed_cmd += "\n";
-    parsed_cmd += "sibur: ";
+    parsed_cmd += "Sibur: ";
     parsed_cmd += cmd[10];
     parsed_cmd += "\n";
-    parsed_cmd += "mendiane: ";
+    parsed_cmd += "Mendiane: ";
     parsed_cmd += cmd[12];
     parsed_cmd += "\n";
-    parsed_cmd += "phiras: ";
+    parsed_cmd += "Phiras: ";
     parsed_cmd += cmd[14];
     parsed_cmd += "\n";
-    parsed_cmd += "thystame: ";
+    parsed_cmd += "Thystame: ";
     parsed_cmd += cmd[16];
     parsed_cmd += "\n";
     this->assets.text_bct.setString(parsed_cmd);
@@ -84,4 +83,39 @@ void GUI::draw_pdi(std::string cmd)
 {
     sscanf(cmd.c_str(), "pdi %d\n", &player_info.number);
     this->assets.delete_player(player_info.number);
+}
+
+void GUI::draw_ppo(std::string cmd)
+{
+    int id = std::stoi(cmd.substr(4, 1));
+    int x = std::stoi(cmd.substr(6, 1));
+    int y = std::stoi(cmd.substr(8, 1));
+    this->assets.monster_sprites[id].setPosition(x * this->assets.box_size + this->assets.rectangle_width, y * this->assets.box_size);
+}
+
+void GUI::draw_pin(std::string cmd)
+{
+    std::string parsed_cmd = "Inventory :\n";
+    parsed_cmd += "Food: ";
+    parsed_cmd += cmd[4];
+    parsed_cmd += "\n";
+    parsed_cmd += "Linemate: ";
+    parsed_cmd += cmd[6];
+    parsed_cmd += "\n";
+    parsed_cmd += "Deraumere: ";
+    parsed_cmd += cmd[8];
+    parsed_cmd += "\n";
+    parsed_cmd += "Sibur: ";
+    parsed_cmd += cmd[10];
+    parsed_cmd += "\n";
+    parsed_cmd += "Mendiane: ";
+    parsed_cmd += cmd[12];
+    parsed_cmd += "\n";
+    parsed_cmd += "Phiras: ";
+    parsed_cmd += cmd[14];
+    parsed_cmd += "\n";
+    parsed_cmd += "Thystame: ";
+    parsed_cmd += cmd[16];
+    parsed_cmd += "\n";
+    this->assets.text_pin.setString(parsed_cmd);
 }

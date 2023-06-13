@@ -30,6 +30,9 @@ class Assets {
         sf::Text title_chat;
         sf::Text title_info;
         sf::Text text_bct;
+        sf::Text text_pin;
+        sf::Text text_plv;
+        sf::Text text_pid;
         sf::Text tna_text;
         std::vector<sf::Text> chat_texts;
         sf::Text new_text;
