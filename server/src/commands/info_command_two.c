@@ -14,10 +14,6 @@ void print_ppo(client_t *client, client_t *player)
         send_response(client->socket, "sbp\n");
         return;
     }
-    if (player->is_graphical == 0) {
-        send_response(client->socket, "sbp\n");
-        return;
-    }
     output = msprintf("ppo %d %d %d %d\n", player->id,
         player->x_position, player->y_position, player->orientation);
     if (!output) {
@@ -73,11 +69,14 @@ void handle_command_with_player_nbr(client_t *clients, client_t *client,
         return;
     int player_id = atoi(args[1]);
     client_t *player = NULL;
-    for (int i = 0; i < MAX_CLIENTS; i++)
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        if (clients[i].is_connected == 0 || clients[i].is_graphical == 1)
+            continue;
         if (clients[i].id == player_id) {
             player = &clients[i];
             break;
         }
+    }
     if (strcasecmp(args[0], "PPO") == 0)
         print_ppo(client, player);
     if (strcasecmp(args[0], "PLV") == 0)

@@ -44,14 +44,13 @@ static void remove_stones(tile_t *tile, int level)
 }
 
 void handle_incantation_command(client_t *clients,
-                                client_t *client,
-                                server_params_t *server_params,
-                                char **args)
+    client_t *client, server_params_t *server_params, char **args)
 {
     tile_t *tile =
         &server_params->world[client->y_position][client->x_position];
     int nb_player_on_tile = 0;
     int nb_player[7] = { 1, 2, 2, 4, 4, 6, 6 };
+    char *output_graphical = NULL;
 
     if (strcasecmp(args[0], "INCANTATION") != 0)
         return;
@@ -60,7 +59,7 @@ void handle_incantation_command(client_t *clients,
             continue;
         if (clients[i].x_position == client->x_position
             && clients[i].y_position == client->y_position
-            && strcmp(clients[i].team_name, client->team_name) == 0)
+            && clients[i].level == client->level)
             nb_player_on_tile++;
     }
     if (client->level < 8) {
@@ -71,12 +70,13 @@ void handle_incantation_command(client_t *clients,
             remove_stones(tile, client->level);
         }
     }
+    output_graphical = msprintf("pie %d %d %d\n", client->x_position,
+        client->y_position, client->level);
+    send_message_to_graphical(clients, output_graphical);
 }
 
-int can_do_incantation(client_t *clients,
-                       client_t *client,
-                       server_params_t *server_params,
-                       char **args)
+int can_do_incantation(client_t *clients, client_t *client,
+    server_params_t *server_params, char **args)
 {
     int nb_player[7] = { 1, 2, 2, 4, 4, 6, 6 };
     int nb_player_on_tile = 0;
@@ -86,24 +86,20 @@ int can_do_incantation(client_t *clients,
             continue;
         if (clients[i].x_position == client->x_position
             && clients[i].y_position == client->y_position
-            && strcmp(clients[i].team_name, client->team_name) == 0)
+            && clients[i].level == client->level)
             nb_player_on_tile++;
     }
     if (client->level < 8) {
         if (nb_player_on_tile >= nb_player[client->level - 1]
-            && check_stone(&server_params
-                                ->world[client->y_position][client->x_position],
-                           client->level)
-                   == true)
+            && check_stone(&server_params->world[client->y_position][client->x_position],
+            client->level) == true)
             return 1;
     }
     return 0;
 }
 
 void send_message_to_graphical_start_incantation(client_t *clients,
-                                                 client_t *client,
-                                                 server_params_t *server_params,
-                                                 char **args)
+    client_t *client, server_params_t *server_params, char **args)
 {
     int nb_player[7] = { 1, 2, 2, 4, 4, 6, 6 };
     char message[1024] = { 0 };
@@ -119,7 +115,7 @@ void send_message_to_graphical_start_incantation(client_t *clients,
             continue;
         if (clients[i].x_position == client->x_position
             && clients[i].y_position == client->y_position
-            && strcmp(clients[i].team_name, client->team_name) == 0) {
+            && clients[i].level == client->level) {
             char player_num[10];
             sprintf(player_num, " %d", clients[i].id);
             strcat(message, player_num);

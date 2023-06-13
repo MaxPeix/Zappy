@@ -42,7 +42,7 @@ typedef struct tile
     int mendiane;
     int phiras;
     int thystame;
-    int eggs;
+    int *eggs;
 } tile_t;
 
 typedef struct command
@@ -302,5 +302,8 @@ void handle_client_request(client_t *clients,
 
 // create new command
 command_t *create_new_command(char **args, server_params_t *server_params);
+
+// int of array
+int length_of_int(int *array);
 
 #endif /* !SERVER_H_ */

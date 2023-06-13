@@ -19,6 +19,7 @@ SRC				=	src/core.c \
 					src/clients/protocol_start.c \
 					src/clients/lib.c \
 					src/clients/lib_two.c \
+					src/clients/lib_three.c \
 					src/clients/init.c \
 					src/clients/send_message_to_graphical.c \
 					src/clients/check_death_player.c \

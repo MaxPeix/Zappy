@@ -87,6 +87,7 @@ void define_params_world_default(server_params_t *params)
             params->world[y][x].mendiane = 0;
             params->world[y][x].phiras = 0;
             params->world[y][x].thystame = 0;
+            params->world[y][x].eggs = NULL;
         }
     }
 }

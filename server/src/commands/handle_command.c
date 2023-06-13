@@ -88,14 +88,5 @@ void handle_command(client_t *client,
         send_response(client_socket, "ko\n");
         return;
     }
-    if (strcasecmp(args[0], "HELP") == 0) {
-        send_response(client_socket, "Zappy: Help message.\n");
-        return;
-    }
-    if (strcasecmp(args[0], "QUIT") == 0) {
-        send_response(client_socket, "Goodbye.\n");
-        handle_disconnect(client, server_params);
-        return;
-    }
     handle_command_two(client, server_params, args);
 }
