@@ -34,7 +34,7 @@ The game is composed of a **server** made in C :computer:, an **AI** made in pyt
 To try this program, you can to use this **command**: :computer: <br>
 
 ```bash
-mkdir -p build && cd build && cmake .. && make && ./zappy<server|ai|gui> <options>
+mkdir -p build && cd build && cmake .. && make && ./zappy_<server|ai|gui> <options>
 ```
 
 There are 3 binaries in this project: <br>
@@ -68,7 +68,7 @@ Or, you can run the AI with this command: <br>
 
 Or, you can run the graphic interface with this command: <br>
 ```bash
-./zappy_graphic -p 8000 -n team1
+./zappy_gui -p 8000 -n team1
 ```
 
 The goal of the game is to have all your team elevate to level 6. <br>
