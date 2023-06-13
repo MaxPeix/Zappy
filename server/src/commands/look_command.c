@@ -6,7 +6,6 @@
 */
 
 #include "server.h"
-#include <stdbool.h>
 
 static tile_t *get_tile(server_params_t *server_params, int x, int y)
 {

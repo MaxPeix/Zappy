@@ -6,7 +6,6 @@
 */
 
 #include "server.h"
-#include <stdbool.h>
 
 bool check_null_args(char **args, int socket)
 {
