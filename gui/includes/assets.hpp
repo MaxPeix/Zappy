@@ -10,6 +10,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
+#include <map>
 
 class Assets {
     public:
@@ -19,8 +20,9 @@ class Assets {
         int box_size;
         int width_checkerboard;
         int rectangle_width;
-        std::vector<sf::Sprite> monster_sprites;
-        void create_monster(int x, int y);
+        std::map<int, sf::Sprite> monster_sprites;
+        void create_player(int x, int y, int n);
+        void delete_player(int n);
         sf::Texture monster_texture;
         sf::Sprite monster_sprite;
         sf::Font font;

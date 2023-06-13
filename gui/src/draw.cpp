@@ -64,3 +64,24 @@ void GUI::draw_tna(std::string cmd)
 
     this->assets.tna_text.setString(parsed_cmd);
 }
+
+void GUI::draw_pnw(std::string cmd)
+{
+    int num_values_parsed = sscanf(cmd.c_str(), "pnw %d %d %d %d %d %s\n",
+        &player_info.number,
+        &player_info.x,
+        &player_info.y,
+        &player_info.orientation, 
+        &player_info.level,
+        player_info.team);
+    if (num_values_parsed != 6) {
+        return;
+    }
+    assets.create_player(player_info.x, player_info.y, player_info.number);
+}
+
+void GUI::draw_pdi(std::string cmd)
+{
+    sscanf(cmd.c_str(), "pdi %d\n", &player_info.number);
+    this->assets.delete_player(player_info.number);
+}

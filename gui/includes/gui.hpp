@@ -23,6 +23,15 @@ const int BUFFER_SIZE = 4096;
 #define SUCCESS 0
 #define ERROR 84
 
+typedef struct info_player_s {
+    int number;
+    int x;
+    int y;
+    int orientation;
+    int level;
+    char team[6];
+} info_player_t;
+
 class GUI {
     public:
         GUI(int port, std::string machine);
@@ -39,6 +48,8 @@ class GUI {
         void handle_read_server();
         void draw_bct(std::string cmd);
         void draw_tna(std::string cmd);
+        void draw_pdi(std::string cmd);
+        void draw_pnw(std::string cmd);
     private:
         Assets assets;
         int port;
@@ -47,6 +58,7 @@ class GUI {
         int height;
         int width;
         std::vector<std::vector<std::string>> tna;
+        info_player_t player_info;
         sf::RenderWindow window;
         sf::Event event;
 };
