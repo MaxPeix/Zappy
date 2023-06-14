@@ -94,9 +94,8 @@ void Assets::init_assets(int height, int width)
     this->tileTexture.loadFromFile("assets/tile.png");
     for (int i = 0; i < width; i++) {
         std::vector<sf::Sprite> tmp;
-        for(int j = 0; j < height; j++) {
+        for(int j = 0; j < height; j++)
             tmp.push_back(sf::Sprite());
-        }
         this->tiles.push_back(tmp);
     }
     for (int i = 0; i < width; i++) {

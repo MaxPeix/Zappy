@@ -10,7 +10,7 @@
 void GUI::draw_bct(std::string cmd)
 {
     std::string parsed_cmd = "Tile content : ";
-    int x, y, food, linemate, deraumere, sibur, mendiane, phiras, thystame;
+    int x = 0, y = 0, food = 0, linemate = 0, deraumere = 0, sibur = 0, mendiane = 0, phiras = 0, thystame = 0;
 
     sscanf(cmd.c_str(), "bct %d %d %d %d %d %d %d %d %d\n",
         &x,
@@ -53,9 +53,9 @@ void GUI::draw_bct(std::string cmd)
 void GUI::draw_tna(std::string cmd)
 {
     std::string parsed_cmd = "";
-
-    std::vector<std::string> teamNames;
+    std::vector<std::string> teamNames = {};
     std::string currentTeamName = "";
+
     for (std::string::size_type i = 4; i < cmd.size(); i++) {
         if (cmd[i] == '\n' || cmd[i] == '\0') {
             if (!currentTeamName.empty()) {
@@ -63,19 +63,14 @@ void GUI::draw_tna(std::string cmd)
                 currentTeamName.clear();
                 i += 4;
             }
-        } else {
+        } else
             currentTeamName += cmd[i];
-        }
     }
-
     for (std::vector<std::string>::size_type i = 0; i < teamNames.size(); i++) {
         parsed_cmd += teamNames[i];
-
-        if (i < teamNames.size() - 1) {
+        if (i < teamNames.size() - 1)
             parsed_cmd += "\n\n";
-        }
     }
-
     this->assets.tna_text.setString(parsed_cmd);
 }
 
@@ -101,7 +96,7 @@ void GUI::draw_pdi(std::string cmd)
 
 void GUI::draw_enw(std::string cmd)
 {
-    int x, y, id, tmp;
+    int x = 0, y = 0, id = 0, tmp = 0;
     int num_values_parsed = sscanf(cmd.c_str(), "enw %d %d %d %d\n",
         &id,
         &tmp,
@@ -115,7 +110,7 @@ void GUI::draw_enw(std::string cmd)
 
 void GUI::draw_edi(std::string cmd)
 {
-    int id;
+    int id = 0;
     int num_values_parsed = sscanf(cmd.c_str(), "edi %d\n", &id);
     if (num_values_parsed != 1)
         return;
@@ -124,7 +119,7 @@ void GUI::draw_edi(std::string cmd)
 
 void GUI::draw_ppo(std::string cmd)
 {
-    int id, x, y, o;
+    int id = 0, x = 0, y = 0, o = 0;
     int num_values_parsed = sscanf(cmd.c_str(), "ppo %d %d %d %d\n",
         &id,
         &x,
@@ -146,7 +141,7 @@ void GUI::draw_ppo(std::string cmd)
 void GUI::draw_pin(std::string cmd)
 {
     std::string parsed_cmd = "Inventory :\n";
-    int n, x, y, food, linemate, deraumere, sibur, mendiane, phiras, thystame;
+    int n = 0, x = 0, y = 0, food = 0, linemate = 0, deraumere = 0, sibur = 0, mendiane = 0, phiras = 0, thystame = 0;
 
     sscanf(cmd.c_str(), "pin %d %d %d %d %d %d %d %d %d %d\n",
         &n,
@@ -194,38 +189,34 @@ void GUI::draw_pbc(std::string cmd)
     if (this->assets.chat_texts.size() > 5) {
         this->assets.chat_texts.erase(this->assets.chat_texts.begin());
         this->assets.chat_messages_string.erase(this->assets.chat_messages_string.begin());
-        for (unsigned int i = 0; i < this->assets.chat_texts.size(); i++) {
+        for (unsigned int i = 0; i < this->assets.chat_texts.size(); i++)
             this->assets.chat_texts[i].setPosition(10, 1080 / 3 + 60 + i * 30);
-        }
     }
 }
 
 void GUI::draw_pic(std::string cmd)
 {
     std::istringstream iss(cmd);
-    std::string prefix;
-    int X, Y, L;
-    std::vector<int> ns;
+    std::string prefix = "";
+    int X = 0, Y = 0, L = 0, n = 0;
+    std::vector<int> ns = {};
 
     if (iss >> prefix >> X >> Y >> L) {
-        int n;
-        while (iss >> n) {
-        ns.push_back(n);
-        }
+        while (iss >> n)
+            ns.push_back(n);
     }
-
     for (int n : ns) {
-        if (this->assets.monster_sprites[n].second == this->tna[0]) {
+        if (this->assets.monster_sprites[n].second == this->tna[0])
             this->assets.monster_sprites[n].first.setTexture(this->assets.monster_red_evolving_texture);
-        } else if (this->assets.monster_sprites[n].second == this->tna[1]) {
+        else if (this->assets.monster_sprites[n].second == this->tna[1])
             this->assets.monster_sprites[n].first.setTexture(this->assets.monster_blue_evolving_texture);
-        } else if (this->assets.monster_sprites[n].second == this->tna[2]) {
+        else if (this->assets.monster_sprites[n].second == this->tna[2])
             this->assets.monster_sprites[n].first.setTexture(this->assets.monster_green_evolving_texture);
-        } else if (this->assets.monster_sprites[n].second == this->tna[3]) {
+        else if (this->assets.monster_sprites[n].second == this->tna[3])
             this->assets.monster_sprites[n].first.setTexture(this->assets.monster_orange_evolving_texture);
-        } else if (this->assets.monster_sprites[n].second == this->tna[4]) {
+        else if (this->assets.monster_sprites[n].second == this->tna[4])
             this->assets.monster_sprites[n].first.setTexture(this->assets.monster_pink_evolving_texture);
-        } else
+        else
             this->assets.monster_sprites[n].first.setTexture(this->assets.monster_red_evolving_texture);
         this->evolving.push_back(n);
     }
@@ -234,22 +225,22 @@ void GUI::draw_pic(std::string cmd)
 void GUI::draw_pie(std::string cmd)
 {
     std::istringstream iss(cmd);
-    std::string prefix;
-    int X, Y, R;
+    std::string prefix = "";
+    int X = 0, Y = 0, R = 0;
 
     if (iss >> prefix >> X >> Y >> R) {
         for (int n : this->evolving) {
-            if (this->assets.monster_sprites[n].second == this->tna[0]) {
+            if (this->assets.monster_sprites[n].second == this->tna[0])
                 this->assets.monster_sprites[n].first.setTexture(this->assets.monster_red_texture);
-            } else if (this->assets.monster_sprites[n].second == this->tna[1]) {
+            else if (this->assets.monster_sprites[n].second == this->tna[1])
                 this->assets.monster_sprites[n].first.setTexture(this->assets.monster_blue_texture);
-            } else if (this->assets.monster_sprites[n].second == this->tna[2]) {
+            else if (this->assets.monster_sprites[n].second == this->tna[2])
                 this->assets.monster_sprites[n].first.setTexture(this->assets.monster_green_texture);
-            } else if (this->assets.monster_sprites[n].second == this->tna[3]) {
+            else if (this->assets.monster_sprites[n].second == this->tna[3])
                 this->assets.monster_sprites[n].first.setTexture(this->assets.monster_orange_texture);
-            } else if (this->assets.monster_sprites[n].second == this->tna[4]) {
+            else if (this->assets.monster_sprites[n].second == this->tna[4])
                 this->assets.monster_sprites[n].first.setTexture(this->assets.monster_pink_texture);
-            } else
+            else
                 this->assets.monster_sprites[n].first.setTexture(this->assets.monster_red_texture);
         }
         this->evolving.clear();
@@ -274,26 +265,20 @@ void GUI::draw_game()
     window.draw(this->assets.text_pid);
     window.draw(this->assets.text_sgt);
     window.draw(this->assets.tna_text);
-    for (auto& text : this->assets.chat_texts) {
+    for (auto& text : this->assets.chat_texts)
         window.draw(text);
-    }
-    for (int i = 0; i < this->width; i++) {
-        for(int j = 0; j < this->height; j++) {
+    for (int i = 0; i < this->width; i++)
+        for(int j = 0; j < this->height; j++)
             window.draw(this->assets.tiles[i][j]);
-        }
-    }
-    for (auto &monster_sprite : assets.monster_sprites) {
+    for (auto &monster_sprite : assets.monster_sprites)
         window.draw(monster_sprite.second.first);
-    }
-    for (auto &egg_sprite : assets.egg_sprites) {
+    for (auto &egg_sprite : assets.egg_sprites)
         window.draw(egg_sprite.second);
-    }
 }
 
 void GUI::draw_cmd(std::string cmd)
 {
     std::string cmd_tag = cmd.substr(0, 3);
-    std::string parsed_string = cmd;
 
     if (cmd_tag.compare("bct") == 0) {
         this->draw_bct(cmd);

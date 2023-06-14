@@ -16,7 +16,7 @@ void GUI::setup_fd_set(fd_set *read_fds, int sockfd)
 
 void GUI::handle_read_server()
 {
-    char buf[BUFFER_SIZE];
+    char buf[BUFFER_SIZE] = {0};
     int num_bytes = 0;
 
     if ((num_bytes = recv(this->clientSocket, buf, BUFFER_SIZE - 1, 0)) <= 0)
@@ -32,8 +32,8 @@ void GUI::handle_read_server()
 
 std::string GUI::ask_server(std::string cmd)
 {
-    std::string response;
-    char buffer[BUFFER_SIZE];
+    std::string response = "";
+    char buffer[BUFFER_SIZE] = {0};
     memset(buffer, 0, BUFFER_SIZE);
     if (send(this->clientSocket, cmd.c_str(), cmd.length(), 0) == -1) {
         std::cerr << "Failed to send command to the server." << std::endl;
@@ -59,7 +59,7 @@ int GUI::connectToServer()
         return 1;
     }
 
-    std::string serverIP;
+    std::string serverIP = this->machine;
     if (this->machine == "localhost")
         serverIP = "127.0.0.1";
     int serverPort = this->port;
@@ -82,14 +82,14 @@ int GUI::connectToServer()
         return 1;
     }
 
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE] = {0};
     memset(buffer, 0, BUFFER_SIZE);
     if (recv(this->clientSocket, buffer, BUFFER_SIZE, 0) == -1) {
         std::cerr << "Failed to receive data from the server." << std::endl;
         close(this->clientSocket);
         return 1;
     }
-    char buffer1[BUFFER_SIZE];
+    char buffer1[BUFFER_SIZE] = {0};
     memset(buffer1, 0, BUFFER_SIZE);
     if (recv(this->clientSocket, buffer1, BUFFER_SIZE, 0) == -1) {
         std::cerr << "Failed to receive data from the server." << std::endl;
@@ -97,8 +97,7 @@ int GUI::connectToServer()
         return 1;
     }
 
-    int x, y;
-    int sgt;
+    int x = 0, y = 0, sgt = 0;
     char *line = strtok(buffer, "\n");
     line = strtok(buffer1, "\n");
     while (line != nullptr) {
@@ -112,7 +111,6 @@ int GUI::connectToServer()
         }
         line = strtok(nullptr, "\n");
     }
-
     this->width = x;
     this->height = y;
     this->sgt = sgt;

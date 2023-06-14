@@ -19,7 +19,7 @@
 #include <future>
 #include <sstream>
 
-const int BUFFER_SIZE = 4096;
+const int BUFFER_SIZE = 24576;
 
 #define SUCCESS 0
 #define ERROR 84

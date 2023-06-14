@@ -28,11 +28,11 @@ void GUI::init_game()
 
 void GUI::check_event()
 {
-    std::string cmd;
-    std::string server_response;
-    std::string player_position;
-    std::string player_level;
-    std::string player_inventory;
+    std::string cmd = "";
+    std::string server_response = "";
+    std::string player_position = "";
+    std::string player_level = "";
+    std::string player_inventory = "";
 
     server_response = ask_server("tna\n");
     draw_cmd(server_response);

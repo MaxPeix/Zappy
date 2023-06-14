@@ -22,14 +22,13 @@ int parseArguments(int ac, char **av, int &port, std::string &machine)
                 std::cout << "Invalid port: " << av[i + 1] << std::endl;
                 return ERROR;
             }
-        } else if (strcmp(av[i], "-h") == 0) {
+        } else if (strcmp(av[i], "-h") == 0)
             machine = av[i + 1];
-        } else {
+        else {
             std::cout << "Invalid option: " << av[i] << std::endl;
             return ERROR;
         }
     }
-
     return SUCCESS;
 }
 
@@ -38,9 +37,8 @@ int main(int ac, char **av)
     int port = 0;
     std::string machine = "localhost";
 
-    if (parseArguments(ac, av, port, machine) != 0) {
+    if (parseArguments(ac, av, port, machine) != 0)
         return ERROR;
-    }
     GUI gui(port, machine);
     gui.connectToServer();
     gui.init_game();
