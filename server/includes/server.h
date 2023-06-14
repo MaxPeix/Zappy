@@ -59,7 +59,6 @@ typedef struct client
     int x_position;
     int y_position;
     int orientation;
-    int incantation_level;
     int level;
     int socket;
     char *team_name;
