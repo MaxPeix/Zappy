@@ -66,7 +66,7 @@ class GUI {
         int clientSocket;
         int height;
         int width;
-        std::vector<std::vector<std::string>> tna;
+        std::vector<std::string> tna;
         info_player_t player_info;
         sf::RenderWindow window;
         sf::Event event;

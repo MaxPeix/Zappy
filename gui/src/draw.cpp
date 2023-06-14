@@ -98,7 +98,7 @@ void GUI::draw_pnw(std::string cmd)
         player_info.team);
     if (num_values_parsed != 6)
         return;
-    assets.create_player(player_info.x, player_info.y, player_info.number);
+    assets.create_player(player_info.x, player_info.y, player_info.number, player_info.orientation, player_info.team, this->tna);
 }
 
 void GUI::draw_pdi(std::string cmd)
@@ -140,7 +140,7 @@ void GUI::draw_ppo(std::string cmd)
         &y);
     if (num_values_parsed != 3)
         return;
-    this->assets.monster_sprites[id].setPosition(x * this->assets.box_size + this->assets.rectangle_width, y * this->assets.box_size);
+    this->assets.monster_sprites[id].setPosition(x * this->assets.box_size + this->assets.rectangle_width + this->assets.box_size / 2, y * this->assets.box_size + this->assets.box_size / 2);
 }
 
 void GUI::draw_pin(std::string cmd)
@@ -228,7 +228,7 @@ void GUI::draw_pic(std::string cmd)
     std::cout << "L: " << L << std::endl;
 
     for (int n : ns) {
-        this->assets.monster_sprites[n].setTexture(this->assets.monster_evolving_texture);
+        this->assets.monster_sprites[n].setTexture(this->assets.monster_red_evolving_texture);
         this->evolving.push_back(n);
     }
 }
@@ -237,6 +237,6 @@ void GUI::draw_pie(std::string cmd)
 {
     std::cout << cmd << std::endl;
     for (int n : this->evolving) {
-        this->assets.monster_sprites[n].setTexture(this->assets.monster_texture);
+        this->assets.monster_sprites[n].setTexture(this->assets.monster_red_texture);
     }
 }

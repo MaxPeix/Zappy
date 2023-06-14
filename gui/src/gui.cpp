@@ -336,16 +336,16 @@ int GUI::connectToServer()
     line = strtok(buffer1, "\n");
     while (line != nullptr) {
         if (sscanf(line, "msz %d %d", &x, &y) == 2) {
-            break;
         }
         if (sscanf(line, "sgt %d", &sgt) == 1) {
-            break;
+        }
+        if (strncmp(line, "tna", 3) == 0) {
+            std::string teamName = line + 4; // Assuming the team name starts after "tna "
+            this->tna.push_back(teamName);
         }
         line = strtok(nullptr, "\n");
     }
 
-    if (line == nullptr)
-        std::cerr << "Failed to parse server response." << std::endl;
     this->width = x;
     this->height = y;
     this->sgt = sgt;

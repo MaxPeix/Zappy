@@ -108,18 +108,41 @@ void Assets::init_assets(int height, int width)
             this->tiles[i][j].setPosition(i * this->box_size + this->rectangle_width, j * this->box_size);
         }
     }
-    this->monster_texture.loadFromFile("assets/monster.png");
-    this->monster_sprite.setTexture(monster_texture);
-    this->monster_evolving_texture.loadFromFile("assets/monster_evolving.png");
+    this->monster_red_texture.loadFromFile("assets/monster.png");
+    this->monster_sprite.setTexture(monster_red_texture);
+    this->monster_sprite.setOrigin(sf::Vector2f(this->monster_red_texture.getSize().x / 2, this->monster_red_texture.getSize().y / 2));
+    this->monster_red_evolving_texture.loadFromFile("assets/monster_evolving.png");
+    this->monster_blue_texture.loadFromFile("assets/monster_blue.png");
+    this->monster_green_texture.loadFromFile("assets/monster_green.png");
+    this->monster_orange_texture.loadFromFile("assets/monster_orange.png");
+    this->monster_pink_texture.loadFromFile("assets/monster_pink.png");
     this->egg_texture.loadFromFile("assets/egg.png");
     this->egg_sprite.setTexture(egg_texture);
     this->egg_sprite.setOrigin(sf::Vector2f(this->egg_texture.getSize().x / 2, this->egg_texture.getSize().y / 2));
 }
 
-void Assets::create_player(int x, int y, int n)
+void Assets::create_player(int x, int y, int n, int o, std::string team, std::vector<std::string> teams)
 {
-    monster_sprite.setPosition(x * this->box_size + this->rectangle_width, y * this->box_size);
     monster_sprite.setScale(sf::Vector2f(0.5, 0.5));
+    if (o == 1)
+        monster_sprite.setRotation(180);
+    else if (o == 2)
+        monster_sprite.setRotation(90);
+    else if (o == 3)
+        monster_sprite.setRotation(0);
+    else if (o == 4)
+        monster_sprite.setRotation(270);
+    if (team == teams[0])
+        monster_sprite.setTexture(monster_red_texture);
+    else if (team == teams[1])
+        monster_sprite.setTexture(monster_blue_texture);
+    else if (team == teams[2])
+        monster_sprite.setTexture(monster_green_texture);
+    else if (team == teams[3])
+        monster_sprite.setTexture(monster_orange_texture);
+    else if (team == teams[4])
+        monster_sprite.setTexture(monster_pink_texture);
+    monster_sprite.setPosition(x * this->box_size + this->rectangle_width + this->box_size / 2, y * this->box_size + this->box_size / 2);
     this->monster_sprites.insert(std::pair<int, sf::Sprite>(n, monster_sprite));
 }
 
