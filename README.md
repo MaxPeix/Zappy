@@ -79,20 +79,23 @@ You have to *be careful* because you can die if you don't have enough food. <br>
 You can also comunicate with other players by sending messages using the `broadcast <msg>` command. <br>
 
 The different commands you can use are: <br>
-- `Forward` : move forward
-- `Right` : turn right
-- `Left` : turn left
-- `Look` : look around you
-- `Inventory` : look at your inventory
-- `Broadcast <msg>` : send a message to all players
-- `Connect_nbr` : look at the number of clients allowed on the server on the same team
-- `Take <resource>` : take a resource on the ground
-- `Set <resource>` : set a resource on the ground
-- `Eject` : eject all players on the same tile including eggs
-- `Fork` : lay an egg
-- `Incantation` : start an incantation to elevate yourself to the next level
 
-[//]: # (Put the different output of the commands)
+| Action                       | Command        | Time limit | Response                                  |
+| ---------------------------- | -------------- | ---------- | -------------                             |
+| move up one tile             | Forward        | 7/f        | ok                                        |
+| turn 90° right               | Right          | 7/f        | ok                                        |
+| turn 90° left                | Left           | 7/f        | ok                                        |
+| look around                  | Look           | 7/f        | [tile1, tile2,. . . ]                     |
+| inventory                    | Inventory      | 7/f        | [linemate n, sibur n,. . . ]              |
+| broadcast text               | Broadcast text | 7/f        | ok                                        |
+| number of team unused slots  | Connect_nbr    | -          | value                                     |
+| fork a player                | Fork           | 42/f       | ok                                        |
+| eject players from this tile | Eject          | 7/f        | ok/ko                                     |
+| death of a player            | -              | -          | dead                                      |
+| take object                  | Take object    | 7/f        | ok/ko                                     |
+| set object down              | Set object     | 7/f        | ok/ko                                     |
+| start incantation            | Incantation    | 300/f      | Elevation underway && Current level: k/ko |
+| bad command                  | -              | 7/f        | ko                                        |
 
 Here is the different resources you can collect: <br>
 - `food` : food to eat
