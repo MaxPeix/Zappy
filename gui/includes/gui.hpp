@@ -47,6 +47,7 @@ class GUI {
         std::string ask_server(std::string cmd);
         void handle_stdin_input();
         void handle_read_server();
+        void setup_fd_set(fd_set *read_fds, int sockfd);
         void draw_bct(std::string cmd);
         void draw_tna(std::string cmd);
         void draw_pdi(std::string cmd);

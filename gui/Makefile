@@ -11,6 +11,7 @@ SRC_MAIN		= 	src/main.cpp
 
 SRC				=	src/gui.cpp			\
 					src/assets.cpp		\
+					src/server.cpp		\
 					src/draw.cpp
 
 OBJ				=	$(SRC:.cpp=.o)

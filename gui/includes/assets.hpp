@@ -20,7 +20,7 @@ class Assets {
         int box_size;
         int width_checkerboard;
         int rectangle_width;
-        std::map<int, sf::Sprite> monster_sprites;
+        std::map<int, std::pair<sf::Sprite, std::string>> monster_sprites;
         void create_player(int x, int y, int n, int o, std::string team, std::vector<std::string> teams);
         void delete_player(int n);
         void create_egg(int x, int y, int e);

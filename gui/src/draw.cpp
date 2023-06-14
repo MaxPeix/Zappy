@@ -140,7 +140,7 @@ void GUI::draw_ppo(std::string cmd)
         &y);
     if (num_values_parsed != 3)
         return;
-    this->assets.monster_sprites[id].setPosition(x * this->assets.box_size + this->assets.rectangle_width + this->assets.box_size / 2, y * this->assets.box_size + this->assets.box_size / 2);
+    this->assets.monster_sprites[id].first.setPosition(x * this->assets.box_size + this->assets.rectangle_width + this->assets.box_size / 2, y * this->assets.box_size + this->assets.box_size / 2);
 }
 
 void GUI::draw_pin(std::string cmd)
@@ -223,20 +223,44 @@ void GUI::draw_pic(std::string cmd)
         }
     }
 
-    std::cout << "X: " << X << std::endl;
-    std::cout << "Y: " << Y << std::endl;
-    std::cout << "L: " << L << std::endl;
-
     for (int n : ns) {
-        this->assets.monster_sprites[n].setTexture(this->assets.monster_red_evolving_texture);
+        if (this->assets.monster_sprites[n].second == this->tna[0]) {
+            this->assets.monster_sprites[n].first.setTexture(this->assets.monster_red_evolving_texture);
+        } else if (this->assets.monster_sprites[n].second == this->tna[1]) {
+            this->assets.monster_sprites[n].first.setTexture(this->assets.monster_blue_evolving_texture);
+        } else if (this->assets.monster_sprites[n].second == this->tna[2]) {
+            this->assets.monster_sprites[n].first.setTexture(this->assets.monster_green_evolving_texture);
+        } else if (this->assets.monster_sprites[n].second == this->tna[3]) {
+            this->assets.monster_sprites[n].first.setTexture(this->assets.monster_orange_evolving_texture);
+        } else if (this->assets.monster_sprites[n].second == this->tna[4]) {
+            this->assets.monster_sprites[n].first.setTexture(this->assets.monster_pink_evolving_texture);
+        } else
+            this->assets.monster_sprites[n].first.setTexture(this->assets.monster_red_evolving_texture);
         this->evolving.push_back(n);
     }
 }
 
 void GUI::draw_pie(std::string cmd)
 {
-    std::cout << cmd << std::endl;
-    for (int n : this->evolving) {
-        this->assets.monster_sprites[n].setTexture(this->assets.monster_red_texture);
+    std::istringstream iss(cmd);
+    std::string prefix;
+    int X, Y, R;
+
+    if (iss >> prefix >> X >> Y >> R) {
+        for (int n : this->evolving) {
+            if (this->assets.monster_sprites[n].second == this->tna[0]) {
+                this->assets.monster_sprites[n].first.setTexture(this->assets.monster_red_texture);
+            } else if (this->assets.monster_sprites[n].second == this->tna[1]) {
+                this->assets.monster_sprites[n].first.setTexture(this->assets.monster_blue_texture);
+            } else if (this->assets.monster_sprites[n].second == this->tna[2]) {
+                this->assets.monster_sprites[n].first.setTexture(this->assets.monster_green_texture);
+            } else if (this->assets.monster_sprites[n].second == this->tna[3]) {
+                this->assets.monster_sprites[n].first.setTexture(this->assets.monster_orange_texture);
+            } else if (this->assets.monster_sprites[n].second == this->tna[4]) {
+                this->assets.monster_sprites[n].first.setTexture(this->assets.monster_pink_texture);
+            } else
+                this->assets.monster_sprites[n].first.setTexture(this->assets.monster_red_texture);
+        }
+        this->evolving.clear();
     }
 }
