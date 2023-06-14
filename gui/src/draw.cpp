@@ -133,14 +133,23 @@ void GUI::draw_edi(std::string cmd)
 
 void GUI::draw_ppo(std::string cmd)
 {
-    int id, x, y;
-    int num_values_parsed = sscanf(cmd.c_str(), "ppo %d %d %d\n",
+    int id, x, y, o;
+    int num_values_parsed = sscanf(cmd.c_str(), "ppo %d %d %d %d\n",
         &id,
         &x,
-        &y);
-    if (num_values_parsed != 3)
+        &y,
+        &o);
+    if (num_values_parsed != 4)
         return;
     this->assets.monster_sprites[id].first.setPosition(x * this->assets.box_size + this->assets.rectangle_width + this->assets.box_size / 2, y * this->assets.box_size + this->assets.box_size / 2);
+    if (o == 1)
+        this->assets.monster_sprites[id].first.setRotation(180);
+    else if (o == 2)
+        this->assets.monster_sprites[id].first.setRotation(90);
+    else if (o == 3)
+        this->assets.monster_sprites[id].first.setRotation(0);
+    else if (o == 4)
+        this->assets.monster_sprites[id].first.setRotation(270);
 }
 
 void GUI::draw_pin(std::string cmd)
