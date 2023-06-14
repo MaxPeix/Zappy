@@ -30,6 +30,10 @@ class Brain:
             print(utils.WHITE, end="")
 
     def _action(self, evt: zp.Evt) -> None:
+        if self._ai.world[self._ai.pos].known:
+            while self._ai.inventory[zp.ObjectType.FOOD] < ai.FOOD_WANTED and \
+                    self._ai.world[self._ai.pos].objects[zp.ObjectType.FOOD] > 0:
+                self.take(zp.ObjectType.FOOD)
         if self._status == zp.Status.DYING:
             self.dying(evt)
         elif self._status == zp.Status.SEARCHING:
@@ -63,9 +67,6 @@ class Brain:
     def searching(self, evt: zp.Evt) -> None:  # FIXME: find a looking algorithm
         if not self._ai.world[self._ai.pos].known:
             return
-        while self._ai.inventory[zp.ObjectType.FOOD] < ai.FOOD_WANTED and \
-                self._ai.world[self._ai.pos].objects[zp.ObjectType.FOOD] > 0:
-            self.take(zp.ObjectType.FOOD)
         for resource in ai.OBJECTIVES[self._ai.level - 1]:
             if resource == zp.ObjectType.PLAYER:
                 continue
