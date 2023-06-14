@@ -43,7 +43,6 @@ class GUI {
         void game_loop();
         void check_event();
         void draw_cmd(std::string cmd);
-        void listen_server();
         std::string ask_server(std::string cmd);
         void handle_stdin_input();
         void handle_read_server();

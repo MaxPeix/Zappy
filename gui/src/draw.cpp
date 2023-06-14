@@ -10,15 +10,7 @@
 void GUI::draw_bct(std::string cmd)
 {
     std::string parsed_cmd = "Tile content : ";
-    int x = 0;
-    int y = 0;
-    int food = 0;
-    int linemate = 0;
-    int deraumere = 0;
-    int sibur = 0;
-    int mendiane = 0;
-    int phiras = 0;
-    int thystame = 0;
+    int x, y, food, linemate, deraumere, sibur, mendiane, phiras, thystame;
 
     sscanf(cmd.c_str(), "bct %d %d %d %d %d %d %d %d %d\n",
         &x,
@@ -109,8 +101,7 @@ void GUI::draw_pdi(std::string cmd)
 
 void GUI::draw_enw(std::string cmd)
 {
-    int x, y, id;
-    int tmp;
+    int x, y, id, tmp;
     int num_values_parsed = sscanf(cmd.c_str(), "enw %d %d %d %d\n",
         &id,
         &tmp,
@@ -155,16 +146,7 @@ void GUI::draw_ppo(std::string cmd)
 void GUI::draw_pin(std::string cmd)
 {
     std::string parsed_cmd = "Inventory :\n";
-    int n = 0;
-    int x = 0;
-    int y = 0;
-    int food = 0;
-    int linemate = 0;
-    int deraumere = 0;
-    int sibur = 0;
-    int mendiane = 0;
-    int phiras = 0;
-    int thystame = 0;
+    int n, x, y, food, linemate, deraumere, sibur, mendiane, phiras, thystame;
 
     sscanf(cmd.c_str(), "pin %d %d %d %d %d %d %d %d %d %d\n",
         &n,
@@ -272,4 +254,129 @@ void GUI::draw_pie(std::string cmd)
         }
         this->evolving.clear();
     }
+}
+
+void GUI::draw_game()
+{
+    window.draw(this->assets.leftrectangle1);
+    window.draw(this->assets.leftrectangle2);
+    window.draw(this->assets.leftrectangle3);
+    window.draw(this->assets.closeButtonSprite);
+    window.draw(this->assets.optionsButtonSprite);
+    window.draw(this->assets.optionsPlusButtonSprite);
+    window.draw(this->assets.optionsMinusButtonSprite);
+    window.draw(this->assets.title_tna);
+    window.draw(this->assets.title_chat);
+    window.draw(this->assets.title_info);
+    window.draw(this->assets.text_bct);
+    window.draw(this->assets.text_pin);
+    window.draw(this->assets.text_plv);
+    window.draw(this->assets.text_pid);
+    window.draw(this->assets.text_sgt);
+    window.draw(this->assets.tna_text);
+    for (auto& text : this->assets.chat_texts) {
+        window.draw(text);
+    }
+    for (int i = 0; i < this->width; i++) {
+        for(int j = 0; j < this->height; j++) {
+            window.draw(this->assets.tiles[i][j]);
+        }
+    }
+    for (auto &monster_sprite : assets.monster_sprites) {
+        window.draw(monster_sprite.second.first);
+    }
+    for (auto &egg_sprite : assets.egg_sprites) {
+        window.draw(egg_sprite.second);
+    }
+}
+
+void GUI::draw_cmd(std::string cmd)
+{
+    std::string cmd_tag = cmd.substr(0, 3);
+    std::string parsed_string = cmd;
+
+    if (cmd_tag.compare("bct") == 0) {
+        this->draw_bct(cmd);
+        return;
+    }
+    if (cmd_tag.compare("tna") == 0) {
+        this->draw_tna(cmd);
+        return;
+    }
+    if (cmd_tag.compare("pnw") == 0) {
+        this->draw_pnw(cmd);
+        return;
+    }
+    if (cmd_tag.compare("ppo") == 0) {
+        this->draw_ppo(cmd);
+        return;
+    }
+    if (cmd_tag.compare("plv") == 0) {
+        this->assets.text_plv.setString("level: " + cmd.substr(6, 1));
+        return;
+    }
+    if (cmd_tag.compare("pin") == 0) {
+        this->draw_pin(cmd);
+        return;
+    }
+    if (cmd_tag.compare("pex") == 0) {
+        return;
+    }
+    if (cmd_tag.compare("pbc") == 0) {
+        this->draw_pbc(cmd);
+        return;
+    }
+    if (cmd_tag.compare("pic") == 0) {
+        this->draw_pic(cmd);
+        return;
+    }
+    if (cmd_tag.compare("pie") == 0) {
+        this->draw_pie(cmd);
+        return;
+    }
+    if (cmd_tag.compare("pfk") == 0) {
+        return;
+    }
+    if (cmd_tag.compare("pdr") == 0) {
+        return;
+    }
+    if (cmd_tag.compare("pgt") == 0) {
+        return;
+    }
+    if (cmd_tag.compare("pdi") == 0) {
+        this->draw_pdi(cmd);
+        return;
+    }
+    if (cmd_tag.compare("enw") == 0) {
+        this->draw_enw(cmd);
+        return;
+    }
+    if (cmd_tag.compare("ebo") == 0) {
+        return;
+    }
+    if (cmd_tag.compare("edi") == 0) {
+        this->draw_edi(cmd);
+        return;
+    }
+    if (cmd_tag.compare("sgt") == 0) {
+        this->assets.text_sgt.setString(cmd.substr(4, cmd.size() - 4));
+        return;
+    }
+    if (cmd_tag.compare("seg") == 0) {
+        this->window.close();
+        return;
+    }
+    if (cmd_tag.compare("smg") == 0) {
+        std::cout << cmd;
+        return;
+    }
+    if (cmd_tag.compare("suc") == 0) {
+        std::cout << cmd;
+        return;
+    }
+    if (cmd_tag.compare("sbp") == 0) {
+        std::cout << cmd;
+        return;
+    }
+    return;
 }
