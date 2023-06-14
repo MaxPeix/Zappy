@@ -51,7 +51,7 @@ void take_command(server_params_t *server_params,
                                  &client->thystame,  NULL };
 
     for (int i = 0; names[i] != NULL; i++) {
-        if (strcasecmp(argv[1], names[i]) == 0) {
+        if (strcmp(argv[1], names[i]) == 0) {
             take_object(client, resources, inventory, i);
             return;
         }
@@ -88,7 +88,7 @@ void set_command(server_params_t *server_params,
                                  &client->thystame,  NULL };
 
     for (int i = 0; names[i] != NULL; i++) {
-        if (strcasecmp(argv[1], names[i]) == 0) {
+        if (strcmp(argv[1], names[i]) == 0) {
             set_object(client, resources, inventory, i);
             return;
         }

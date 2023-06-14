@@ -77,10 +77,10 @@ void handle_command_with_player_nbr(client_t *clients, client_t *client,
             break;
         }
     }
-    if (strcasecmp(args[0], "PPO") == 0)
+    if (strcmp(args[0], "ppo") == 0)
         print_ppo(client, player);
-    if (strcasecmp(args[0], "PLV") == 0)
+    if (strcmp(args[0], "plv") == 0)
         print_plv(client, player);
-    if (strcasecmp(args[0], "PIN") == 0)
+    if (strcmp(args[0], "pin") == 0)
         print_pin(client, player);
 }

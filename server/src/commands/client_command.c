@@ -16,7 +16,7 @@ static void print_connect_nbr(server_params_t *server_params,
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i].is_connected == 0 || clients[i].is_graphical == 1)
             continue;
-        if (strcasecmp(client->team_name, clients[i].team_name) == 0)
+        if (strcmp(client->team_name, clients[i].team_name) == 0)
             count++;
     }
     output = msprintf("%d\n", client->team_max_clients - count);
@@ -27,7 +27,7 @@ static void print_connect_nbr(server_params_t *server_params,
 void handle_connect_nbr_command(client_t *clients,
     client_t *client, server_params_t *server_params, char **args)
 {
-    if (strcasecmp(args[0], "CONNECT_NBR") == 0) {
+    if (strcmp(args[0], "Connect_nbr") == 0) {
         print_connect_nbr(server_params, client, clients);
         return;
     }

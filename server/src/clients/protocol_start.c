@@ -10,7 +10,7 @@
 int check_team_name(char *team_name, char **valid_teams)
 {
     for (int i = 0; valid_teams[i]; i++) {
-        if (strcasecmp(team_name, valid_teams[i]) == 0)
+        if (strcmp(team_name, valid_teams[i]) == 0)
             return 1;
     }
     return 0;

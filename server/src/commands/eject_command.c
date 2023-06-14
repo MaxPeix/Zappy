@@ -52,7 +52,7 @@ void update_client_per_team_after_eject(client_t *client, client_t *clients)
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i].is_connected == 0 || clients[i].is_graphical == 1)
             continue;
-        if (strcasecmp(client->team_name, clients[i].team_name) == 0) {
+        if (strcmp(client->team_name, clients[i].team_name) == 0) {
             client->team_max_clients--;
             return;
         }
@@ -68,7 +68,7 @@ void handle_eject_command(client_t *clients, client_t *client,
         &server_params->world[client->y_position][client->x_position];
 
     
-    if (strcasecmp(args[0], "EJECT") == 0) {
+    if (strcmp(args[0], "Eject") == 0) {
         ejected =
             send_eject_response_to_clients_at_same_position(
                 clients, client, server_params);
@@ -77,7 +77,7 @@ void handle_eject_command(client_t *clients, client_t *client,
         else {
             if (tile->eggs) {
                 for (int i = 0; tile->eggs[i] != 0; ++i) {
-                    printf("Egg liste %d: %d\n", i + 1, tile->eggs[i]);
+                    printf("Egg list %d: %d\n", i + 1, tile->eggs[i]);
                     char *output_eggs_dead = msprintf("edi %d\n", tile->eggs[i]);
                     send_message_to_graphical(clients, output_eggs_dead);
                     free(output_eggs_dead);

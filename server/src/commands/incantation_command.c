@@ -16,7 +16,7 @@ void handle_incantation_command(client_t *clients,
     int nb_player[7] = { 1, 2, 2, 4, 4, 6, 6 };
     char *output_graphical = NULL;
 
-    if (strcasecmp(args[0], "INCANTATION") != 0)
+    if (strcmp(args[0], "Incantation") != 0)
         return;
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i].is_connected == 0 || clients[i].is_graphical == 1)
