@@ -22,7 +22,6 @@ LVL_MAX = len(OBJECTIVES) - 1
 
 class AI:
     _msg_key: bytes
-    _dead: bool = False
     _direction: zp.Direction = zp.Direction.N
     _comm: utils.Comm
     _pos: zp.Pos = zp.Pos(5, 5)
@@ -79,7 +78,7 @@ class AI:
     def _recv(self) -> list[str]:
         data: list[str] = self._comm.recv()
         if "dead" in data:
-            self._dead = True
+            raise TimeoutError("Dead")
         else:
             for line in data:
                 if line.startswith("message "):
