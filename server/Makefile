@@ -40,7 +40,8 @@ SRC				=	src/core.c \
 					src/commands/incantation_command.c \
 					src/commands/incantation_command_lib.c \
 					src/commands/fork_command.c \
-					src/commands/look_command.c
+					src/commands/look_command.c	\
+					src/commands/look_command_tile.c \
 
 SRC_TESTS = tests/tests_main.c
 
