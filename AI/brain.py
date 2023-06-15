@@ -34,6 +34,8 @@ class Brain:
             while self._ai.inventory[zp.ObjectType.FOOD] < ai.FOOD_WANTED and \
                     self._ai.world[self._ai.pos].objects[zp.ObjectType.FOOD] > 0:
                 self.take(zp.ObjectType.FOOD)
+        if self._ai.inventory[zp.ObjectType.FOOD] < 3:
+            self.change_status(zp.Status.DYING)
         if self._status == zp.Status.DYING:
             self.dying(evt)
         elif self._status == zp.Status.SEARCHING:
@@ -43,8 +45,6 @@ class Brain:
 
     def on_tile(self) -> None:
         # input("press enter to continue")
-        if self._ai.inventory.food < 3:
-            self.change_status(zp.Status.DYING)
         self._action(zp.Evt.ON_TILE)
         self._ai.draw_map()
         print("pos:", self._ai.pos)
@@ -57,10 +57,16 @@ class Brain:
     def on_turn(self) -> None:
         self._ai.draw_map()
 
-    def dying(self, evt: zp.Evt) -> None:
+    def dying(self, evt: zp.Evt, go_back: bool = True) -> None:
         if self._ai.inventory.food < 10:
+            prev_pos = self._ai.pos
+            prev_dir = self._ai.direction
             self.go_where(zp.ObjectType.FOOD, True)
             self.take(zp.ObjectType.FOOD)
+            self.dying(evt, False)
+            if go_back:
+                self.goto(prev_pos)
+                self.turn(prev_dir)
         else:
             self.change_status(self._prev_status)
 
