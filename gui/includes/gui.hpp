@@ -18,6 +18,7 @@
 #include <thread>
 #include <future>
 #include <sstream>
+#include <cmath>
 
 const int BUFFER_SIZE = 24576;
 
@@ -47,6 +48,7 @@ class GUI {
         void handle_stdin_input();
         void handle_read_server();
         void setup_fd_set(fd_set *read_fds, int sockfd);
+        int count_players_on_tile(int x, int y);
         void draw_bct(std::string cmd);
         void draw_tna(std::string cmd);
         void draw_pdi(std::string cmd);
