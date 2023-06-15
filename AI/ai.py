@@ -3,6 +3,7 @@ import json
 import utils
 import zappyAI as zp
 import base64
+import os, sys
 
 OBJECTIVES = [
     zp.Resources(0, 1, 0, 0, 0, 0, 0, 0),
@@ -12,7 +13,7 @@ OBJECTIVES = [
     zp.Resources(0, 1, 2, 1, 3, 0, 0, 3),
     zp.Resources(0, 1, 2, 3, 0, 1, 0, 3),
     zp.Resources(0, 2, 2, 2, 2, 2, 1, 5),
-    zp.Resources(0, 0, 0, 0, 0, 0, 0, 0) # Last one must be empty
+    zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)  # Last one must be empty
 ]
 
 FOOD_WANTED = 10
@@ -32,18 +33,33 @@ class AI:
     _ticks: int = 0
     _inventory: zp.Resources = zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)
 
+    @staticmethod
+    def _new() -> None:
+        pid = os.fork()
+        if pid == 0:
+            python = sys.executable
+            os.execl(python, python, *sys.argv)
+            exit(0)
+        if pid < 0:
+            raise RuntimeError("Failed to fork")
+
     def __init__(self, comm: utils.Comm, team_name: str) -> None:
         self._comm = comm
         self._teamName = team_name
         data: list[str] = self._comm.recv()
-        if data != ["WELCOME"]:
+        if data != [utils.WELCOME]:
             raise ConnectionError("Invalid response")
         self._login(team_name)
         self.check_inventory()
         # init world with empty tiles from world size
-        if self.connect_nbr() > 1:
-            pass  # TODO: ask word info on broadcast
         self._msg_key = utils.generate_key(self._teamName)
+        if self.connect_nbr() > 0:
+            print(os.getpid(), ": I'm a slave")
+            self._new()
+            self._recv()
+            return
+        # master go here
+        print(os.getpid(), " : I'm the master")
 
     def _add_time(self, time: int) -> None:
         for i in range(time):
@@ -77,22 +93,24 @@ class AI:
 
     def _recv(self) -> list[str]:
         data: list[str] = self._comm.recv()
-        if "dead" in data:
-            raise TimeoutError("Dead")
-        else:
-            for line in data:
-                if line.startswith("message "):
-                    try:
-                        direction: zp.Direction = zp.Direction(int(line[8:9]))
-                    except ValueError:
-                        raise ConnectionError("Invalid response")
-                    self._on_message(direction, line[9:])
-                    if len(data) == 1:
-                        return self._recv()
+        for line in data:
+            if line == utils.DEAD:
+                raise TimeoutError("Dead")
+            elif line == utils.ELEVATION_UNDERWAY:
+                pass
+            elif line.startswith(utils.BROADCAST_MSG_START):
+                try:
+                    direction: zp.Direction = zp.Direction(
+                        int(line[len(utils.BROADCAST_MSG_START):(len(utils.BROADCAST_MSG_START) + 1)]))
+                except ValueError:
+                    raise ConnectionError("Invalid response")
+                self._on_message(direction, line[9:])
+                if len(data) == 1:
+                    return self._recv()
         return data
 
     def _login(self, team_name: str) -> None:
-        res: tuple[int, tuple[int, int]] = (0, (0, 0))
+        res: tuple[int, tuple[int, int]]
         data: list[str]
 
         self._comm.send(team_name + "\n")
@@ -131,7 +149,7 @@ class AI:
 
     def forward(self) -> None:
         self._comm.send("Forward\n")
-        if self._recv() != ["ok"]:
+        if self._recv() != [utils.OK]:
             raise ConnectionError("Invalid response")
         if self._direction == zp.Direction.N:
             self._pos.y = (self._pos.y - 1) % self._world.size.height
@@ -148,7 +166,7 @@ class AI:
     def right(self) -> None:
         self._comm.send("Right\n")
         self._add_time(7)
-        if self._recv() != ["ok"]:
+        if self._recv() != [utils.OK]:
             raise ConnectionError("Invalid response")
         self._direction = zp.Direction(
             (self._direction.value + (1 if self._direction.value % 2 == 0 else 2) if self._direction.value < 6 else 1))
@@ -156,7 +174,7 @@ class AI:
     def left(self) -> None:
         self._comm.send("Left\n")
         self._add_time(7)
-        if self._recv() != ["ok"]:
+        if self._recv() != [utils.OK]:
             raise ConnectionError("Invalid response")
         self._direction = zp.Direction(
             (self._direction.value - (1 if self._direction.value % 2 == 0 else 2) if self._direction.value > 2 else 7))
@@ -218,7 +236,7 @@ class AI:
         encrypted: str = utils.encrypt(encoded, self._msg_key).decode("utf-8")
         self._comm.send("Broadcast " + encrypted + "\n")
         self._add_time(7)
-        if self._recv() != ["ok"]:
+        if self._recv() != [utils.OK]:
             raise ConnectionError("Invalid response")
 
     def connect_nbr(self) -> int:
@@ -234,13 +252,13 @@ class AI:
     def fork(self) -> None:
         self._comm.send("Fork\n")
         self._add_time(42)
-        if self._recv() != ["ok"]:
+        if self._recv() != [utils.OK]:
             raise ConnectionError("Invalid response")
 
     def eject(self) -> None:
         self._comm.send("Eject\n")
         self._add_time(7)
-        if self._recv() != ["ok"]:
+        if self._recv() != [utils.OK]:
             raise ConnectionError("Invalid response")
 
     def take(self, resource: zp.ObjectType) -> bool:
@@ -249,13 +267,13 @@ class AI:
         self._comm.send("Take " + str(resource) + "\n")
         self._add_time(7)
         res: list[str] = self._recv()
-        if res == ["ok"]:
+        if res == [utils.OK]:
             self._inventory[resource] += 1
             self._world[(self._pos.y, self._pos.x)].objects[resource] -= 1
             if self._world[(self._pos.y, self._pos.x)].objects[resource] <= 0:
                 self.look()
             return True
-        elif res == ["ko"]:
+        elif res == [utils.KO]:
             return False
         raise ConnectionError("Invalid response")
 
@@ -265,11 +283,11 @@ class AI:
         self._comm.send("Set " + str(resource) + "\n")
         self._add_time(7)
         res: list[str] = self._recv()
-        if res == ["ok"]:
+        if res == [utils.OK]:
             self._inventory[resource] -= 1
             self._world[(self._pos.y, self._pos.x)].objects[resource] += 1
             return True
-        elif res == ["ko"]:
+        elif res == [utils.KO]:
             return False
         raise ConnectionError("Invalid response")
 
@@ -294,16 +312,16 @@ class AI:
             raise TimeoutError("Not enough time")
         self._comm.send("Incantation\n")
         res = self._recv()
-        if res == ["ko"]:
+        if res == [utils.KO]:
             return False
-        if res != ["Elevation underway"]:
+        if res != [utils.BROADCAST_MSG_START]:
             raise ConnectionError("Invalid response")
         self._add_time(300)
         res = self._recv()
-        if len(res) != 1 or not res[0].startswith("Current level: "):
+        if len(res) != 1 or not res[0].startswith(utils.ELEVATION_SUCCESS):
             raise ConnectionError("Invalid response")
         try:
-            self._level = int(res[0][len("Current level: "):])
+            self._level = int(res[0][len(utils.ELEVATION_SUCCESS):])
         except ValueError:
             raise ConnectionError("Invalid response")
         return True
