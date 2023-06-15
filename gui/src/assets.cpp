@@ -13,9 +13,20 @@ Assets::Assets()
 
 void Assets::init_assets(int height, int width)
 {
+    this->height = height;
+    this->width = width;
     this->box_size = 1080 / height;
     this->width_checkerboard = box_size * width;
     this->rectangle_width = 1920 - width_checkerboard;
+    float scale_factor = std::min(this->width, this->height);
+    
+    if (scale_factor <= 15)
+        scale_factor = 0.5;
+    else if (scale_factor <= 25)
+        scale_factor = 0.3;
+    else
+        scale_factor = 0.2;
+    this->scale_factor = scale_factor;
     this->font.loadFromFile("assets/Bronten.ttf");
     this->title_tna.setFont(this->font);
     this->title_tna.setString("Teams name: ");
@@ -126,7 +137,7 @@ void Assets::init_assets(int height, int width)
 
 void Assets::create_player(int x, int y, int n, int o, std::string team, std::vector<std::string> teams)
 {
-    monster_sprite.setScale(sf::Vector2f(0.5, 0.5));
+    monster_sprite.setScale(sf::Vector2f(scale_factor, scale_factor));
     if (o == 1)
         monster_sprite.setRotation(180);
     else if (o == 2)

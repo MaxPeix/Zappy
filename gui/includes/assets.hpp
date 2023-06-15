@@ -17,6 +17,8 @@ class Assets {
         Assets();
         ~Assets();
         void init_assets(int height, int width);
+        int height;
+        int width;
         int box_size;
         int width_checkerboard;
         int rectangle_width;
@@ -31,6 +33,7 @@ class Assets {
         sf::Texture monster_pink_texture;
         sf::Texture monster_green_texture;
         sf::Sprite monster_sprite;
+        float scale_factor;
         sf::Texture monster_red_evolving_texture;
         sf::Texture monster_blue_evolving_texture;
         sf::Texture monster_orange_evolving_texture;

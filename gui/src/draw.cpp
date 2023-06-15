@@ -201,10 +201,9 @@ void GUI::draw_pic(std::string cmd)
     int X = 0, Y = 0, L = 0, n = 0;
     std::vector<int> ns = {};
 
-    if (iss >> prefix >> X >> Y >> L) {
+    if (iss >> prefix >> X >> Y >> L)
         while (iss >> n)
             ns.push_back(n);
-    }
     for (int n : ns) {
         if (this->assets.monster_sprites[n].second == this->tna[0])
             this->assets.monster_sprites[n].first.setTexture(this->assets.monster_red_evolving_texture);
