@@ -1,6 +1,7 @@
 import brain
 import time
 import sys
+from brain import Brain
 
 port: int = 0
 name: str = ""
