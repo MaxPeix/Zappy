@@ -132,15 +132,35 @@ class Brain:
                 self.on_look()
 
     def go_where(self, resource: zp.ObjectType, look: bool = False, recursion: int | None = None) -> bool:
-        # TODO: find closest resource
         if self._ai.world[self._ai.pos].objects[resource] > 0:
             print("already on resource")
             return True
-        for y in range(self._ai.world.size.height):
-            for x in range(self._ai.world.size.width):
-                if self._ai.world[(y, x)].objects[resource] > 0:
-                    self.goto(zp.Pos(y, x), look)
-                    return True
+        i: int = 1
+        x: int = self._ai.pos.x
+        y: int = self._ai.pos.y
+        if self._ai.world.size.width > self._ai.world.size.height:
+            size: int = self._ai.world.size.width
+        else:
+            size: int = self._ai.world.size.height
+        for _ in range((size // 2) + 1):
+            x += i
+            if self._ai.world[(y, x)].objects[resource] > 0:
+                self.goto(zp.Pos(y, x), look)
+                return True
+            y -= i
+            if self._ai.world[(y, x)].objects[resource] > 0:
+                self.goto(zp.Pos(y, x), look)
+                return True
+            i += 1
+            x -= i
+            if self._ai.world[(y, x)].objects[resource] > 0:
+                self.goto(zp.Pos(y, x), look)
+                return True
+            y += i
+            if self._ai.world[(y, x)].objects[resource] > 0:
+                self.goto(zp.Pos(y, x), look)
+                return True
+            i += 1
         if look and recursion is not None and recursion > 0:
             self.forward()
             self.on_look()
