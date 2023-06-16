@@ -133,7 +133,7 @@ An **output** you can get from this program can be:
 
 ### Tools and languages used :hammer_and_wrench:
 
-[![Main tools](https://skillicons.dev/icons?i=c,cpp,python,cmake,idea,vscode,github,md&perline=9)](https://github.com/tandpfun/skill-icons)
+[![Main tools](https://skillicons.dev/icons?i=c,cpp,python,idea,vscode,github,md&perline=9)](https://github.com/tandpfun/skill-icons)
 
 ### Commit norm :keyboard:
 
