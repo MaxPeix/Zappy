@@ -1,3 +1,7 @@
+from dataclasses import dataclass
+from enum import Enum
+import json
+
 WELCOME = "WELCOME"
 
 DEAD = "dead"
@@ -9,3 +13,6 @@ BROADCAST_MSG_START = "message "
 
 OK = "ok"
 KO = "ko"
+
+
+# =============BROADCAST MSGS================

@@ -1,4 +1,4 @@
-from brain import Brain
+import brain
 import time
 import sys
 
@@ -35,5 +35,6 @@ if port < 0 or port > 65535:
 
 # br = Brain(name, host, port)
 br = Brain("team1", '127.0.0.1', 8000)
+br.run()
 
 time.sleep(3600)

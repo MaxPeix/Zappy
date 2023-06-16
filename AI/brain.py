@@ -1,20 +1,24 @@
 import logging
-
+import zappyAI as zp
 import ai
 import utils
-from ai import AI
-import zappyAI as zp
+import os
+from typing import Callable
+from dataclasses import dataclass
+import json
 
 
 class Brain:
-    _ai: AI
+    ai: ai.AI
     _look_for: zp.Resources = zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)
     _status: zp.Status = zp.Status.NOTHING
     _prev_status: zp.Status = zp.Status.NOTHING
     _cartography_last_pos: zp.Pos = zp.Pos(0, 0)
 
     def __init__(self, team_name: str, ip: str, port: int, log_level: int = logging.INFO) -> None:
-        self._ai = AI(utils.Comm(ip, port, log_level=log_level), team_name)
+        self.ai = ai.AI(utils.Comm(ip, port, log_level=log_level), team_name)
+        self.ai.add_message(Message(self))
+        self.ai.start()
         self.change_status(zp.Status.SEARCHING)
 
     def change_status(self, status: zp.Status) -> None:
@@ -30,11 +34,11 @@ class Brain:
             print(utils.WHITE, end="")
 
     def _action(self, evt: zp.Evt) -> None:
-        if self._ai.world[self._ai.pos].known:
-            while self._ai.inventory[zp.ObjectType.FOOD] < ai.FOOD_WANTED and \
-                    self._ai.world[self._ai.pos].objects[zp.ObjectType.FOOD] > 0:
+        if self.ai.world[self.ai.pos].known:
+            while self.ai.inventory[zp.ObjectType.FOOD] < ai.FOOD_WANTED and \
+                    self.ai.world[self.ai.pos].objects[zp.ObjectType.FOOD] > 0:
                 self.take(zp.ObjectType.FOOD)
-        if self._ai.inventory[zp.ObjectType.FOOD] < 3:
+        if self.ai.inventory[zp.ObjectType.FOOD] < 3:
             self.change_status(zp.Status.DYING)
         if self._status == zp.Status.DYING:
             self.dying(evt)
@@ -46,21 +50,21 @@ class Brain:
     def on_tile(self) -> None:
         # input("press enter to continue")
         self._action(zp.Evt.ON_TILE)
-        self._ai.draw_map()
-        print("pos:", self._ai.pos)
+        self.ai.draw_map()
+        print("pos:", self.ai.pos)
 
     def on_look(self) -> None:
-        self._ai.look()
+        self.ai.look()
         self._action(zp.Evt.ON_LOOK)
-        self._ai.draw_map()
+        self.ai.draw_map()
 
     def on_turn(self) -> None:
-        self._ai.draw_map()
+        self.ai.draw_map()
 
     def dying(self, evt: zp.Evt, go_back: bool = True) -> None:
-        if self._ai.inventory.food < 10:
-            prev_pos = self._ai.pos
-            prev_dir = self._ai.direction
+        if self.ai.inventory.food < 10:
+            prev_pos = self.ai.pos
+            prev_dir = self.ai.direction
             self.go_where(zp.ObjectType.FOOD, True)
             self.take(zp.ObjectType.FOOD)
             self.dying(evt, False)
@@ -71,13 +75,13 @@ class Brain:
             self.change_status(self._prev_status)
 
     def searching(self, evt: zp.Evt) -> None:  # FIXME: find a looking algorithm
-        if not self._ai.world[self._ai.pos].known:
+        if not self.ai.world[self.ai.pos].known:
             return
-        for resource in ai.OBJECTIVES[self._ai.level - 1]:
+        for resource in ai.OBJECTIVES[self.ai.level - 1]:
             if resource == zp.ObjectType.PLAYER:
                 continue
-            while self._ai.inventory[resource] < ai.OBJECTIVES[self._ai.level - 1][resource] and \
-                    self._ai.world[self._ai.pos].objects[resource] > 0:
+            while self.ai.inventory[resource] < ai.OBJECTIVES[self.ai.level - 1][resource] and \
+                    self.ai.world[self.ai.pos].objects[resource] > 0:
                 self.take(resource)
         pass
 
@@ -85,22 +89,22 @@ class Brain:
         pass
 
     def take(self, resource: zp.ObjectType) -> bool:
-        if not self._ai.take(resource):
-            self._ai.look()
-            return self._ai.take(resource)
+        if not self.ai.take(resource):
+            self.ai.look()
+            return self.ai.take(resource)
         return True
 
     def forward(self) -> None:
-        self._ai.forward()
+        self.ai.forward()
         self.on_tile()
 
     def turn(self, direction: zp.Direction) -> None:
-        while self._ai.direction != direction:
+        while self.ai.direction != direction:
             self.on_turn()
-            if self._ai.direction < direction:
-                self._ai.right()
+            if self.ai.direction < direction:
+                self.ai.right()
             else:
-                self._ai.left()
+                self.ai.left()
 
     def up(self) -> None:
         self.turn(zp.Direction.N)
@@ -119,14 +123,14 @@ class Brain:
         self.forward()
 
     def goto(self, pos: zp.Pos, look: bool = False) -> None:
-        while self._ai.pos != pos:
-            if self._ai.pos.x < pos.x:
+        while self.ai.pos != pos:
+            if self.ai.pos.x < pos.x:
                 self.right()
-            elif self._ai.pos.x > pos.x:
+            elif self.ai.pos.x > pos.x:
                 self.left()
-            elif self._ai.pos.y < pos.y:
+            elif self.ai.pos.y < pos.y:
                 self.down()
-            elif self._ai.pos.y > pos.y:
+            elif self.ai.pos.y > pos.y:
                 self.up()
             if look:
                 self.on_look()
@@ -167,55 +171,13 @@ class Brain:
             return self.go_where(resource, look, recursion - 1)
         return False
 
-    # def _cartography_next_column(self, start: zp.Pos, end: zp.Pos, up: bool) -> None:
-    #     for i in range(self._ai.level + 1):
-    #         if self._ai.pos.x >= end.x and self._ai.pos.y <= end.y:
-    #             return
-    #         self.right()
-    #     # if up:
-    #     #     self.down()
-    #     # else:
-    #     #     self.up()
-    #     self._cartography_next_tile(start, end, not up)
-    #
-    # def _cartography_need_to_turn(self, start: zp.Pos, end: zp.Pos, up: bool) -> bool:
-    #     if up:
-    #         if self._ai.pos.y - (self._ai.level + 1) < end.y:
-    #             return True
-    #     else:
-    #         if self._ai.pos.y + (self._ai.level + 1) > start.y:
-    #             return True
-    #     return False
-    #
-    # def _cartography_next_tile(self, start: zp.Pos, end: zp.Pos, up: bool) -> None:
-    #     turn_next: bool = self._cartography_need_to_turn(start, end, up)
-    #     if up:
-    #         self.turn(zp.Direction.N)
-    #     else:
-    #         self.turn(zp.Direction.S)
-    #     self.on_look()
-    #     for i in range(self._ai.level):
-    #         if up:
-    #             self.up()
-    #         else:
-    #             self.down()
-    #         if self._ai.pos.x >= end.x and self._ai.pos.y <= end.y:
-    #             return
-    #     if turn_next:
-    #         return self._cartography_next_column(start, end, up)
-    #     if up:
-    #         self.up()
-    #     else:
-    #         self.down()
-    #     self._cartography_next_tile(start, end, up)
-
     def _cartography_get_move(self, start: zp.Pos, end: zp.Pos) -> list[int, int, int]:
         zone_height: int = start.y - end.y
         zone_width: int = end.x - start.x
-        triangle_height: int = self._ai.level + 1
+        triangle_height: int = self.ai.level + 1
 
         nb_triangle_height: int = zone_height // triangle_height
-        nb_triangle_width: int = zone_width // self._ai.level
+        nb_triangle_width: int = zone_width // self.ai.level
 
         nb_up: int = (nb_triangle_width // 2) - 1
         nb_down: int = nb_up
@@ -224,14 +186,14 @@ class Brain:
         return [nb_triangle_height, nb_up, nb_down]
 
     def _cartography_next_column(self) -> None:
-        for _ in range(self._ai.level + 1):
+        for _ in range(self.ai.level + 1):
             self.right()
 
     def _cartography_up_column(self, ops: list[int, int, int]) -> None:
         self.turn(zp.Direction.N)
         self.on_look()
         for idx in range(ops[0]):
-            for _ in range(self._ai.level + 1):
+            for _ in range(self.ai.level + 1):
                 self.up()
             self.on_look()
             if idx == ops[0] - 1:
@@ -241,7 +203,7 @@ class Brain:
         self.turn(zp.Direction.S)
         self.on_look()
         for idx in range(ops[0]):
-            for _ in range(self._ai.level + 1):
+            for _ in range(self.ai.level + 1):
                 self.down()
             self.on_look()
             if idx == ops[0] - 1:
@@ -255,7 +217,7 @@ class Brain:
             start.x, end.x = end.x, start.x
         if start.y < end.y:
             start.y, end.y = end.y, start.y
-        if start.x < 0 or start.y < 0 or end.x > self._ai.world.size.width - 1 or end.y > self._ai.world.size.height - 1:
+        if start.x < 0 or start.y < 0 or end.x > self.ai.world.size.width - 1 or end.y > self.ai.world.size.height - 1:
             raise ValueError("start and end must be inside the map")
 
         print("cartography from", start, "to", end)
@@ -283,20 +245,92 @@ class Brain:
         # TODO: check if master
         # TODO: check if lonely
 
-        self.cartography(zp.Pos(0, 0), zp.Pos(self._ai.world.size.height - 1, self._ai.world.size.width - 1))
-        for resource in ai.OBJECTIVES[self._ai.level - 1]:
+        self.cartography(zp.Pos(0, 0), zp.Pos(self.ai.world.size.height - 1, self.ai.world.size.width - 1))
+        for resource in ai.OBJECTIVES[self.ai.level - 1]:
             if resource == zp.ObjectType.PLAYER:
                 continue
-            while self._ai.inventory[resource] < ai.OBJECTIVES[self._ai.level - 1][resource]:
+            while self.ai.inventory[resource] < ai.OBJECTIVES[self.ai.level - 1][resource]:
                 if not self.go_where(resource, True, 10):
                     raise ValueError("can't find resource")
                 self.take(resource)
         self.on_look()
-        print(self._ai.inventory)
-        self._ai.set(zp.ObjectType.LINEMATE)
+        print(self.ai.inventory)
+        self.ai.set(zp.ObjectType.LINEMATE)
         try:
-            self._ai.incantation(False)
+            self.ai.incantation(False)
         except ValueError as e:
             print("incantation failed: ", e)
             self.on_look()
         # pass
+
+
+@dataclass
+class HANDLER:
+    _name: str
+    _recv: Callable
+    _send: Callable
+    _msg: 'Message'
+
+    def to_json(self, ans: bool = False, to: int | None = None, *args, **kwargs) -> str | None:
+        data: str | None = self._send(self._msg, *args, **kwargs)
+        if data is None:
+            return None
+        if data == "null":
+            data = None
+        res: dict = {
+            "from": os.getpid(),
+            "to": to,
+            "ans": ans,
+            "what": self._name,
+            "data": json.dumps(data)
+        }
+        return json.dumps(res)
+
+    def __call__(self, direction: zp.Direction, msg: dict) -> None:
+        return self._recv(self._msg, direction, msg)
+
+    def __init__(self, msg: 'Message', name: str, recv_handler: Callable, send_handler: Callable):
+        self._name = name
+        self._msg = msg
+        self._recv = recv_handler
+        self._send = send_handler
+
+
+class Message:
+    HANDLERS: dict[str, HANDLER] = {}
+    brain: Brain
+
+    def __init__(self, br: Brain):
+        self.brain = br
+
+        self["new master"] = (recv_bootstrap_master, send_bootstrap_master)
+
+    def __getitem__(self, item):
+        return self.HANDLERS[item]
+
+    def __setitem__(self, key, value: tuple[Callable, Callable]):
+        self.HANDLERS[key] = HANDLER(self, key, value[0], value[1])
+
+
+def recv_bootstrap_master(msg: Message, direction: zp.Direction, data: dict) -> None:
+    if not data["ans"]:
+        msg.brain.ai.broadcast(msg["new master"].to_json(True, int(data["from"])))
+        return
+    if data["data"] is None:
+        print("no master yet")
+        if msg.brain.ai.role == zp.Role.MASTER:
+            msg.brain.ai.broadcast(msg["new master"].to_json(True, int(data["from"])))
+        return
+    if msg.brain.ai.role == zp.Role.MASTER:
+        msg.brain.ai.role = zp.Role.WORKER
+        return
+    if data["data"] != "null":
+        msg.brain.ai.master_id = int(data["data"])
+
+
+def send_bootstrap_master(msg: Message, *args, **kwargs) -> str | None:
+    if msg.brain.ai.role == zp.Role.MASTER:
+        return str(os.getpid())
+    if msg.brain.ai.master_id is None:
+        return "null"
+    return str(msg.brain.ai.master_id)

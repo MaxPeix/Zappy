@@ -107,3 +107,8 @@ class Status(Enum):
 class Evt(Enum):
     ON_TILE = 0
     ON_LOOK = 1
+
+
+class Role(Enum):
+    MASTER = 0
+    WORKER = 1
