@@ -21,9 +21,6 @@ class Brain:
         self.ai.start()
         self.change_status(zp.Status.SEARCHING)
 
-    def send(self, msg: str, to: int | None, ans: bool) -> None:
-        pass
-
     def change_status(self, status: zp.Status) -> None:
         self._prev_status = self._status
         self._status = status
