@@ -1,9 +1,8 @@
-import json
-
-import utils
-import zappyAI as zp
 import base64
-import os, sys
+import os
+import sys
+from . import utils, Message, zp
+import json
 
 OBJECTIVES = [
     zp.Resources(0, 1, 0, 0, 0, 0, 0, 0),
@@ -22,16 +21,18 @@ LVL_MAX = len(OBJECTIVES) - 1
 
 
 class AI:
+    _msg_handler: Message
     _msg_key: bytes
     _direction: zp.Direction = zp.Direction.N
     _comm: utils.Comm
     _pos: zp.Pos = zp.Pos(5, 5)
-    _id: int
     _teamName: str
     _level: int = 1
     _world: zp.World
     _ticks: int = 0
     _inventory: zp.Resources = zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)
+    role: zp.Role
+    master_id: int | None
 
     @staticmethod
     def _new() -> None:
@@ -43,9 +44,10 @@ class AI:
         if pid < 0:
             raise RuntimeError("Failed to fork")
 
-    def __init__(self, comm: utils.Comm, team_name: str) -> None:
+    def __init__(self, comm: utils.Comm, team_name: str, msg_handler: Message) -> None:
         self._comm = comm
         self._teamName = team_name
+        self._msg_handler = msg_handler
         data: list[str] = self._comm.recv()
         if data != [utils.WELCOME]:
             raise ConnectionError("Invalid response")
@@ -54,12 +56,15 @@ class AI:
         # init world with empty tiles from world size
         self._msg_key = utils.generate_key(self._teamName)
         if self.connect_nbr() > 0:
-            print(os.getpid(), ": I'm a slave")
-            self._new()
-            self._recv()
+            print(os.getpid(), ": I'm a worker")
+            # self.broadcast(self._msg_handler["new worker"].to_json())
+            # self._new()
+            # self._recv(True)
             return
         # master go here
         print(os.getpid(), " : I'm the master")
+        self.broadcast(self._msg_handler["new master"].to_json())
+        self._recv(True)
 
     def _add_time(self, time: int) -> None:
         for i in range(time):
@@ -90,8 +95,19 @@ class AI:
     def _on_message(self, direction: zp.Direction, message: str) -> None:
         decoded: str = base64.b64decode(utils.decrypt(message.encode(), self._msg_key)).decode("utf-8")
         print("Message from " + str(direction) + ": " + decoded)
+        try:
+            res: dict = json.loads(decoded)
+        except json.JSONDecodeError:
+            return
+        if "from" not in res or "to" not in res or "what" not in res or "ans" not in res:
+            return
+        if res["to"] is not None and res["to"] != os.getpid():
+            return
+        for handler in self._msg_handler.HANDLERS:
+            if handler == res["what"]:
+                self._msg_handler[handler](direction, res)
 
-    def _recv(self) -> list[str]:
+    def _recv(self, want_msg: bool = False) -> list[str]:
         data: list[str] = self._comm.recv()
         for line in data:
             if line == utils.DEAD:
@@ -105,7 +121,7 @@ class AI:
                 except ValueError:
                     raise ConnectionError("Invalid response")
                 self._on_message(direction, line[9:])
-                if len(data) == 1:
+                if len(data) == 1 and not want_msg:
                     return self._recv()
         return data
 
@@ -122,7 +138,6 @@ class AI:
                    (int(data[1].split(" ")[0]), int(data[1].split(" ")[1])))
         except ValueError:
             raise ConnectionError("Invalid response")
-        self._id = res[0]
         self._world = zp.World(zp.Size(res[1][1], res[1][0]))
 
     def _get_objects(self, data: str) -> list[zp.Resources]:
@@ -230,7 +245,9 @@ class AI:
             self._inventory[key] = int(value)
         return success
 
-    def broadcast(self, message: str) -> None:
+    def broadcast(self, message: str | None) -> None:
+        if message is None:
+            return
         encoded: bytes = base64.b64encode(message.encode())
         print(self._msg_key)
         encrypted: str = utils.encrypt(encoded, self._msg_key).decode("utf-8")
