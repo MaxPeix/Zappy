@@ -28,7 +28,11 @@ void handle_connect_nbr_command(client_t *clients,
     client_t *client, server_params_t *server_params, char **args)
 {
     if (strcmp(args[0], "Connect_nbr") == 0) {
-        print_connect_nbr(server_params, client, clients);
-        return;
-    }
+        // print_connect_nbr(server_params, client, clients);
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        if (clients[i].is_connected == 1)
+            send_response(clients[i].socket, "connecté OK\n");
+        if (clients[i].is_graphical == 0)
+            send_response(clients[i].socket, "client non graphique OK\n");
+    }}
 }
