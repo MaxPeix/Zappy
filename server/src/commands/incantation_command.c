@@ -29,8 +29,9 @@ int can_do_incantation(client_t *clients, client_t *client,
 
     if (client->level < 8) {
         if (nb_player_on_tile >= nb_player[client->level - 1]
-            && check_stone(&server_params->world[client->y_position][client->x_position],
-            client->level) == true) {
+            && check_stone(
+                &server_params->world[client->y_position][client->x_position],
+                client->level) == true) {
             send_elevation_underway(clients, client);
             return 1;
         }
@@ -79,8 +80,10 @@ void end_incantation(client_t *clients, client_t *client,
             && clients[i].y_position == client->y_position
             && clients[i].level == level_client_before) {
             clients[i].level++;
-            dprintf(clients[i].socket, "Current level: %d\n", clients[i].level);
-            output_graphical = msprintf("pie %d %d %d\n", clients[i].x_position,
+            dprintf(clients[i].socket,
+                "Current level: %d\n", clients[i].level);
+            output_graphical = msprintf("pie %d %d %d\n",
+                clients[i].x_position,
                 clients[i].y_position, clients[i].level);
             send_message_to_graphical(clients, output_graphical);
             free(output_graphical);

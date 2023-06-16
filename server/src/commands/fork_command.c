@@ -31,10 +31,8 @@ void handle_fork_command(client_t *client,
         if (tile->eggs)
             for (; tile->eggs[length] != 0; ++length);
         tile->eggs = realloc(tile->eggs, (length + 2) * sizeof(int));
-        if (!tile->eggs) {
-            fprintf(stderr, "Memory allocation failed\n");
+        if (!tile->eggs)
             exit(EXIT_FAILURE);
-        }
         int previous_value = (length > 0) ? tile->eggs[length - 1] : 0;
         tile->eggs[length] = previous_value + 1;
         tile->eggs[length + 1] = 0;

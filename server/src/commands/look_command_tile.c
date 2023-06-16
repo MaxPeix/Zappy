@@ -48,7 +48,8 @@ bool get_player_on_tile(client_t *clients, char *tiles_content, int *i,
 {
     bool is_player = false;
     for (int j = 0; j < MAX_CLIENTS; j++) {
-        if (clients[j].x_position == coord.x && clients[j].y_position == coord.y
+        if (clients[j].x_position == coord.x
+            && clients[j].y_position == coord.y
             && clients[j].is_connected) {
             strncpy(tiles_content + *i, "player", BUFFER_SIZE - *i);
             *i += strlen("player");
