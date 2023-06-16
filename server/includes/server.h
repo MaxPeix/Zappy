@@ -293,8 +293,7 @@ void handle_fork_command(client_t *client,
 // client look
 void handle_look_command(client_t *clients, client_t *client,
     server_params_t *server_params, char **args);
-coordinate_t get_relative_coords(server_params_t *server_params,
-                                 client_t *client, int x, int y);
+coordinate_t get_relative_coords(client_t *client, int x, int y);
 bool get_player_on_tile(client_t *clients, char *tiles_content, int *i,
                         coordinate_t coord);
 bool get_relative_tile_items(coordinate_t coord, char *tiles_content, int *i,

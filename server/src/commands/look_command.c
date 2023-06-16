@@ -7,8 +7,7 @@
 
 #include "server.h"
 
-coordinate_t get_relative_coords(server_params_t *server_params,
-                                 client_t *client, int x, int y)
+coordinate_t get_relative_coords(client_t *client, int x, int y)
 {
     int relative_x = client->x_position + x;
     int relative_y = client->y_position + y;
@@ -29,8 +28,8 @@ coordinate_t get_relative_coords(server_params_t *server_params,
     return (coordinate_t){ relative_x, relative_y };
 }
 
- void handle_look_command(client_t *clients, client_t *client,
-                          server_params_t *server_params, char **args)
+void handle_look_command(client_t *clients, client_t *client,
+                         server_params_t *server_params, char **args)
 {
      char tiles_content[4096] = { 0 };
      int i = 2;
@@ -42,8 +41,8 @@ coordinate_t get_relative_coords(server_params_t *server_params,
          return;
      strncpy(tiles_content, "[ ", BUFFER_SIZE);
      for (int lv = 0; lv <= client->level; lv++)
-         for (int idx = -lv; idx < nb_tiles[lv] - lv; idx++, i += 1 + is_item) {
-             coord = get_relative_coords(server_params, client, idx, lv);
+         for (int ix = -lv; ix < nb_tiles[lv] - lv; ix++, i += 1 + is_item) {
+             coord = get_relative_coords(client, ix, lv);
              is_item = get_player_on_tile(clients, &tiles_content[0], &i,
              coord); is_item |= get_relative_tile_items(
                  coord, &tiles_content[0], &i, server_params);
@@ -52,4 +51,4 @@ coordinate_t get_relative_coords(server_params_t *server_params,
      i += (i < 2 ? 2 : 0);
      strncpy((tiles_content + i) - 2, " ]\n", BUFFER_SIZE - i);
      write(client->socket, tiles_content, BUFFER_SIZE);
- }
+}
