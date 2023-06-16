@@ -1,18 +1,22 @@
 import logging
-from . import ai, message, utils, zp
+import zappyAI as zp
+import ai
+import utils
+import os
+from typing import Callable
+from dataclasses import dataclass
+import json
 
 
 class Brain:
     ai: ai.AI
-    _msg: message.Message
     _look_for: zp.Resources = zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)
     _status: zp.Status = zp.Status.NOTHING
     _prev_status: zp.Status = zp.Status.NOTHING
     _cartography_last_pos: zp.Pos = zp.Pos(0, 0)
 
     def __init__(self, team_name: str, ip: str, port: int, log_level: int = logging.INFO) -> None:
-        self._msg = message.Message(self)
-        self.ai = ai.AI(utils.Comm(ip, port, log_level=log_level), team_name, self._msg)
+        self.ai = ai.AI(utils.Comm(ip, port, log_level=log_level), team_name, Message(self))
         self.change_status(zp.Status.SEARCHING)
 
     def send(self, msg: str, to: int | None, ans: bool) -> None:
@@ -239,3 +243,72 @@ class Brain:
             print("incantation failed: ", e)
             self.on_look()
         # pass
+
+
+@dataclass
+class HANDLER:
+    _name: str
+    _recv: Callable
+    _send: Callable
+    _msg: 'Message'
+
+    def to_json(self, ans: bool = False, to: int | None = None, *args, **kwargs) -> str | None:
+        data: str | None = self._send(self, *args, **kwargs)
+        if data is None:
+            return None
+        if data == "null":
+            data = None
+        res: dict = {
+            "from": os.getpid(),
+            "to": to,
+            "ans": ans,
+            "what": self._name,
+            "data": json.dumps(data)
+        }
+        return json.dumps(res)
+
+    def __call__(self, direction: zp.Direction, msg: dict) -> None:
+        return self._recv(self._msg, direction, msg)
+
+    def __init__(self, msg: 'Message', name: str, recv_handler: Callable, send_handler: Callable):
+        self._name = name
+        self._msg = msg
+        self._recv = recv_handler
+        self._send = send_handler
+
+
+class Message:
+    HANDLERS: dict[str, HANDLER] = {}
+    _brain: Brain
+
+    def __init__(self, br: Brain):
+        self._brain = br
+
+        self["new master"] = (self.recv_bootstrap_master, self.send_bootstrap_master)
+
+    def __getitem__(self, item):
+        return self.HANDLERS[item]
+
+    def __setitem__(self, key, value: tuple[Callable, Callable]):
+        self.HANDLERS[key] = HANDLER(self, key, value[0], value[1])
+
+    def recv_bootstrap_master(self, direction: zp.Direction, msg: dict) -> None:
+        if not msg["ans"]:
+            self._brain.ai.broadcast(self["new master"].to_json(True, int(msg["from"])))
+            return
+        if msg["data"] is None:
+            print("no master yet")
+            if self._brain.ai.role == zp.Role.MASTER:
+                self._brain.ai.broadcast(self["new master"].to_json(True, int(msg["from"])))
+            return
+        if self._brain.ai.role == zp.Role.MASTER:
+            self._brain.ai.role = zp.Role.WORKER
+            return
+        self._brain.ai.master_id = int(msg["data"])
+
+    def send_bootstrap_master(self, *args, **kwargs) -> str | None:
+        if self._brain.ai.role == zp.Role.MASTER:
+            return str(os.getpid())
+        if self._brain.ai.master_id is None:
+            return "null"
+        return str(self._brain.ai.master_id)

@@ -1,8 +1,9 @@
 import base64
 import os
 import sys
-from . import utils, Message, zp
 import json
+import zappyAI as zp
+import utils
 
 OBJECTIVES = [
     zp.Resources(0, 1, 0, 0, 0, 0, 0, 0),
@@ -21,7 +22,7 @@ LVL_MAX = len(OBJECTIVES) - 1
 
 
 class AI:
-    _msg_handler: Message
+    _msg_handler: 'Message'
     _msg_key: bytes
     _direction: zp.Direction = zp.Direction.N
     _comm: utils.Comm
@@ -44,7 +45,7 @@ class AI:
         if pid < 0:
             raise RuntimeError("Failed to fork")
 
-    def __init__(self, comm: utils.Comm, team_name: str, msg_handler: Message) -> None:
+    def __init__(self, comm: utils.Comm, team_name: str, msg_handler: 'Message') -> None:
         self._comm = comm
         self._teamName = team_name
         self._msg_handler = msg_handler
@@ -140,7 +141,8 @@ class AI:
             raise ConnectionError("Invalid response")
         self._world = zp.World(zp.Size(res[1][1], res[1][0]))
 
-    def _get_objects(self, data: str) -> list[zp.Resources]:
+    @staticmethod
+    def _get_objects(data: str) -> list[zp.Resources]:
         objects: list[zp.Resources] = []
         if not data.startswith("[") or not data.endswith("]"):
             raise ValueError("Invalid message: " + data)

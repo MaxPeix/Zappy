@@ -1,9 +1,11 @@
+import ctypes
 from dataclasses import dataclass
 import json
 from typing import Callable
 import os
-
-from . import brain
+import zappyAI as zp
+import brain
+import ctypes as ct
 
 
 @dataclass
@@ -39,11 +41,12 @@ class HANDLER:
 
 
 class Message:
-    _brain: brain.Brain
-    HANDLERS: dict[str, HANDLER]
+    HANDLERS: dict[str, HANDLER] = {}
+    _brain: ctypes.pointer['brain.Brain']
 
-    def __init__(self, brain: brain.Brain):
-        self._brain = brain
+    def __init__(self, br: ctypes.pointer['brain.Brain']):
+        self._brain = br
+
         self["new master"] = (self.recv_bootstrap_master, self.send_bootstrap_master)
 
     def __getitem__(self, item):
@@ -54,21 +57,21 @@ class Message:
 
     def recv_bootstrap_master(self, direction: zp.Direction, msg: dict) -> None:
         if not msg["ans"]:
-            self._brain.ai.broadcast(self["new master"].to_json(True, int(msg["from"])))
+            self._brain.contents.ai.broadcast(self["new master"].to_json(True, int(msg["from"])))
             return
         if msg["data"] is None:
             print("no master yet")
-            if self._brain.ai.role == zp.Role.MASTER:
-                self._brain.ai.broadcast(self["new master"].to_json(True, int(msg["from"])))
+            if self._brain.contents.ai.role == zp.Role.MASTER:
+                self._brain.contents.ai.broadcast(self["new master"].to_json(True, int(msg["from"])))
             return
-        if self._brain.ai.role == zp.Role.MASTER:
-            self._brain.ai.role = zp.Role.WORKER
+        if self._brain.contents.ai.role == zp.Role.MASTER:
+            self._brain.contents.ai.role = zp.Role.WORKER
             return
-        self._brain.ai.master_id = int(msg["data"])
+        self._brain.contents.ai.master_id = int(msg["data"])
 
-    def send_bootstrap_master(self) -> str | None:
-        if self._brain.ai.role == zp.Role.MASTER:
+    def send_bootstrap_master(self, *args, **kwargs) -> str | None:
+        if self._brain.contents.ai.role == zp.Role.MASTER:
             return str(os.getpid())
-        if self._brain.ai.master_id is None:
+        if self._brain.contents.ai.master_id is None:
             return "null"
-        return str(self._brain.ai.master_id)
+        return str(self._brain.contents.ai.master_id)
