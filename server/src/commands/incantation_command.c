@@ -38,7 +38,6 @@ int can_do_incantation(client_t *clients, client_t *client,
     return 0;
 }
 
-
 void send_message_to_graphical_start_incantation(client_t *clients,
     client_t *client, server_params_t *server_params, char **args)
 {
