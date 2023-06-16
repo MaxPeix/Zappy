@@ -50,11 +50,11 @@ There are 3 binaries in this project: <br>
 - `zappy_ai` : the AI of the game
   Where the **options** are:
     - `-p` : the port of the server
+    - `-n` : the name of the teams
     - `-h` : the name of the machine; `localhost` by default
 - `zappy_gui` : the graphic interface of the game
   Where the **options** are:
     - `-p` : the port of the server
-    - `-n` : the name of the teams
     - `-h` : the name of the machine; `localhost` by default
 
 In example, you can run the server with this command: <br>
@@ -66,13 +66,13 @@ In example, you can run the server with this command: <br>
 Or, you can run the AI with this command: <br>
 
 ```bash
-./zappy_ai -p 8000
+./zappy_ai -p 8000 -n team1
 ```
 
 Or, you can run the graphic interface with this command: <br>
 
 ```bash
-./zappy_gui -p 8000 -n team1
+./zappy_gui -p 8000
 ```
 
 ### How to play :video_game:
