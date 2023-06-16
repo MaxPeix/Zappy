@@ -16,7 +16,9 @@ class Brain:
     _cartography_last_pos: zp.Pos = zp.Pos(0, 0)
 
     def __init__(self, team_name: str, ip: str, port: int, log_level: int = logging.INFO) -> None:
-        self.ai = ai.AI(utils.Comm(ip, port, log_level=log_level), team_name, Message(self))
+        self.ai = ai.AI(utils.Comm(ip, port, log_level=log_level), team_name)
+        self.ai.add_message(Message(self))
+        self.ai.start()
         self.change_status(zp.Status.SEARCHING)
 
     def send(self, msg: str, to: int | None, ans: bool) -> None:
@@ -253,7 +255,7 @@ class HANDLER:
     _msg: 'Message'
 
     def to_json(self, ans: bool = False, to: int | None = None, *args, **kwargs) -> str | None:
-        data: str | None = self._send(self, *args, **kwargs)
+        data: str | None = self._send(self._msg, *args, **kwargs)
         if data is None:
             return None
         if data == "null":
@@ -279,12 +281,12 @@ class HANDLER:
 
 class Message:
     HANDLERS: dict[str, HANDLER] = {}
-    _brain: Brain
+    brain: Brain
 
     def __init__(self, br: Brain):
-        self._brain = br
+        self.brain = br
 
-        self["new master"] = (self.recv_bootstrap_master, self.send_bootstrap_master)
+        self["new master"] = (recv_bootstrap_master, send_bootstrap_master)
 
     def __getitem__(self, item):
         return self.HANDLERS[item]
@@ -292,23 +294,26 @@ class Message:
     def __setitem__(self, key, value: tuple[Callable, Callable]):
         self.HANDLERS[key] = HANDLER(self, key, value[0], value[1])
 
-    def recv_bootstrap_master(self, direction: zp.Direction, msg: dict) -> None:
-        if not msg["ans"]:
-            self._brain.ai.broadcast(self["new master"].to_json(True, int(msg["from"])))
-            return
-        if msg["data"] is None:
-            print("no master yet")
-            if self._brain.ai.role == zp.Role.MASTER:
-                self._brain.ai.broadcast(self["new master"].to_json(True, int(msg["from"])))
-            return
-        if self._brain.ai.role == zp.Role.MASTER:
-            self._brain.ai.role = zp.Role.WORKER
-            return
-        self._brain.ai.master_id = int(msg["data"])
 
-    def send_bootstrap_master(self, *args, **kwargs) -> str | None:
-        if self._brain.ai.role == zp.Role.MASTER:
-            return str(os.getpid())
-        if self._brain.ai.master_id is None:
-            return "null"
-        return str(self._brain.ai.master_id)
+def recv_bootstrap_master(msg: Message, direction: zp.Direction, data: dict) -> None:
+    if not data["ans"]:
+        msg.brain.ai.broadcast(msg["new master"].to_json(True, int(data["from"])))
+        return
+    if data["data"] is None:
+        print("no master yet")
+        if msg.brain.ai.role == zp.Role.MASTER:
+            msg.brain.ai.broadcast(msg["new master"].to_json(True, int(data["from"])))
+        return
+    if msg.brain.ai.role == zp.Role.MASTER:
+        msg.brain.ai.role = zp.Role.WORKER
+        return
+    if data["data"] != "null":
+        msg.brain.ai.master_id = int(data["data"])
+
+
+def send_bootstrap_master(msg: Message, *args, **kwargs) -> str | None:
+    if msg.brain.ai.role == zp.Role.MASTER:
+        return str(os.getpid())
+    if msg.brain.ai.master_id is None:
+        return "null"
+    return str(msg.brain.ai.master_id)

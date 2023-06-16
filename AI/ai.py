@@ -32,8 +32,8 @@ class AI:
     _world: zp.World
     _ticks: int = 0
     _inventory: zp.Resources = zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)
-    role: zp.Role
-    master_id: int | None
+    role: zp.Role | None = None
+    master_id: int | None = None
 
     @staticmethod
     def _new() -> None:
@@ -45,14 +45,18 @@ class AI:
         if pid < 0:
             raise RuntimeError("Failed to fork")
 
-    def __init__(self, comm: utils.Comm, team_name: str, msg_handler: 'Message') -> None:
+    def __init__(self, comm: utils.Comm, team_name: str) -> None:
         self._comm = comm
         self._teamName = team_name
-        self._msg_handler = msg_handler
+
+    def add_message(self, msg: 'Message') -> None:
+        self._msg_handler = msg
+
+    def start(self) -> None:
         data: list[str] = self._comm.recv()
         if data != [utils.WELCOME]:
             raise ConnectionError("Invalid response")
-        self._login(team_name)
+        self._login(self._teamName)
         self.check_inventory()
         # init world with empty tiles from world size
         self._msg_key = utils.generate_key(self._teamName)
@@ -60,7 +64,7 @@ class AI:
             print(os.getpid(), ": I'm a worker")
             # self.broadcast(self._msg_handler["new worker"].to_json())
             # self._new()
-            # self._recv(True)
+            self._recv(True)
             return
         # master go here
         print(os.getpid(), " : I'm the master")
