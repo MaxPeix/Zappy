@@ -318,4 +318,10 @@ command_t *create_new_command(char **args, server_params_t *server_params);
 // int of array
 int length_of_int(int *array);
 
+// check if the user is valid
+int is_valid_user(client_t *client);
+
+// get the number of player on a tile
+int get_nbr_on_tile(client_t *clients, client_t *client);
+
 #endif /* !SERVER_H_ */

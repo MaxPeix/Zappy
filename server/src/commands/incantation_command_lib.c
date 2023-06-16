@@ -41,3 +41,25 @@ void remove_stones(tile_t *tile, int level)
     tile->phiras -= phiras[level - 2];
     tile->thystame -= thystame[level - 2];
 }
+
+int is_valid_user(client_t *client)
+{
+    if ((client->is_connected == 1 && client->is_graphical == 0))
+        return 1;
+    return 0;
+}
+
+int get_nbr_on_tile(client_t *clients, client_t *client)
+{
+    int nb_player_on_tile = 0;
+
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        if (is_valid_user(&clients[i]) == 0)
+            continue;
+        if (clients[i].x_position == client->x_position
+            && clients[i].y_position == client->y_position
+            && clients[i].level == client->level)
+            nb_player_on_tile += 1;
+    }
+    return nb_player_on_tile;
+}
