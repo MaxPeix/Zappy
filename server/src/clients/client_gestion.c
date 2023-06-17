@@ -54,12 +54,14 @@ void update_client_struct(int new_socket, client_t *clients,
         ssize_t bytes_read = read_method(new_socket, buffer);
         size_t len = strlen(buffer);
         buffer[len - 1] = (buffer[len - 1] == '\n') ? '\0' : buffer[len - 1];
-        if (strcasecmp(buffer, "GRAPHIC") == 0)
+        if (strcmp(buffer, "GRAPHIC") == 0)
             clients[i].is_graphical = 1;
         clients[i].team_name =
             clients[i].is_graphical == 0 ? msprintf("%s", buffer) : NULL;
         send_info_loggin(clients[i].socket, &clients[i], server_params);
         send_notification_player_loggin(clients, &clients[i], server_params);
+        printf("New connection, socket fd is %d\n",
+            new_socket);
     }
 }
 

@@ -17,6 +17,7 @@
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <stdbool.h>
 
     #define MAX_CLIENTS 30
     #define BUFFER_SIZE 4096
@@ -42,7 +43,7 @@ typedef struct tile
     int mendiane;
     int phiras;
     int thystame;
-    int eggs;
+    int *eggs;
 } tile_t;
 
 typedef struct command
@@ -58,7 +59,6 @@ typedef struct client
     int x_position;
     int y_position;
     int orientation;
-    int incantation_level;
     int level;
     int socket;
     char *team_name;
@@ -74,6 +74,8 @@ typedef struct client
     int is_connected;
     command_t* commands;
     int command_count;
+    int is_dead;
+    int team_max_clients;
 } client_t;
 
 typedef struct server_params
@@ -105,6 +107,12 @@ typedef struct command_info {
     double execution_time_factor;
 } command_info_t;
 
+// remove stones
+void remove_stones(tile_t *tile, int level);
+
+// check stone
+bool check_stone(tile_t *tile, int level);
+
 // msprintf function
 char *msprintf(const char *format, ...);
 
@@ -124,7 +132,7 @@ void add_command_to_client(client_t *client, command_t *new_command);
 int check_errors(int argc, char **argv, server_params_t params);
 
 // Initialise la liste des clients connectés
-void init_clients_list(client_t *clients);
+void init_clients_list(client_t *clients, server_params_t *server_params);
 
 // Crée le socket et le lie à l'adresse du serveur
 int create_and_bind_socket(server_params_t params,
@@ -177,11 +185,8 @@ void handle_broadcast_command(client_t *clients,
 void handle_eject_command(client_t *clients, client_t *client,
     server_params_t *server_params, char **args);
 
-// Initialise la structure client
-void init_clients_list(client_t *clients);
-
 // Gère la deconnexion du client
-void handle_disconnect(client_t *client);
+void handle_disconnect(client_t *client, server_params_t *server_params);
 
 // Récupère les arguments du client
 char **get_args_from_buffer(char *buffer);
@@ -282,15 +287,40 @@ void handle_incantation_command(client_t *clients,
                                 char **args);
 
 // client fork
-void handle_fork_command(client_t *client, server_params_t *server_params,
-    char **args);
+void handle_fork_command(client_t *client,
+    client_t *clients, server_params_t *server_params, char **args);
 
 // client look
 void handle_look_command(client_t *clients, client_t *client,
     server_params_t *server_params, char **args);
+coordinate_t get_relative_coords(client_t *client, int x, int y);
+bool get_player_on_tile(client_t *clients, char *tiles_content, int *i,
+                        coordinate_t coord);
+bool get_relative_tile_items(coordinate_t coord, char *tiles_content, int *i,
+                             server_params_t *server_params);
 
 // check if client can do incantation
 int can_do_incantation(client_t *clients, client_t *client,
     server_params_t *server_params, char **args);
+
+// check if player is dead
+void check_death_player(client_t *clients,
+    client_t *client, server_params_t *server_params);
+
+// handle client request
+void handle_client_request(client_t *clients,
+    char *buffer, int i, server_params_t *server_params);
+
+// create new command
+command_t *create_new_command(char **args, server_params_t *server_params);
+
+// int of array
+int length_of_int(int *array);
+
+// check if the user is valid
+int is_valid_user(client_t *client);
+
+// get the number of player on a tile
+int get_nbr_on_tile(client_t *clients, client_t *client);
 
 #endif /* !SERVER_H_ */

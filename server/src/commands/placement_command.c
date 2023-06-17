@@ -26,7 +26,7 @@ void handle_forward_command(server_params_t *server_params,
                             client_t *client,
                             char **args)
 {
-    if (strcasecmp(args[0], "FORWARD") != 0)
+    if (strcmp(args[0], "Forward") != 0)
         return;
     handle_north_south(client, server_params);
     if (client->orientation == EAST) {
@@ -44,7 +44,7 @@ void handle_forward_command(server_params_t *server_params,
 
 void handle_right_command(client_t *client, char **args)
 {
-    if (strcasecmp(args[0], "RIGHT") != 0)
+    if (strcmp(args[0], "Right") != 0)
         return;
     if (client->orientation == NORTH)
         client->orientation = EAST;
@@ -59,7 +59,7 @@ void handle_right_command(client_t *client, char **args)
 
 void handle_left_command(client_t *client, char **args)
 {
-    if (strcasecmp(args[0], "LEFT") != 0)
+    if (strcmp(args[0], "Left") != 0)
         return;
     if (client->orientation == NORTH)
         client->orientation = WEST;

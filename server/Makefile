@@ -19,8 +19,11 @@ SRC				=	src/core.c \
 					src/clients/protocol_start.c \
 					src/clients/lib.c \
 					src/clients/lib_two.c \
+					src/clients/lib_three.c \
 					src/clients/init.c \
 					src/clients/send_message_to_graphical.c \
+					src/clients/check_death_player.c \
+					src/clients/gestion_command_entered.c \
 					src/commands/info_command.c \
 					src/commands/info_command_two.c \
 					src/commands/handle_command.c \
@@ -30,13 +33,15 @@ SRC				=	src/core.c \
 					src/commands/broadcast_command.c \
 					src/commands/eject_command.c \
 					src/commands/eject_command_lib.c \
-					src/commands/bct_command.c	\
+					src/commands/bct_command.c \
 					src/commands/placement_command.c \
 					src/commands/food_command.c	\
 					src/commands/client_command.c \
 					src/commands/incantation_command.c \
+					src/commands/incantation_command_lib.c \
 					src/commands/fork_command.c \
-					src/commands/look_command.c \
+					src/commands/look_command.c	\
+					src/commands/look_command_tile.c \
 
 SRC_TESTS = tests/tests_main.c
 
@@ -69,6 +74,6 @@ clean:
 fclean:			clean
 	rm -f $(NAME)
 
-re:	$(NAME)
+re:	fclean all
 
 .PHONY: all $(NAME) fclean tests_run clean re make

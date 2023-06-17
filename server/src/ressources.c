@@ -13,19 +13,19 @@ int get_current_resource(server_params_t *params, int x, int y, char resource)
     int current_resource = 0;
 
     if (resource == 'f')
-        current_resource = params->world[x][y].food;
+        current_resource = params->world[y][x].food;
     if (resource == 'l')
-        current_resource = params->world[x][y].linemate;
+        current_resource = params->world[y][x].linemate;
     if (resource == 'd')
-        current_resource = params->world[x][y].deraumere;
+        current_resource = params->world[y][x].deraumere;
     if (resource == 's')
-        current_resource = params->world[x][y].sibur;
+        current_resource = params->world[y][x].sibur;
     if (resource == 'm')
-        current_resource = params->world[x][y].mendiane;
+        current_resource = params->world[y][x].mendiane;
     if (resource == 'p')
-        current_resource = params->world[x][y].phiras;
+        current_resource = params->world[y][x].phiras;
     if (resource == 't')
-        current_resource = params->world[x][y].thystame;
+        current_resource = params->world[y][x].thystame;
 
     return current_resource;
 }
@@ -37,19 +37,19 @@ void update_resource(server_params_t *params,
     int y = coordinate.y;
 
     if (resource == 'f')
-        params->world[x][y].food += amount;
+        params->world[y][x].food += amount;
     if (resource == 'l')
-        params->world[x][y].linemate += amount;
+        params->world[y][x].linemate += amount;
     if (resource == 'd')
-        params->world[x][y].deraumere += amount;
+        params->world[y][x].deraumere += amount;
     if (resource == 's')
-        params->world[x][y].sibur += amount;
+        params->world[y][x].sibur += amount;
     if (resource == 'm')
-        params->world[x][y].mendiane += amount;
+        params->world[y][x].mendiane += amount;
     if (resource == 'p')
-        params->world[x][y].phiras += amount;
+        params->world[y][x].phiras += amount;
     if (resource == 't')
-        params->world[x][y].thystame += amount;
+        params->world[y][x].thystame += amount;
 }
 
 void distribute_resources(server_params_t *params, int total_resource,
@@ -87,6 +87,7 @@ void define_params_world_default(server_params_t *params)
             params->world[y][x].mendiane = 0;
             params->world[y][x].phiras = 0;
             params->world[y][x].thystame = 0;
+            params->world[y][x].eggs = NULL;
         }
     }
 }

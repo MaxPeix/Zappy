@@ -16,7 +16,7 @@ server_params_t init_default_server_params(void)
     params.height = 10;
     params.team_names = NULL;
     params.clients_per_team = 2;
-    params.frequency = 5000;
+    params.frequency = 100;
 
     return params;
 }

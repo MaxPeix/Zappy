@@ -37,7 +37,7 @@ void handle_broadcast_command(client_t *clients,
         return;
     if (args[0] == NULL)
         return;
-    if (strcasecmp(args[0], "BROADCAST") == 0) {
+    if (strcmp(args[0], "Broadcast") == 0) {
         if (args[1] == NULL) {
             send_response(client->socket, "ko\n");
             return;

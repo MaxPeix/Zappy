@@ -6,7 +6,6 @@
 */
 
 #include "server.h"
-#include <stdbool.h>
 
 bool check_null_args(char **args, int socket)
 {
@@ -43,13 +42,13 @@ char *build_message_bct(server_params_t *server_params, long x, long y)
     return msprintf(
         "bct %ld %ld %d %d %d %d %d %d %d\n",
         x, y,
-        server_params->world[x][y].food,
-        server_params->world[x][y].linemate,
-        server_params->world[x][y].deraumere,
-        server_params->world[x][y].sibur,
-        server_params->world[x][y].mendiane,
-        server_params->world[x][y].phiras,
-        server_params->world[x][y].thystame
+        server_params->world[y][x].food,
+        server_params->world[y][x].linemate,
+        server_params->world[y][x].deraumere,
+        server_params->world[y][x].sibur,
+        server_params->world[y][x].mendiane,
+        server_params->world[y][x].phiras,
+        server_params->world[y][x].thystame
     );
 }
 
