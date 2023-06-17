@@ -99,6 +99,8 @@ class Brain:
         self.on_tile()
 
     def turn(self, direction: zp.Direction) -> None:
+        if direction.value % 2 == 0:
+            raise ValueError("direction must be odd")
         while self.ai.direction != direction:
             self.on_turn()
             if self.ai.direction < direction:
@@ -241,39 +243,63 @@ class Brain:
         print("cartography done")
 
     def worker(self) -> None:
+        print("worker")
         while self.ai.master_id is None:
-            self.ai.recv(True)
-        if not self.ai.pos_sync:
-            self.find_master()
+            self.ai.recv("new master")
+        print("master found")
+        while not self.ai.pos_sync:
+            self.ai.broadcast(self.ai.msg_handler["ping master"].to_json(False, self.ai.master_id))
+            self.ai.recv("ping master")
 
-    def find_master(self) -> None:
-        pass
+    def find_master(self, direction: zp.Direction, master_direction: zp.Direction) -> None:
+        if direction == zp.Direction.TOP:
+            print("master on same pos")
+            exit(0)
+        path: int = (direction.value if direction.value % 2 != 0 else direction.value + 1)
+        if self.ai.direction == zp.Direction.N:
+            pass
+        elif self.ai.direction == zp.Direction.W:
+            path += 2
+        elif self.ai.direction == zp.Direction.S:
+            path += 4
+        elif self.ai.direction == zp.Direction.E:
+            path += 6
+        while path > 8:
+            path -= 8
+        new_direction: zp.Direction = zp.Direction(path)
+        self.turn(new_direction)
+        self.forward()
+        # if self.ai.world[self.ai.pos].objects[zp.ObjectType.PLAYER] > 0:
+        #     self.ai.broadcast(self.ai.msg_handler["ping master"].to_json(False, self.ai.pos))
+        #     self.ai.recv("ping master")
 
     def run(self) -> None:
-        # TODO: check if map already cartografy
+        # TODO: check if map already cartography
         # TODO: check if master
         # TODO: check if lonely
 
         if self.ai.role == zp.Role.WORKER:
             self.worker()
             return
+        while not self.ai.pos_sync:
+            self.ai.recv()
 
-        self.cartography(zp.Pos(0, 0), zp.Pos(self.ai.world.size.height - 1, self.ai.world.size.width - 1))
-        for resource in ai.OBJECTIVES[self.ai.level - 1]:
-            if resource == zp.ObjectType.PLAYER:
-                continue
-            while self.ai.inventory[resource] < ai.OBJECTIVES[self.ai.level - 1][resource]:
-                if not self.go_where(resource, True, 10):
-                    raise ValueError("can't find resource")
-                self.take(resource)
-        self.on_look()
-        print(self.ai.inventory)
-        self.ai.set(zp.ObjectType.LINEMATE)
-        try:
-            self.ai.incantation(False)
-        except ValueError as e:
-            print("incantation failed: ", e)
-            self.on_look()
+        # self.cartography(zp.Pos(0, 0), zp.Pos(self.ai.world.size.height - 1, self.ai.world.size.width - 1))
+        # for resource in ai.OBJECTIVES[self.ai.level - 1]:
+        #     if resource == zp.ObjectType.PLAYER:
+        #         continue
+        #     while self.ai.inventory[resource] < ai.OBJECTIVES[self.ai.level - 1][resource]:
+        #         if not self.go_where(resource, True, 10):
+        #             raise ValueError("can't find resource")
+        #         self.take(resource)
+        # self.on_look()
+        # print(self.ai.inventory)
+        # self.ai.set(zp.ObjectType.LINEMATE)
+        # try:
+        #     self.ai.incantation(False)
+        # except ValueError as e:
+        #     print("incantation failed: ", e)
+        #     self.on_look()
         # pass
 
 
@@ -295,7 +321,7 @@ class HANDLER:
             "to": to,
             "ans": ans,
             "what": self._name,
-            "data": json.dumps(data)
+            "data": data
         }
         return json.dumps(res)
 
@@ -317,6 +343,7 @@ class Message:
         self.brain = br
 
         self["bootstrap master"] = (recv_bootstrap_master, send_bootstrap_master)
+        self["new master"] = (recv_new_master, send_new_master)
         self["ping master"] = (recv_ping_master, send_ping_master)
 
     def __getitem__(self, item):
@@ -327,36 +354,61 @@ class Message:
 
 
 def recv_bootstrap_master(msg: Message, direction: zp.Direction, data: dict) -> None:
-    if not data["ans"]:
-        msg.brain.ai.broadcast(msg["bootstrap master"].to_json(True, int(data["from"])))
+    if msg.brain.ai.role == zp.Role.WORKER and msg.brain.ai.master_id is not None:
         return
-    if data["data"] is None:
-        print("no master yet")
+    if data["ans"]:
+        if msg.brain.ai.role is None:
+            if data["data"] == "no master":  # FIXME: doesn't work
+                msg.brain.ai.role = zp.Role.MASTER
+                msg.brain.ai.master_id = os.getpid()
+                msg.brain.ai.broadcast(msg["new master"].to_json(True))
+    else:
         if msg.brain.ai.role == zp.Role.MASTER:
             msg.brain.ai.broadcast(msg["bootstrap master"].to_json(True, int(data["from"])))
+        else:
+            msg.brain.ai.broadcast(msg["bootstrap master"].to_json(True, int(data["from"])))
+
+
+def recv_new_master(msg: Message, direction: zp.Direction, data: dict) -> None:
+    if not data["ans"]:
         return
     if msg.brain.ai.role == zp.Role.MASTER:
-        msg.brain.ai.role = zp.Role.WORKER
-        return
-    if data["data"] != "null":
-        msg.brain.ai.master_id = int(data["data"])
+        raise ValueError("already master")
+    msg.brain.ai.role = zp.Role.WORKER
+    msg.brain.ai.master_id = int(data["data"])
+
+
+def send_new_master(msg: Message, *args, **kwargs) -> str | None:
+    if msg.brain.ai.role == zp.Role.MASTER:
+        return str(os.getpid())
 
 
 def send_bootstrap_master(msg: Message, *args, **kwargs) -> str | None:
     if msg.brain.ai.role == zp.Role.MASTER:
         return str(os.getpid())
     if msg.brain.ai.master_id is None:
-        return "null"
-    return str(msg.brain.ai.master_id)
+        return "no master"
+    # return str(msg.brain.ai.master_id)
 
 
 def recv_ping_master(msg: Message, direction: zp.Direction, data: dict) -> None:
     if not data["ans"] and msg.brain.ai.role == zp.Role.MASTER:
+        if data["data"] == "found":
+            msg.brain.ai.look()
+            found: bool = msg.brain.ai.world[msg.brain.ai.pos].objects[zp.ObjectType.PLAYER] > 0
+            msg.brain.ai.broadcast(msg["ping master"].to_json(True, int(data["from"]), found=found))
         msg.brain.ai.broadcast(msg["ping master"].to_json(True, int(data["from"]), direction=direction))
         return
+    if data["ans"] and msg.brain.ai.role == zp.Role.WORKER and not msg.brain.ai.pos_sync:
+        master_direction = zp.Direction(int(data["data"]))
+        msg.brain.find_master(direction, master_direction)
 
 
 def send_ping_master(msg: Message, *args, **kwargs) -> str | None:
     if msg.brain.ai.role == zp.Role.WORKER:
-        return None
-    return repr(kwargs["direction"])
+        if "look" in kwargs and kwargs["look"]:
+            return "look"
+        return "ping"
+    if "found" in kwargs:
+        return "found" if kwargs["found"] else "not found"
+    return str(int(kwargs["direction"]))

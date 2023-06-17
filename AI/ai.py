@@ -20,9 +20,11 @@ FOOD_WANTED = 10
 
 LVL_MAX = len(OBJECTIVES) - 1
 
+ENCRYPT: bool = False
+
 
 class AI:
-    _msg_handler: 'Message'
+    msg_handler: 'Message'
     _msg_key: bytes
     _direction: zp.Direction = zp.Direction.N
     _comm: utils.Comm
@@ -51,7 +53,7 @@ class AI:
         self._teamName = team_name
 
     def add_message(self, msg: 'Message') -> None:
-        self._msg_handler = msg
+        self.msg_handler = msg
 
     def start(self) -> None:
         data: list[str] = self._comm.recv()
@@ -62,14 +64,16 @@ class AI:
         # init world with empty tiles from world size
         self._msg_key = utils.generate_key(self._teamName)
         if self.connect_nbr() > 0:
+            self.role = zp.Role.WORKER
             print(os.getpid(), ": I'm a worker")
             # self.broadcast(self._msg_handler["new worker"].to_json())
             # self._new()
             return
         # master go here
         print(os.getpid(), " : I'm the master")
-        self.broadcast(self._msg_handler["new master"].to_json())
-        self.recv(True)
+        self.broadcast(self.msg_handler["bootstrap master"].to_json())
+        self.recv("bootstrap master")
+        print("Master id: ", self.master_id)
 
     def _add_time(self, time: int) -> None:
         for i in range(time):
@@ -97,38 +101,93 @@ class AI:
         print(self._world.__str__((self._pos, self._direction)))
         print(str(self._inventory))
 
-    def _on_message(self, direction: zp.Direction, message: str) -> None:
-        decoded: str = base64.b64decode(utils.decrypt(message.encode(), self._msg_key)).decode("utf-8")
-        print("Message from " + str(direction) + ": " + decoded)
+    def _on_message(self, direction: zp.Direction, message: str, msg: str | list[str] | None, use_msg: bool) -> bool:
+        if ENCRYPT:
+            message: str = base64.b64decode(utils.decrypt(message.encode(), self._msg_key)).decode("utf-8")
+            print("Message from " + str(direction) + ": " + message)
+        else:
+            print("Message from " + str(direction) + ": " + message)
         try:
-            res: dict = json.loads(decoded)
+            res: dict = json.loads(message)
         except json.JSONDecodeError:
-            return
+            return False
         if "from" not in res or "to" not in res or "what" not in res or "ans" not in res:
-            return
+            return False
         if res["to"] is not None and res["to"] != os.getpid():
-            return
-        for handler in self._msg_handler.HANDLERS:
+            return False
+        for handler in self.msg_handler.HANDLERS:
             if handler == res["what"]:
-                self._msg_handler[handler](direction, res)
+                if use_msg:
+                    self.msg_handler[handler](direction, res)
+                if msg is None:
+                    print("_on_message: None")
+                    return True
+                elif type(msg) is list[str]:
+                    print("_on_message: list")
+                    return handler in msg
+                print("_on_message: str")
+                return handler == msg
+        return False
 
-    def recv(self, want_msg: bool = False) -> list[str]:
+    @staticmethod
+    def parse_msg(line: str) -> tuple[zp.Direction, str]:
+        try:
+            direction: zp.Direction = zp.Direction(
+                int(line[len(utils.BROADCAST_MSG_START):(len(utils.BROADCAST_MSG_START) + 1)]))
+        except ValueError:
+            raise ConnectionError("Invalid response")
+        return direction, line[(len(utils.BROADCAST_MSG_START) + 2):]
+
+    def recv(self, msg: str | list[str] | None = None, use_msg: bool = True) -> list[str]:
+        i: int = 0
         data: list[str] = self._comm.recv()
         for line in data:
             if line == utils.DEAD:
+                data.pop(i)
                 raise TimeoutError("Dead")
             elif line == utils.ELEVATION_UNDERWAY:
+                data.pop(i)
                 pass
             elif line.startswith(utils.BROADCAST_MSG_START):
-                try:
-                    direction: zp.Direction = zp.Direction(
-                        int(line[len(utils.BROADCAST_MSG_START):(len(utils.BROADCAST_MSG_START) + 1)]))
-                except ValueError:
-                    raise ConnectionError("Invalid response")
-                self._on_message(direction, line[9:])
-                if len(data) == 1 and not want_msg:
-                    return self.recv()
+                direction, message = self.parse_msg(line)
+                print("on message: ", direction, message)
+                if self._on_message(direction, message, msg, use_msg):
+                    if not use_msg:
+                        return [line]
+                # if len(data) == 1 and msg is None:
+                #     return self.recv()
+                if msg is None:
+                    data.pop(i)
+            else:
+                i += 1
+        if msg is not None:
+            return self.recv(msg, use_msg)
         return data
+
+        # i: int = 0
+        # while i < len(data):
+        #     if data[i] == utils.DEAD:
+        #         data.pop(i)
+        #         raise TimeoutError("Dead")
+        #     elif data[i] == utils.ELEVATION_UNDERWAY:
+        #         data.pop(i)
+        #         pass
+        #     elif data[i].startswith(utils.BROADCAST_MSG_START):
+        #         direction, message = self.parse_msg(data[i])
+        #         if self._on_message(direction, message, msg, use_msg):
+        #             if not use_msg:
+        #                 return [data[i]]
+        #             if msg is None:
+        #                 return []
+        #         data.pop(i)
+        #     else:
+        #         i += 1
+        # if not data:
+        #     return self.recv()
+        # if msg is not None:
+        #     return self.recv(msg, use_msg)
+        # print("Data: ", data)
+        # return data
 
     def _login(self, team_name: str) -> None:
         res: tuple[int, tuple[int, int]]
@@ -254,10 +313,11 @@ class AI:
     def broadcast(self, message: str | None) -> None:
         if message is None:
             return
-        encoded: bytes = base64.b64encode(message.encode())
-        print(self._msg_key)
-        encrypted: str = utils.encrypt(encoded, self._msg_key).decode("utf-8")
-        self._comm.send("Broadcast " + encrypted + "\n")
+        if ENCRYPT:
+            print("raw message: " + message)
+            encoded: bytes = base64.b64encode(message.encode())
+            message: str = utils.encrypt(encoded, self._msg_key).decode("utf-8")
+        self._comm.send("Broadcast " + message + "\n")
         self._add_time(7)
         if self.recv() != [utils.OK]:
             raise ConnectionError("Invalid response")

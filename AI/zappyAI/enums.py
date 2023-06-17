@@ -87,13 +87,17 @@ class Direction(Enum):
     def __repr__(self) -> str:
         return self.name
 
-    E = 1
-    SE = 2
-    S = 3
+    def __int__(self):
+        return self.value
+
+    TOP = 0
+    N = 1
+    NW = 2
+    W = 3
     SW = 4
-    W = 5
-    NW = 6
-    N = 7
+    S = 5
+    SE = 6
+    E = 7
     NE = 8
 
 
