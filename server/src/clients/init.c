@@ -39,7 +39,7 @@ void init_clients_list(client_t *clients, server_params_t *server_params)
         clients[i].x_position = generate_rand_position(server_params->width);
         clients[i].y_position = generate_rand_position(server_params->height);
         clients[i].orientation = SOUTH;
-        clients[i].food = 10;
+        clients[i].food = 9;
         clients[i].linemate = 0;
         init_cliens_list_two(clients, i, server_params);
     }
@@ -72,7 +72,7 @@ void handle_disconnect(client_t *client, server_params_t *server_params)
     client->x_position = 0;
     client->y_position = 0;
     client->orientation = SOUTH;
-    client->food = 10;
+    client->food = 9;
     client->linemate = 0;
     client->deraumere = 0;
     handle_disconnect_two(client, server_params);
