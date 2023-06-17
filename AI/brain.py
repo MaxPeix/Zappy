@@ -74,7 +74,7 @@ class Brain:
         else:
             self.change_status(self._prev_status)
 
-    def searching(self, evt: zp.Evt) -> None:  # FIXME: find a looking algorithm
+    def searching(self, evt: zp.Evt) -> None:
         if not self.ai.world[self.ai.pos].known:
             return
         for resource in ai.OBJECTIVES[self.ai.level - 1]:
