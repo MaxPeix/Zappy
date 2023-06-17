@@ -240,10 +240,23 @@ class Brain:
                     self._cartography_next_column()
         print("cartography done")
 
+    def worker(self) -> None:
+        while self.ai.master_id is None:
+            self.ai.recv(True)
+        if not self.ai.pos_sync:
+            self.find_master()
+
+    def find_master(self) -> None:
+        pass
+
     def run(self) -> None:
         # TODO: check if map already cartografy
         # TODO: check if master
         # TODO: check if lonely
+
+        if self.ai.role == zp.Role.WORKER:
+            self.worker()
+            return
 
         self.cartography(zp.Pos(0, 0), zp.Pos(self.ai.world.size.height - 1, self.ai.world.size.width - 1))
         for resource in ai.OBJECTIVES[self.ai.level - 1]:
@@ -303,7 +316,8 @@ class Message:
     def __init__(self, br: Brain):
         self.brain = br
 
-        self["new master"] = (recv_bootstrap_master, send_bootstrap_master)
+        self["bootstrap master"] = (recv_bootstrap_master, send_bootstrap_master)
+        self["ping master"] = (recv_ping_master, send_ping_master)
 
     def __getitem__(self, item):
         return self.HANDLERS[item]
@@ -314,12 +328,12 @@ class Message:
 
 def recv_bootstrap_master(msg: Message, direction: zp.Direction, data: dict) -> None:
     if not data["ans"]:
-        msg.brain.ai.broadcast(msg["new master"].to_json(True, int(data["from"])))
+        msg.brain.ai.broadcast(msg["bootstrap master"].to_json(True, int(data["from"])))
         return
     if data["data"] is None:
         print("no master yet")
         if msg.brain.ai.role == zp.Role.MASTER:
-            msg.brain.ai.broadcast(msg["new master"].to_json(True, int(data["from"])))
+            msg.brain.ai.broadcast(msg["bootstrap master"].to_json(True, int(data["from"])))
         return
     if msg.brain.ai.role == zp.Role.MASTER:
         msg.brain.ai.role = zp.Role.WORKER
@@ -334,3 +348,15 @@ def send_bootstrap_master(msg: Message, *args, **kwargs) -> str | None:
     if msg.brain.ai.master_id is None:
         return "null"
     return str(msg.brain.ai.master_id)
+
+
+def recv_ping_master(msg: Message, direction: zp.Direction, data: dict) -> None:
+    if not data["ans"] and msg.brain.ai.role == zp.Role.MASTER:
+        msg.brain.ai.broadcast(msg["ping master"].to_json(True, int(data["from"]), direction=direction))
+        return
+
+
+def send_ping_master(msg: Message, *args, **kwargs) -> str | None:
+    if msg.brain.ai.role == zp.Role.WORKER:
+        return None
+    return repr(kwargs["direction"])

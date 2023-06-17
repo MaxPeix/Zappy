@@ -85,7 +85,7 @@ class Direction(Enum):
             return "Unknown"
 
     def __repr__(self) -> str:
-        return str(self)
+        return self.name
 
     E = 1
     SE = 2

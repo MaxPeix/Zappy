@@ -34,6 +34,7 @@ class AI:
     _inventory: zp.Resources = zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)
     role: zp.Role | None = None
     master_id: int | None = None
+    pos_sync: bool = False
 
     @staticmethod
     def _new() -> None:
@@ -64,12 +65,11 @@ class AI:
             print(os.getpid(), ": I'm a worker")
             # self.broadcast(self._msg_handler["new worker"].to_json())
             # self._new()
-            self._recv(True)
             return
         # master go here
         print(os.getpid(), " : I'm the master")
         self.broadcast(self._msg_handler["new master"].to_json())
-        self._recv(True)
+        self.recv(True)
 
     def _add_time(self, time: int) -> None:
         for i in range(time):
@@ -112,7 +112,7 @@ class AI:
             if handler == res["what"]:
                 self._msg_handler[handler](direction, res)
 
-    def _recv(self, want_msg: bool = False) -> list[str]:
+    def recv(self, want_msg: bool = False) -> list[str]:
         data: list[str] = self._comm.recv()
         for line in data:
             if line == utils.DEAD:
@@ -127,7 +127,7 @@ class AI:
                     raise ConnectionError("Invalid response")
                 self._on_message(direction, line[9:])
                 if len(data) == 1 and not want_msg:
-                    return self._recv()
+                    return self.recv()
         return data
 
     def _login(self, team_name: str) -> None:
@@ -135,7 +135,7 @@ class AI:
         data: list[str]
 
         self._comm.send(team_name + "\n")
-        data = self._recv()
+        data = self.recv()
         if len(data) != 2:
             raise ConnectionError("Invalid response")
         try:
@@ -170,7 +170,7 @@ class AI:
 
     def forward(self) -> None:
         self._comm.send("Forward\n")
-        if self._recv() != [utils.OK]:
+        if self.recv() != [utils.OK]:
             raise ConnectionError("Invalid response")
         if self._direction == zp.Direction.N:
             self._pos.y = (self._pos.y - 1) % self._world.size.height
@@ -187,7 +187,7 @@ class AI:
     def right(self) -> None:
         self._comm.send("Right\n")
         self._add_time(7)
-        if self._recv() != [utils.OK]:
+        if self.recv() != [utils.OK]:
             raise ConnectionError("Invalid response")
         self._direction = zp.Direction(
             (self._direction.value + (1 if self._direction.value % 2 == 0 else 2) if self._direction.value < 6 else 1))
@@ -195,7 +195,7 @@ class AI:
     def left(self) -> None:
         self._comm.send("Left\n")
         self._add_time(7)
-        if self._recv() != [utils.OK]:
+        if self.recv() != [utils.OK]:
             raise ConnectionError("Invalid response")
         self._direction = zp.Direction(
             (self._direction.value - (1 if self._direction.value % 2 == 0 else 2) if self._direction.value > 2 else 7))
@@ -219,7 +219,7 @@ class AI:
         nb_tiles: list[int] = [1, 3, 5, 7, 9, 11, 13, 15, 17]
         self._comm.send("Look\n")
         self._add_time(7)
-        data: list[str] = self._recv()
+        data: list[str] = self.recv()
         res: list[zp.Resources] = self._get_objects(data[0])
         if len(res) - 1 != nb_tiles[self._level]:
             raise ConnectionError("Invalid response")
@@ -232,7 +232,7 @@ class AI:
         self._comm.send("Inventory\n")
         self._add_time(1)
         success: bool = True
-        data: list[str] = self._recv()
+        data: list[str] = self.recv()
         datalist: list[str]
         if len(data) != 1:
             raise ConnectionError("Invalid response")
@@ -259,7 +259,7 @@ class AI:
         encrypted: str = utils.encrypt(encoded, self._msg_key).decode("utf-8")
         self._comm.send("Broadcast " + encrypted + "\n")
         self._add_time(7)
-        if self._recv() != [utils.OK]:
+        if self.recv() != [utils.OK]:
             raise ConnectionError("Invalid response")
 
     def connect_nbr(self) -> int:
@@ -275,13 +275,13 @@ class AI:
     def fork(self) -> None:
         self._comm.send("Fork\n")
         self._add_time(42)
-        if self._recv() != [utils.OK]:
+        if self.recv() != [utils.OK]:
             raise ConnectionError("Invalid response")
 
     def eject(self) -> None:
         self._comm.send("Eject\n")
         self._add_time(7)
-        if self._recv() != [utils.OK]:
+        if self.recv() != [utils.OK]:
             raise ConnectionError("Invalid response")
 
     def take(self, resource: zp.ObjectType) -> bool:
@@ -289,7 +289,7 @@ class AI:
             return False
         self._comm.send("Take " + str(resource) + "\n")
         self._add_time(7)
-        res: list[str] = self._recv()
+        res: list[str] = self.recv()
         if res == [utils.OK]:
             self._inventory[resource] += 1
             self._world[(self._pos.y, self._pos.x)].objects[resource] -= 1
@@ -305,7 +305,7 @@ class AI:
             return False
         self._comm.send("Set " + str(resource) + "\n")
         self._add_time(7)
-        res: list[str] = self._recv()
+        res: list[str] = self.recv()
         if res == [utils.OK]:
             self._inventory[resource] -= 1
             self._world[(self._pos.y, self._pos.x)].objects[resource] += 1
@@ -334,13 +334,13 @@ class AI:
         if self._check_time(300) < 1:
             raise TimeoutError("Not enough time")
         self._comm.send("Incantation\n")
-        res = self._recv()
+        res = self.recv()
         if res == [utils.KO]:
             return False
         if res != [utils.BROADCAST_MSG_START]:
             raise ConnectionError("Invalid response")
         self._add_time(300)
-        res = self._recv()
+        res = self.recv()
         if len(res) != 1 or not res[0].startswith(utils.ELEVATION_SUCCESS):
             raise ConnectionError("Invalid response")
         try:
