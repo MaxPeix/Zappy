@@ -6,6 +6,25 @@
 */
 
 #include "server.h"
+#include <stdlib.h>
+
+int generate_rand_position(int upper_limit)
+{
+    return rand() % upper_limit;
+}
+
+void init_cliens_list_two(client_t *clients, int i,
+    server_params_t *server_params)
+{
+    clients[i].deraumere = 0;
+    clients[i].sibur = 0;
+    clients[i].mendiane = 0;
+    clients[i].phiras = 0;
+    clients[i].thystame = 0;
+    clients[i].is_connected = 0;
+    clients[i].is_dead = 0;
+    clients[i].team_max_clients = server_params->clients_per_team;
+}
 
 void init_clients_list(client_t *clients, server_params_t *server_params)
 {
@@ -16,20 +35,26 @@ void init_clients_list(client_t *clients, server_params_t *server_params)
         clients[i].is_graphical = 0;
         clients[i].team_name = NULL;
         clients[i].level = 1;
-        clients[i].x_position = 0;
-        clients[i].y_position = 0;
+        clients[i].x_position = generate_rand_position(server_params->width);
+        clients[i].y_position = generate_rand_position(server_params->height);
         clients[i].orientation = SOUTH;
         clients[i].food = 10;
         clients[i].linemate = 0;
-        clients[i].deraumere = 0;
-        clients[i].sibur = 0;
-        clients[i].mendiane = 0;
-        clients[i].phiras = 0;
-        clients[i].thystame = 0;
-        clients[i].is_connected = 0;
-        clients[i].is_dead = 0;
-        clients[i].team_max_clients = server_params->clients_per_team;
+        init_cliens_list_two(clients, i, server_params);
     }
+}
+
+void handle_disconnect_two(client_t *client, server_params_t *server_params)
+{
+    client->x_position = generate_rand_position(server_params->width);
+    client->y_position = generate_rand_position(server_params->height);
+    client->sibur = 0;
+    client->mendiane = 0;
+    client->phiras = 0;
+    client->thystame = 0;
+    client->is_connected = 0;
+    client->is_dead = 0;
+    client->team_max_clients = server_params->clients_per_team;
 }
 
 void handle_disconnect(client_t *client, server_params_t *server_params)
@@ -48,11 +73,5 @@ void handle_disconnect(client_t *client, server_params_t *server_params)
     client->food = 10;
     client->linemate = 0;
     client->deraumere = 0;
-    client->sibur = 0;
-    client->mendiane = 0;
-    client->phiras = 0;
-    client->thystame = 0;
-    client->is_connected = 0;
-    client->is_dead = 0;
-    client->team_max_clients = server_params->clients_per_team;
+    handle_disconnect_two(client, server_params);
 }
