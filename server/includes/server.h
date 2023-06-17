@@ -18,6 +18,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <time.h>
 
     #define MAX_CLIENTS 30
     #define BUFFER_SIZE 4096
@@ -75,6 +76,7 @@ typedef struct client
     command_t* commands;
     int command_count;
     int is_dead;
+    time_t food_losing_timer;
     int team_max_clients;
 } client_t;
 

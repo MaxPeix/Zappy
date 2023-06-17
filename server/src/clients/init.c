@@ -24,6 +24,7 @@ void init_cliens_list_two(client_t *clients, int i,
     clients[i].is_connected = 0;
     clients[i].is_dead = 0;
     clients[i].team_max_clients = server_params->clients_per_team;
+    clients[i].food_losing_timer = 0;
 }
 
 void init_clients_list(client_t *clients, server_params_t *server_params)
@@ -55,6 +56,7 @@ void handle_disconnect_two(client_t *client, server_params_t *server_params)
     client->is_connected = 0;
     client->is_dead = 0;
     client->team_max_clients = server_params->clients_per_team;
+    client->food_losing_timer = 0;
 }
 
 void handle_disconnect(client_t *client, server_params_t *server_params)

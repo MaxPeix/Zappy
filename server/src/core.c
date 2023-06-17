@@ -6,7 +6,6 @@
 */
 
 #include "server.h"
-#include <time.h>
 
 void execute_commands_if_ready(client_t *clients,
     client_t *client, server_params_t *server_params)
@@ -36,6 +35,20 @@ void execute_commands_if_ready(client_t *clients,
     }
 }
 
+void check_lose_food(client_t *client, server_params_t *server_params)
+{
+    if (!client || !server_params)
+        return;
+    if (client->is_graphical == 1 || client->is_connected == 0)
+        return;
+    if (time(NULL) >= client->food_losing_timer) {
+        client->food -= 1;
+        client->food_losing_timer = time(NULL)
+            + 126 / server_params->frequency;
+        printf("Client %d lost 1 food\n", client->id);
+    }
+}
+
 void check_client_activity(client_t *clients,
     int server_socket, fd_set *readfds, server_params_t *server_params)
 {
@@ -44,6 +57,7 @@ void check_client_activity(client_t *clients,
     char buffer[BUFFER_SIZE] = {0};
     for (int i = 0; i < MAX_CLIENTS; i++) {
         client_socket = clients[i].socket;
+        check_lose_food(&clients[i], server_params);
         execute_commands_if_ready(clients, &clients[i], server_params);
         check_death_player(clients, &clients[i], server_params);
         if (!FD_ISSET(client_socket, readfds))
