@@ -77,7 +77,7 @@ Or, you can run the graphic interface with this command: <br>
 
 ### How to play :video_game:
 
-The goal of the game is to have all your team elevate to level 6. <br>
+The goal of the game is to have at least 6 players of your team to elevate to the maximum elevation, level 8. <br>
 To do that, you have to collect resources and elevate yourself. <br>
 You can collect resources by moving on it and then take it. <br>
 You can elevate yourself by collecting resources and then do an `incantation`. <br>
