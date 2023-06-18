@@ -39,6 +39,8 @@ class AI:
     id: int = os.getpid()
     master_id: int | None = None
     master_found: bool = False
+    _messages: list[tuple[zp.Direction, dict]] = []
+    _buffer: list[str] = []
 
     @staticmethod
     def _new() -> None:
@@ -63,7 +65,8 @@ class AI:
     def start(self) -> None:
         data: list[str] = self._comm.recv()
         if data != [utils.WELCOME]:
-            raise ConnectionError("Invalid response")
+            print("\033[1;31m==> ERROR:", data)
+            raise ConnectionError("Invalid response:")
         self._login(self._teamName)
         self.check_inventory()
         self._msg_key = utils.generate_key(self._teamName)
@@ -74,7 +77,8 @@ class AI:
             return
         print(self.id, " : I'm the master")
         self.broadcast(self.msg_handler["bootstrap master"].to_json())
-        self.recv("bootstrap master")
+        while not self.run_message("bootstrap master", None):
+            self.recv(False)
         print("Master id: ", self.master_id)
 
     def _add_time(self, time: int) -> None:
@@ -104,7 +108,54 @@ class AI:
         print(str(self._inventory))
         print("pos:", self.pos)
 
-    def _on_message(self, direction: zp.Direction, message: str, msg: str | list[str] | None, use_msg: bool) -> bool:
+    @staticmethod
+    def parse_msg(line: str) -> tuple[zp.Direction, str]:
+        try:
+            direction: zp.Direction = zp.Direction(
+                int(line[len(utils.BROADCAST_MSG_START):(len(utils.BROADCAST_MSG_START) + 1)]))
+        except ValueError:
+            print("\033[1;31m==> ERROR:", line)
+            raise ConnectionError("Invalid response:")
+        return direction, line[(len(utils.BROADCAST_MSG_START) + 2):]
+
+    def exec_buffer(self) -> None:
+        len_msgs: int = len(self._messages)
+        while 0 < len_msgs:
+            try:
+                current = self._messages.pop(0)
+            except IndexError:
+                return
+            try:
+                self.msg_handler[current[1]["what"]](current[0], current[1])
+            except KeyError:
+                pass
+            len_msgs -= 1
+
+    def run_message(self, what: str, sender: int | None) -> bool:
+        print("A")
+        i: int = 0
+        len_msgs: int = len(self._messages)
+        print("B")
+        while i < len_msgs:
+            print("C")
+            if self._messages[i][1]["what"] == what and (sender is None or self._messages[i][1]["from"] == sender):
+                print("D")
+                current = self._messages.pop(i)
+                try:
+                    print("E")
+                    self.msg_handler[what](current[0], current[1])
+                    print("F")
+                except KeyError:
+                    print("G")
+                    pass
+                return True
+            print("H")
+            i += 1
+        print("I")
+        return False
+
+    def decode_msg(self, msg: str) -> None:
+        direction, message = self.parse_msg(msg)
         if ENCRYPT:
             message: str = base64.b64decode(utils.decrypt(message.encode(), self._msg_key)).decode("utf-8")
             print("Message from " + str(direction) + ": " + message)
@@ -113,64 +164,53 @@ class AI:
         try:
             res: dict = json.loads(message)
         except json.JSONDecodeError:
-            return False
+            return
         if "from" not in res or "to" not in res or "what" not in res or "ans" not in res:
-            return False
+            return
         if res["to"] is not None and res["to"] != self.id:
-            return False
-        for handler in self.msg_handler.HANDLERS:
-            if handler == res["what"]:
-                if use_msg:
-                    self.msg_handler[handler](direction, res)
-                if msg is None:
-                    return True
-                elif type(msg) is list[str]:
-                    return handler in msg
-                return handler == msg
-        return False
+            return
+        self._messages.append((direction, res))
 
-    @staticmethod
-    def parse_msg(line: str) -> tuple[zp.Direction, str]:
-        try:
-            direction: zp.Direction = zp.Direction(
-                int(line[len(utils.BROADCAST_MSG_START):(len(utils.BROADCAST_MSG_START) + 1)]))
-        except ValueError:
-            raise ConnectionError("Invalid response")
-        return direction, line[(len(utils.BROADCAST_MSG_START) + 2):]
-
-    def recv(self, msg: str | list[str] | None = None, use_msg: bool = True) -> list[str]:
+    def recv(self, exec_buffer: bool = True) -> list[str]:
         i: int = 0
+        print("0")
         data: list[str] = self._comm.recv()
-        msgs: list[str] = []
-        msgs_done: bool = False
+        print("1")
         len_data: int = len(data)
 
+        print("2")
         while i < len_data:
+            print("3")
             if data[i] == utils.DEAD:
+                print("3.0")
                 data.pop(i)
                 len_data -= 1
                 raise TimeoutError("Dead")
             elif data[i] == utils.ELEVATION_UNDERWAY:
-                data.pop(i)
+                print("3.1")
+                self._buffer.append(data.pop(i))
                 len_data -= 1
                 pass
             elif data[i].startswith(utils.BROADCAST_MSG_START):
-                msgs.append(data.pop(i))
+                print("3.2")
+                msg = data.pop(i)
                 len_data -= 1
+                self.decode_msg(msg)
+                print("3.3")
             else:
                 i += 1
-        if not data and msg is None:
-            return self.recv(msg, use_msg)
-        for ms in msgs:
-            direction, message = self.parse_msg(ms)
-            if self._on_message(direction, message, msg, use_msg):
-                if not use_msg:
-                    return [ms]
-                print("=============================================================================================")
-                msgs_done = True
-        if not msgs_done and msg is not None:
-            return self.recv(msg, use_msg)
-        print("recv: ", data)
+        print("4")
+        if len(data) == 0 and exec_buffer:
+            print("exec buffer: ", exec_buffer)
+            print("msgs: ", self._messages)
+            print("5")
+            return self.recv()
+        print("6")
+        if exec_buffer:
+            print("7")
+            self.exec_buffer()
+            print("8")
+        print("9")
         return data
 
     def _login(self, team_name: str) -> None:
@@ -180,12 +220,14 @@ class AI:
         self._comm.send(team_name + "\n")
         data = self.recv()
         if len(data) != 2:
-            raise ConnectionError("Invalid response")
+            print("\033[1;31m==> ERROR:", data)
+            raise ConnectionError("Invalid response:")
         try:
             res = (int(data[0]),
                    (int(data[1].split(" ")[0]), int(data[1].split(" ")[1])))
         except ValueError:
-            raise ConnectionError("Invalid response")
+            print("\033[1;31m==> ERROR:", data)
+            raise ConnectionError("Invalid response:")
         self._world = zp.World(zp.Size(res[1][1], res[1][0]))
 
     @staticmethod
@@ -213,8 +255,10 @@ class AI:
 
     def forward(self) -> None:
         self._comm.send("Forward\n")
-        if self.recv() != [utils.OK]:
-            raise ConnectionError("Invalid response")
+        data: list[str] = self.recv()
+        if data != [utils.OK]:
+            print("\033[1;31m==> ERROR:", data)
+            raise ConnectionError("Invalid response:")
         if self._direction == zp.Direction.N:
             self._pos.y = (self._pos.y - 1) % self._world.size.height
         elif self._direction == zp.Direction.E:
@@ -230,16 +274,20 @@ class AI:
     def right(self) -> None:
         self._comm.send("Right\n")
         self._add_time(7)
-        if self.recv() != [utils.OK]:
-            raise ConnectionError("Invalid response")
+        data: list[str] = self.recv()
+        if data != [utils.OK]:
+            print("\033[1;31m==> ERROR:", data)
+            raise ConnectionError("Invalid response:")
         self._direction = zp.Direction(
             (self._direction.value - (1 if self._direction.value % 2 == 0 else 2) if self._direction.value > 2 else 7))
 
     def left(self) -> None:
         self._comm.send("Left\n")
         self._add_time(7)
-        if self.recv() != [utils.OK]:
-            raise ConnectionError("Invalid response")
+        data: list[str] = self.recv()
+        if data != [utils.OK]:
+            print("\033[1;31m==> ERROR:", data)
+            raise ConnectionError("Invalid response:")
         self._direction = zp.Direction(
             (self._direction.value + (1 if self._direction.value % 2 == 0 else 2) if self._direction.value < 6 else 1))
 
@@ -265,7 +313,8 @@ class AI:
         data: list[str] = self.recv()
         res: list[zp.Resources] = self._get_objects(data[0])
         if len(res) - 1 != nb_tiles[self._level]:
-            raise ConnectionError("Invalid response")
+            print("\033[1;31m==> ERROR:", data)
+            raise ConnectionError("Invalid response:")
         for lv in range(self._level + 1):
             for i in range(-lv, nb_tiles[lv] - lv):
                 pos = self._at((lv, i))
@@ -278,17 +327,21 @@ class AI:
         data: list[str] = self.recv()
         datalist: list[str]
         if len(data) != 1:
-            raise ConnectionError("Invalid response")
+            print("\033[1;31m==> ERROR:", data)
+            raise ConnectionError("Invalid response:")
         if not data[0].startswith("[ ") or not data[0].endswith(" ]"):
-            raise ConnectionError("Invalid response")
+            print("\033[1;31m==> ERROR:", data)
+            raise ConnectionError("Invalid response:")
         data[0] = data[0][2:-2]
         datalist = data[0].split(", ")
         if len(datalist) != 7:
-            raise ConnectionError("Invalid response")
+            print("\033[1;31m==> ERROR:", data)
+            raise ConnectionError("Invalid response:")
         for string in datalist:
             key, value = string.strip().split(" ")
             if key not in self._inventory or not value.isdigit():
-                raise ConnectionError("Invalid response")
+                print("\033[1;31m==> ERROR:", data)
+                raise ConnectionError("Invalid response:")
             if int(value) != self._inventory[key]:
                 success = False
             self._inventory[key] = int(value)
@@ -303,8 +356,10 @@ class AI:
             message: str = utils.encrypt(encoded, self._msg_key).decode("utf-8")
         self._comm.send("Broadcast " + message + "\n")
         self._add_time(7)
-        if self.recv() != [utils.OK]:
-            raise ConnectionError("Invalid response")
+        data: list[str] = self.recv()
+        if data != [utils.OK]:
+            print("\033[1;31m==> ERROR:", data)
+            raise ConnectionError("Invalid response:")
 
     def connect_nbr(self) -> int:
         nb_connect: int = 0
@@ -312,23 +367,28 @@ class AI:
         self._comm.send("Connect_nbr\n")
         data = self.recv()
         if len(data) != 1:
-            raise ConnectionError("Invalid response")
+            print("\033[1;31m==> ERROR:", data)
+            raise ConnectionError("Invalid response:")
         nb_connect = int(data[0])
         return nb_connect
 
     def fork(self) -> None:
         self._comm.send("Fork\n")
         self._add_time(42)
-        if self.recv() != [utils.OK]:
-            raise ConnectionError("Invalid response")
+        data: list[str] = self.recv()
+        if data != [utils.OK]:
+            print("\033[1;31m==> ERROR:", data)
+            raise ConnectionError("Invalid response:")
         os.system("notify-send 'new one created'")
         self._new()
 
     def eject(self) -> None:
         self._comm.send("Eject\n")
         self._add_time(7)
-        if self.recv() != [utils.OK]:
-            raise ConnectionError("Invalid response")
+        data: list[str] = self.recv()
+        if data != [utils.OK]:
+            print("\033[1;31m==> ERROR:", data)
+            raise ConnectionError("Invalid response:")
 
     def take(self, resource: zp.ObjectType) -> bool:
         if resource not in self._inventory:
@@ -344,7 +404,8 @@ class AI:
             return True
         elif res == [utils.KO]:
             return False
-        raise ConnectionError("Invalid response")
+        print("\033[1;31m==> ERROR:", res)
+        raise ConnectionError("Invalid response:")
 
     def set(self, resource: zp.ObjectType) -> bool:
         if resource not in self._inventory or self._inventory[resource] <= 0:
@@ -358,7 +419,8 @@ class AI:
             return True
         elif res == [utils.KO]:
             return False
-        raise ConnectionError("Invalid response")
+        print("\033[1;31m==> ERROR:", res)
+        raise ConnectionError("Invalid response:")
 
     def incantation(self, drop_items: bool = True) -> bool:
         if drop_items:
@@ -384,15 +446,18 @@ class AI:
         if res == [utils.KO]:
             return False
         if res != [utils.BROADCAST_MSG_START]:
-            raise ConnectionError("Invalid response")
+            print("\033[1;31m==> ERROR:", res)
+            raise ConnectionError("Invalid response:")
         self._add_time(300)
         res = self.recv()
         if len(res) != 1 or not res[0].startswith(utils.ELEVATION_SUCCESS):
-            raise ConnectionError("Invalid response")
+            print("\033[1;31m==> ERROR:", res)
+            raise ConnectionError("Invalid response:")
         try:
             self._level = int(res[0][len(utils.ELEVATION_SUCCESS):])
         except ValueError:
-            raise ConnectionError("Invalid response")
+            print("\033[1;31m==> ERROR:", res)
+            raise ConnectionError("Invalid response:")
         return True
 
     def __dict__(self) -> dict:

@@ -244,7 +244,8 @@ class Brain:
     def worker(self) -> None:
         print("worker")
         while self.ai.master_id is None:
-            self.ai.recv("new master")
+            self.ai.recv(False)
+            self.ai.exec_buffer()
         print("master found")
         while not self.ai.master_found:
             self.find_master()
@@ -271,12 +272,15 @@ class Brain:
         exit(0)
 
     def find_master(self) -> None:
-        self.ai.recv("ping master")
+        while not self.ai.run_message("ping master", self.ai.master_id):
+            self.ai.recv(False)
         if self.master_direction == zp.Direction.TOP:
             self.forward()
             self.ai.broadcast(self.ai.msg_handler["orientation master"].to_json(False, self.ai.master_id))
-            self.ai.recv("orientation master")
-            self.ai.recv("ping master")
+            while not self.ai.run_message("orientation master", self.ai.master_id):
+                self.ai.recv(False)
+            while not self.ai.run_message("ping master", self.ai.master_id):
+                self.ai.recv(False)
             self.turn(self.master_direction)
             self.forward()
             self.turn(zp.Direction.N)
