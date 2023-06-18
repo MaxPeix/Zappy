@@ -53,7 +53,7 @@ void free_command(command_t *command) {
             command->name = NULL;
         }
         if (command->args) {
-            free_command_args(command->args); // assuming free_command_args() is a function you have defined to free the args
+            free_command_args(command->args);
             command->args = NULL;
         }
         free(command);
