@@ -7,12 +7,12 @@ import utils
 
 OBJECTIVES = [
     zp.Resources(0, 1, 0, 0, 0, 0, 0, 0),
-    zp.Resources(0, 1, 1, 1, 0, 0, 0, 1),
-    zp.Resources(0, 2, 0, 1, 0, 2, 0, 1),
-    zp.Resources(0, 1, 1, 2, 0, 1, 0, 1),
-    zp.Resources(0, 1, 2, 1, 3, 0, 0, 3),
-    zp.Resources(0, 1, 2, 3, 0, 1, 0, 3),
-    zp.Resources(0, 2, 2, 2, 2, 2, 1, 5),
+    zp.Resources(0, 1, 1, 1, 0, 0, 0, 0),
+    zp.Resources(0, 2, 0, 1, 0, 2, 0, 0),
+    zp.Resources(0, 1, 1, 2, 0, 1, 0, 0),
+    zp.Resources(0, 1, 2, 1, 3, 0, 0, 0),
+    zp.Resources(0, 1, 2, 3, 0, 1, 0, 0),
+    zp.Resources(0, 2, 2, 2, 2, 2, 1, 0),
     zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)  # Last one must be empty
 ]
 
@@ -163,7 +163,6 @@ class AI:
         self._messages.append((direction, res))
 
     def elevate(self) -> None:
-        exit(2)
         self._add_time(300)
         res = self.recv()
         if len(res) != 1 or not res[0].startswith(utils.ELEVATION_SUCCESS):

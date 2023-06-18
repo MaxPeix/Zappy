@@ -1,5 +1,5 @@
 import logging
-
+import random
 import ai
 import zappyAI as zp
 import ai as zp_ai
@@ -134,6 +134,8 @@ class Brain:
 
     def goto(self, pos: zp.Pos, look: bool = False) -> None:
         while self.ai.pos != pos:
+            print("current:", self.ai.pos)
+            print("target:", pos)
             if self.ai.pos.x < pos.x:
                 self.right()
             elif self.ai.pos.x > pos.x:
@@ -272,17 +274,13 @@ class Brain:
             print("error: id not found")
             exit(0)
         self.drop_all()
-        self.cartography(zone[0], zone[1])
-        self.goto(zp.Pos(5, 5))
-        self.drop_all()
-        self.ai.look()
-        if self.ai.world[self.ai.pos].objects[zp.ObjectType.LINEMATE] < ai.OBJECTIVES[self.ai.level][
-            zp.ObjectType.LINEMATE]:
-            self.go_where(zp.ObjectType.LINEMATE, True)
-            self.goto(zp.Pos(5, 5))
-            self.ai.set(zp.ObjectType.LINEMATE)
         while True:
-            self.ai.recv()
+            # FIXME: cartography is not working
+            # self.cartography(zone[0], zone[1])
+            self.goto(zp.Pos(random.randint(0, self.ai.world.size.height - 1),
+                             random.randint(0, self.ai.world.size.width - 1)), True)
+            self.goto(zp.Pos(5, 5), True)
+            self.drop_all()
 
     def find_master(self) -> None:
         while not self.ai.run_message("ping master", self.ai.master_id):
@@ -302,13 +300,12 @@ class Brain:
             if self.ai.id > 4:
                 self.ai.check_inventory()
                 self.drop_all(False)
-                exit(0)
-                # while True:
-                #     try:
-                #         self.ai.check_inventory()
-                #     except TimeoutError:
-                #         print("Successfully died !")
-                #         exit(0)
+                while True:
+                    try:
+                        self.ai.check_inventory()
+                    except TimeoutError:
+                        print("Successfully died !")
+                        exit(0)
             if self.ai.id == 0:
                 self.queen()
 
@@ -325,26 +322,29 @@ class Brain:
                 self.ai.set(resource)
 
     def can_elevate(self) -> bool:
+        print(">>> can elevate ?")
         self.ai.look()
         print("world:", self.ai.world[self.ai.pos].objects)
-        print("level:", ai.OBJECTIVES[self.ai.level])
+        print("level:", ai.OBJECTIVES[self.ai.level - 1])
 
         for resource in self.ai.world[self.ai.pos].objects:
             if resource == zp.ObjectType.PLAYER:
                 continue
-            if self.ai.world[self.ai.pos].objects[resource] < ai.OBJECTIVES[self.ai.level][resource]:
+            if self.ai.world[self.ai.pos].objects[resource] < ai.OBJECTIVES[self.ai.level - 1][resource]:
                 return False
         return True
 
     def queen_elevate(self) -> None:
         self.ai.broadcast(self.ai.msg_handler["elevate"].to_json(False))
         self.ai.look()
-        while self.ai.world[self.ai.pos].objects[zp.ObjectType.PLAYER] < 6:
+        while self.ai.world[self.ai.pos].objects[zp.ObjectType.PLAYER] < 5:
+            print("waiting for 6 players", self.ai.world[self.ai.pos].objects[zp.ObjectType.PLAYER], "currently")
             self.ai.look()
         self.ai.incantation(False)
 
     def queen(self) -> None:
         print("queen")
+        self.ai.role = zp.Role.QUEEN
         self.ai.food_wanted = 4
         while True:
             print(utils.YELLOW)
@@ -353,7 +353,7 @@ class Brain:
                 self.queen_elevate()
             # if self.ai.connect_nbr() == 0:
             #     self.ai.fork()
-            while self.ai.inventory.food < self.food_wanted:
+            if self.ai.inventory.food < self.food_wanted:
                 self.take(zp.ObjectType.FOOD)
 
     def run(self) -> None:
@@ -470,6 +470,8 @@ def send_new_master(msg: Message, *args, **kwargs) -> str | None:
 
 
 def recv_ping_master(msg: Message, direction: zp.Direction, data: dict) -> None:
+    if msg.brain.ai.role != zp.Role.WORKER:
+        return
     if direction == zp.Direction.TOP:
         msg.brain.master_direction = zp.Direction.TOP
         return
@@ -523,10 +525,12 @@ def send_orientation_master(msg: Message, *args, **kwargs) -> str | None:
 
 
 def recv_elevate(msg: Message, direction: zp.Direction, data: dict) -> None:
-    if msg.brain.ai.id == 0 or msg.brain.ai.role == zp.Role.MASTER or data["ans"]:
+    if msg.brain.ai.role == zp.Role.MASTER or msg.brain.ai.role == zp.Role.QUEEN or data["ans"]:
         return
     current_lvl = msg.brain.ai.level
-    msg.brain.goto(zp.Pos(5, 5), True)
+    msg.brain.goto(zp.Pos(5, 5))
+    print("===========================on master===========================")
+    msg.brain.drop_all()
     while msg.brain.ai.level == current_lvl:
         msg.brain.ai.check_inventory()
         if msg.brain.ai.inventory.food < 3:
