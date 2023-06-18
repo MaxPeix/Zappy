@@ -162,7 +162,20 @@ class AI:
             return
         self._messages.append((direction, res))
 
-    def recv(self, exec_buffer: bool = True) -> list[str]:
+    def elevate(self) -> None:
+        exit(2)
+        self._add_time(300)
+        res = self.recv()
+        if len(res) != 1 or not res[0].startswith(utils.ELEVATION_SUCCESS):
+            print("\033[1;31m==> ERROR:", res)
+            raise ConnectionError("Invalid response:")
+        try:
+            self._level = int(res[0][len(utils.ELEVATION_SUCCESS):])
+        except ValueError:
+            print("\033[1;31m==> ERROR:", res)
+            raise ConnectionError("Invalid response:")
+
+    def recv(self, exec_buffer: bool = True, incantation: bool = False) -> list[str]:
         i: int = 0
         data: list[str] = self._comm.recv()
         len_data: int = len(data)
@@ -172,9 +185,10 @@ class AI:
                 data.pop(i)
                 len_data -= 1
                 raise TimeoutError("Dead")
-            elif data[i] == utils.ELEVATION_UNDERWAY:
-                self._buffer.append(data.pop(i))
+            elif (not incantation) and data[i] == utils.ELEVATION_UNDERWAY:
+                data.pop(i)
                 len_data -= 1
+                self.elevate()
                 pass
             elif data[i].startswith(utils.BROADCAST_MSG_START):
                 msg = data.pop(i)
@@ -417,22 +431,13 @@ class AI:
         if self._check_time(300) < 1:
             raise TimeoutError("Not enough time")
         self._comm.send("Incantation\n")
-        res = self.recv()
+        res = self.recv(True, True)
         if res == [utils.KO]:
             return False
-        if res != [utils.BROADCAST_MSG_START]:
+        if res != [utils.ELEVATION_UNDERWAY]:
             print("\033[1;31m==> ERROR:", res)
             raise ConnectionError("Invalid response:")
-        self._add_time(300)
-        res = self.recv()
-        if len(res) != 1 or not res[0].startswith(utils.ELEVATION_SUCCESS):
-            print("\033[1;31m==> ERROR:", res)
-            raise ConnectionError("Invalid response:")
-        try:
-            self._level = int(res[0][len(utils.ELEVATION_SUCCESS):])
-        except ValueError:
-            print("\033[1;31m==> ERROR:", res)
-            raise ConnectionError("Invalid response:")
+        self.elevate()
         return True
 
     def __dict__(self) -> dict:

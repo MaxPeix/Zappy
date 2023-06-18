@@ -118,3 +118,4 @@ class Evt(Enum):
 class Role(Enum):
     MASTER = 0
     WORKER = 1
+    QUEEN = 2

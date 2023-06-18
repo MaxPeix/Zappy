@@ -1,4 +1,6 @@
 import logging
+
+import ai
 import zappyAI as zp
 import ai as zp_ai
 import utils
@@ -269,9 +271,18 @@ class Brain:
         else:
             print("error: id not found")
             exit(0)
+        self.drop_all()
         self.cartography(zone[0], zone[1])
         self.goto(zp.Pos(5, 5))
-        exit(0)
+        self.drop_all()
+        self.ai.look()
+        if self.ai.world[self.ai.pos].objects[zp.ObjectType.LINEMATE] < ai.OBJECTIVES[self.ai.level][
+            zp.ObjectType.LINEMATE]:
+            self.go_where(zp.ObjectType.LINEMATE, True)
+            self.goto(zp.Pos(5, 5))
+            self.ai.set(zp.ObjectType.LINEMATE)
+        while True:
+            self.ai.recv()
 
     def find_master(self) -> None:
         while not self.ai.run_message("ping master", self.ai.master_id):
@@ -299,7 +310,6 @@ class Brain:
                 #         print("Successfully died !")
                 #         exit(0)
             if self.ai.id == 0:
-                time.sleep(3600)
                 self.queen()
 
             return
@@ -314,12 +324,35 @@ class Brain:
                     continue
                 self.ai.set(resource)
 
+    def can_elevate(self) -> bool:
+        self.ai.look()
+        print("world:", self.ai.world[self.ai.pos].objects)
+        print("level:", ai.OBJECTIVES[self.ai.level])
+
+        for resource in self.ai.world[self.ai.pos].objects:
+            if resource == zp.ObjectType.PLAYER:
+                continue
+            if self.ai.world[self.ai.pos].objects[resource] < ai.OBJECTIVES[self.ai.level][resource]:
+                return False
+        return True
+
+    def queen_elevate(self) -> None:
+        self.ai.broadcast(self.ai.msg_handler["elevate"].to_json(False))
+        self.ai.look()
+        while self.ai.world[self.ai.pos].objects[zp.ObjectType.PLAYER] < 6:
+            self.ai.look()
+        self.ai.incantation(False)
+
     def queen(self) -> None:
+        print("queen")
         self.ai.food_wanted = 4
         while True:
+            print(utils.YELLOW)
             self.ai.check_inventory()
-            if self.ai.connect_nbr() == 0:
-                self.ai.fork()
+            if self.can_elevate():
+                self.queen_elevate()
+            # if self.ai.connect_nbr() == 0:
+            #     self.ai.fork()
             while self.ai.inventory.food < self.food_wanted:
                 self.take(zp.ObjectType.FOOD)
 
@@ -332,6 +365,7 @@ class Brain:
             self.worker()
             return
         while True:
+            print(utils.WHITE)
             self.ai.broadcast(self.ai.msg_handler["ping master"].to_json(False))
             if self.ai.inventory.food > self.food_wanted:
                 self.ai.check_inventory()
@@ -388,6 +422,7 @@ class Message:
         self["new master"] = (recv_new_master, send_new_master)
         self["ping master"] = (recv_ping_master, send_ping_master)
         self["orientation master"] = (recv_orientation_master, send_orientation_master)
+        self["elevate"] = (recv_elevate, send_elevate)
 
     def __getitem__(self, item):
         return self.HANDLERS[item]
@@ -485,3 +520,20 @@ def send_orientation_master(msg: Message, *args, **kwargs) -> str | None:
             })
     else:
         return "?"
+
+
+def recv_elevate(msg: Message, direction: zp.Direction, data: dict) -> None:
+    if msg.brain.ai.id == 0 or msg.brain.ai.role == zp.Role.MASTER or data["ans"]:
+        return
+    current_lvl = msg.brain.ai.level
+    msg.brain.goto(zp.Pos(5, 5), True)
+    while msg.brain.ai.level == current_lvl:
+        msg.brain.ai.check_inventory()
+        if msg.brain.ai.inventory.food < 3:
+            if not msg.brain.ai.take(zp.ObjectType.FOOD):
+                msg.brain.go_where(zp.ObjectType.FOOD)
+                msg.brain.goto(zp.Pos(5, 5))
+
+
+def send_elevate(msg: Message, *args, **kwargs) -> str | None:
+    return "ready"
