@@ -1,6 +1,6 @@
 import logging
 import zappyAI as zp
-import ai
+import ai as zp_ai
 import utils
 import os
 from typing import Callable
@@ -9,14 +9,16 @@ import json
 
 
 class Brain:
-    ai: ai.AI
+    ai: zp_ai.AI
     _look_for: zp.Resources = zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)
     _status: zp.Status = zp.Status.NOTHING
     _prev_status: zp.Status = zp.Status.NOTHING
     _cartography_last_pos: zp.Pos = zp.Pos(0, 0)
+    food_wanted: int = zp_ai.FOOD_WANTED
+    master_direction: zp.Direction = zp.Direction.N
 
     def __init__(self, team_name: str, ip: str, port: int, log_level: int = logging.INFO) -> None:
-        self.ai = ai.AI(utils.Comm(ip, port, log_level=log_level), team_name)
+        self.ai = zp_ai.AI(utils.Comm(ip, port, log_level=log_level), team_name)
         self.ai.add_message(Message(self))
         self.ai.start()
         self.change_status(zp.Status.SEARCHING)
@@ -35,7 +37,7 @@ class Brain:
 
     def _action(self, evt: zp.Evt) -> None:
         if self.ai.world[self.ai.pos].known:
-            while self.ai.inventory[zp.ObjectType.FOOD] < ai.FOOD_WANTED and \
+            while self.ai.inventory[zp.ObjectType.FOOD] < self.food_wanted and \
                     self.ai.world[self.ai.pos].objects[zp.ObjectType.FOOD] > 0:
                 self.take(zp.ObjectType.FOOD)
         if self.ai.inventory[zp.ObjectType.FOOD] < 3:
@@ -74,16 +76,19 @@ class Brain:
         else:
             self.change_status(self._prev_status)
 
+    def _searching(self, evt: zp.Evt, lvl: int) -> None:
+        for resource in zp_ai.OBJECTIVES[lvl - 1]:
+            if resource == zp.ObjectType.PLAYER:
+                continue
+            while self.ai.inventory[resource] < zp_ai.OBJECTIVES[lvl - 1][resource] and \
+                    self.ai.world[self.ai.pos].objects[resource] > 0:
+                self.take(resource)
+
     def searching(self, evt: zp.Evt) -> None:
         if not self.ai.world[self.ai.pos].known:
             return
-        for resource in ai.OBJECTIVES[self.ai.level - 1]:
-            if resource == zp.ObjectType.PLAYER:
-                continue
-            while self.ai.inventory[resource] < ai.OBJECTIVES[self.ai.level - 1][resource] and \
-                    self.ai.world[self.ai.pos].objects[resource] > 0:
-                self.take(resource)
-        pass
+        self._searching(evt, self.ai.level)
+        self._searching(evt, self.ai.level + 1)
 
     def moving(self, evt: zp.Evt) -> None:
         pass
@@ -103,10 +108,11 @@ class Brain:
             raise ValueError("direction must be odd")
         while self.ai.direction != direction:
             self.on_turn()
+            print("direction:", self.ai.direction, "wanted:", direction)
             if self.ai.direction < direction:
-                self.ai.right()
-            else:
                 self.ai.left()
+            else:
+                self.ai.right()
 
     def up(self) -> None:
         self.turn(zp.Direction.N)
@@ -138,32 +144,32 @@ class Brain:
                 self.on_look()
 
     def go_where(self, resource: zp.ObjectType, look: bool = False, recursion: int | None = None) -> bool:
-        if self._ai.world[self._ai.pos].objects[resource] > 0:
+        if self.ai.world[self.ai.pos].objects[resource] > 0:
             print("already on resource")
             return True
         i: int = 1
-        x: int = self._ai.pos.x
-        y: int = self._ai.pos.y
-        if self._ai.world.size.width > self._ai.world.size.height:
-            size: int = self._ai.world.size.width
+        x: int = self.ai.pos.x
+        y: int = self.ai.pos.y
+        if self.ai.world.size.width > self.ai.world.size.height:
+            size: int = self.ai.world.size.width
         else:
-            size: int = self._ai.world.size.height
+            size: int = self.ai.world.size.height
         for _ in range((size // 2) + 1):
             x += i
-            if self._ai.world[(y, x)].objects[resource] > 0:
+            if self.ai.world[(y, x)].objects[resource] > 0:
                 self.goto(zp.Pos(y, x), look)
                 return True
             y -= i
-            if self._ai.world[(y, x)].objects[resource] > 0:
+            if self.ai.world[(y, x)].objects[resource] > 0:
                 self.goto(zp.Pos(y, x), look)
                 return True
             i += 1
             x -= i
-            if self._ai.world[(y, x)].objects[resource] > 0:
+            if self.ai.world[(y, x)].objects[resource] > 0:
                 self.goto(zp.Pos(y, x), look)
                 return True
             y += i
-            if self._ai.world[(y, x)].objects[resource] > 0:
+            if self.ai.world[(y, x)].objects[resource] > 0:
                 self.goto(zp.Pos(y, x), look)
                 return True
             i += 1
@@ -247,42 +253,40 @@ class Brain:
         while self.ai.master_id is None:
             self.ai.recv("new master")
         print("master found")
-        while not self.ai.pos_sync:
-            self.ai.broadcast(self.ai.msg_handler["ping master"].to_json(False, self.ai.master_id))
-            self.ai.recv("ping master")
+        while not self.ai.master_found:
+            self.find_master()
 
-    def find_master(self, direction: zp.Direction, master_direction: zp.Direction) -> None:
-        if direction == zp.Direction.TOP:
-            print("master on same pos")
-            exit(0)
-        path: int = (direction.value if direction.value % 2 != 0 else direction.value + 1)
-        if self.ai.direction == zp.Direction.N:
-            pass
-        elif self.ai.direction == zp.Direction.W:
-            path += 2
-        elif self.ai.direction == zp.Direction.S:
-            path += 4
-        elif self.ai.direction == zp.Direction.E:
-            path += 6
-        while path > 8:
-            path -= 8
-        new_direction: zp.Direction = zp.Direction(path)
-        self.turn(new_direction)
+    def find_master(self) -> None:
+        self.ai.recv("ping master")
+        if self.master_direction == zp.Direction.TOP:
+            self.forward()
+            self.ai.broadcast(self.ai.msg_handler["orientation master"].to_json(False, self.ai.master_id))
+            self.ai.recv("orientation master")
+            self.ai.recv("ping master")
+            self.turn(self.master_direction)
+            self.forward()
+            self.turn(zp.Direction.N)
+            self.ai._pos = zp.Pos(5, 5)
+            while True:
+                pass
+
+        self.turn(self.master_direction)
         self.forward()
-        # if self.ai.world[self.ai.pos].objects[zp.ObjectType.PLAYER] > 0:
-        #     self.ai.broadcast(self.ai.msg_handler["ping master"].to_json(False, self.ai.pos))
-        #     self.ai.recv("ping master")
 
     def run(self) -> None:
         # TODO: check if map already cartography
         # TODO: check if master
         # TODO: check if lonely
 
+        print("jfkldsjfklmsqdjflmdsjfimlqdsjmlkzgmreraegjmlergjklmfemfqdskufhdsjkfjdklnfqskjhflskqj")
+
         if self.ai.role == zp.Role.WORKER:
             self.worker()
             return
-        while not self.ai.pos_sync:
-            self.ai.recv()
+        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        while True:
+            self.ai.broadcast(self.ai.msg_handler["ping master"].to_json(False))
+            self.take(zp.ObjectType.FOOD)
 
         # self.cartography(zp.Pos(0, 0), zp.Pos(self.ai.world.size.height - 1, self.ai.world.size.width - 1))
         # for resource in ai.OBJECTIVES[self.ai.level - 1]:
@@ -345,6 +349,7 @@ class Message:
         self["bootstrap master"] = (recv_bootstrap_master, send_bootstrap_master)
         self["new master"] = (recv_new_master, send_new_master)
         self["ping master"] = (recv_ping_master, send_ping_master)
+        self["orientation master"] = (recv_orientation_master, send_orientation_master)
 
     def __getitem__(self, item):
         return self.HANDLERS[item]
@@ -369,6 +374,14 @@ def recv_bootstrap_master(msg: Message, direction: zp.Direction, data: dict) -> 
             msg.brain.ai.broadcast(msg["bootstrap master"].to_json(True, int(data["from"])))
 
 
+def send_bootstrap_master(msg: Message, *args, **kwargs) -> str | None:
+    if msg.brain.ai.role == zp.Role.MASTER:
+        return str(os.getpid())
+    if msg.brain.ai.master_id is None:
+        return "no master"
+    # return str(msg.brain.ai.master_id)
+
+
 def recv_new_master(msg: Message, direction: zp.Direction, data: dict) -> None:
     if not data["ans"]:
         return
@@ -383,32 +396,48 @@ def send_new_master(msg: Message, *args, **kwargs) -> str | None:
         return str(os.getpid())
 
 
-def send_bootstrap_master(msg: Message, *args, **kwargs) -> str | None:
-    if msg.brain.ai.role == zp.Role.MASTER:
-        return str(os.getpid())
-    if msg.brain.ai.master_id is None:
-        return "no master"
-    # return str(msg.brain.ai.master_id)
-
-
 def recv_ping_master(msg: Message, direction: zp.Direction, data: dict) -> None:
-    if not data["ans"] and msg.brain.ai.role == zp.Role.MASTER:
-        if data["data"] == "found":
-            msg.brain.ai.look()
-            found: bool = msg.brain.ai.world[msg.brain.ai.pos].objects[zp.ObjectType.PLAYER] > 0
-            msg.brain.ai.broadcast(msg["ping master"].to_json(True, int(data["from"]), found=found))
-        msg.brain.ai.broadcast(msg["ping master"].to_json(True, int(data["from"]), direction=direction))
+    if direction == zp.Direction.TOP:
+        msg.brain.master_direction = zp.Direction.TOP
         return
-    if data["ans"] and msg.brain.ai.role == zp.Role.WORKER and not msg.brain.ai.pos_sync:
-        master_direction = zp.Direction(int(data["data"]))
-        msg.brain.find_master(direction, master_direction)
+    path: int = (direction.value if direction.value % 2 != 0 else direction.value + 1)
+    if msg.brain.ai.direction == zp.Direction.N:
+        pass
+    elif msg.brain.ai.direction == zp.Direction.W:
+        path += 2
+    elif msg.brain.ai.direction == zp.Direction.S:
+        path += 4
+    elif msg.brain.ai.direction == zp.Direction.E:
+        path += 6
+    while path > 8:
+        path -= 8
+    msg.brain.master_direction = zp.Direction(path)
 
 
 def send_ping_master(msg: Message, *args, **kwargs) -> str | None:
-    if msg.brain.ai.role == zp.Role.WORKER:
-        if "look" in kwargs and kwargs["look"]:
-            return "look"
-        return "ping"
-    if "found" in kwargs:
-        return "found" if kwargs["found"] else "not found"
-    return str(int(kwargs["direction"]))
+    return "ping"
+
+
+def recv_orientation_master(msg: Message, direction: zp.Direction, data: dict) -> None:
+    if data["ans"] and msg.brain.ai.role == zp.Role.WORKER:
+        new_direction: zp.Direction = zp.Direction(int(data["data"]))
+        if new_direction == zp.Direction.N:
+            pass
+        elif new_direction == zp.Direction.W:
+            msg.brain.ai.right()
+        elif new_direction == zp.Direction.S:
+            msg.brain.ai.right()
+            msg.brain.ai.right()
+        elif new_direction == zp.Direction.E:
+            msg.brain.ai.left()
+        msg.brain.ai._direction = zp.Direction.N
+    elif msg.brain.ai.role == zp.Role.MASTER:
+        msg.brain.ai.broadcast(msg["orientation master"].to_json(True, int(data["from"]), direction=direction))
+
+
+def send_orientation_master(msg: Message, *args, **kwargs) -> str | None:
+    if msg.brain.ai.role == zp.Role.MASTER:
+        if "direction" in kwargs:
+            return str(int(kwargs["direction"].value))
+    else:
+        return "?"

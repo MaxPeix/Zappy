@@ -40,6 +40,12 @@ class Direction(Enum):
     def __lt__(self, other: 'Direction') -> bool:
         enum_list = list(Direction)
         enum_list_rev = list(Direction)
+        print("list:", enum_list)
+        print("list_rev:", enum_list_rev)
+        enum_list.pop(0)
+        enum_list_rev.pop(0)
+        print("list:", enum_list)
+        print("list_rev:", enum_list_rev)
         enum_list_rev.reverse()
         enum_list = cycle(enum_list)
         enum_list_rev = cycle(enum_list_rev)
@@ -55,6 +61,8 @@ class Direction(Enum):
             pass
         while next(enum_list_rev) != other:
             j = j + 1
+        print("i:", i)
+        print("j:", j)
         if i < j:
             return True
         return False

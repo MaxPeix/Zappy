@@ -21,6 +21,7 @@ FOOD_WANTED = 10
 LVL_MAX = len(OBJECTIVES) - 1
 
 ENCRYPT: bool = False
+AUTO_SPAWN: bool = False
 
 
 class AI:
@@ -36,10 +37,13 @@ class AI:
     _inventory: zp.Resources = zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)
     role: zp.Role | None = None
     master_id: int | None = None
-    pos_sync: bool = False
+    master_found: bool = False
 
     @staticmethod
     def _new() -> None:
+        if not AUTO_SPAWN:
+            print("====================You must spawn manually====================")
+            return
         pid = os.fork()
         if pid == 0:
             python = sys.executable
@@ -66,12 +70,16 @@ class AI:
         if self.connect_nbr() > 0:
             self.role = zp.Role.WORKER
             print(os.getpid(), ": I'm a worker")
+            # self.forward()
             # self.broadcast(self._msg_handler["new worker"].to_json())
-            # self._new()
+            self._new()
             return
         # master go here
         print(os.getpid(), " : I'm the master")
-        self.broadcast(self.msg_handler["bootstrap master"].to_json())
+        lala = self.msg_handler["bootstrap master"].to_json()
+        print("0")
+        self.broadcast(lala)
+        print("1")
         self.recv("bootstrap master")
         print("Master id: ", self.master_id)
 
@@ -139,30 +147,58 @@ class AI:
         return direction, line[(len(utils.BROADCAST_MSG_START) + 2):]
 
     def recv(self, msg: str | list[str] | None = None, use_msg: bool = True) -> list[str]:
+        # i: int = 0
+        # data: list[str] = self._comm.recv()
+        # for line in data:
+        #     if line == utils.DEAD:
+        #         data.pop(i)
+        #         raise TimeoutError("Dead")
+        #     elif line == utils.ELEVATION_UNDERWAY:
+        #         data.pop(i)
+        #         pass
+        #     elif line.startswith(utils.BROADCAST_MSG_START):
+        #         direction, message = self.parse_msg(line)
+        #         print("on message: ", direction, message)
+        #         if self._on_message(direction, message, msg, use_msg):
+        #             if not use_msg:
+        #                 return [line]
+        #         if msg is None:
+        #             data.pop(i)
+        #     else:
+        #         i += 1
+        # if not data and msg is None:
+        #     return self.recv(msg, use_msg)
+        # print("recv: ", data)
+        # return data
+
+
         i: int = 0
         data: list[str] = self._comm.recv()
-        for line in data:
-            if line == utils.DEAD:
+        len_data: int = len(data)
+        while i < len_data:
+            if data[i] == utils.DEAD:
                 data.pop(i)
+                len_data -= 1
                 raise TimeoutError("Dead")
-            elif line == utils.ELEVATION_UNDERWAY:
+            elif data[i] == utils.ELEVATION_UNDERWAY:
                 data.pop(i)
+                len_data -= 1
                 pass
-            elif line.startswith(utils.BROADCAST_MSG_START):
-                direction, message = self.parse_msg(line)
+            elif data[i].startswith(utils.BROADCAST_MSG_START):
+                direction, message = self.parse_msg(data[i])
                 print("on message: ", direction, message)
                 if self._on_message(direction, message, msg, use_msg):
                     if not use_msg:
-                        return [line]
-                # if len(data) == 1 and msg is None:
-                #     return self.recv()
-                if msg is None:
-                    data.pop(i)
+                        return [data[i]]
+                data.pop(i)
+                len_data -= 1
             else:
                 i += 1
-        if msg is not None:
+        if not data and msg is None:
             return self.recv(msg, use_msg)
+        print("recv: ", data)
         return data
+
 
         # i: int = 0
         # while i < len(data):
@@ -249,7 +285,7 @@ class AI:
         if self.recv() != [utils.OK]:
             raise ConnectionError("Invalid response")
         self._direction = zp.Direction(
-            (self._direction.value + (1 if self._direction.value % 2 == 0 else 2) if self._direction.value < 6 else 1))
+            (self._direction.value - (1 if self._direction.value % 2 == 0 else 2) if self._direction.value > 2 else 7))
 
     def left(self) -> None:
         self._comm.send("Left\n")
@@ -257,7 +293,7 @@ class AI:
         if self.recv() != [utils.OK]:
             raise ConnectionError("Invalid response")
         self._direction = zp.Direction(
-            (self._direction.value - (1 if self._direction.value % 2 == 0 else 2) if self._direction.value > 2 else 7))
+            (self._direction.value + (1 if self._direction.value % 2 == 0 else 2) if self._direction.value < 6 else 1))
 
     def _at(self, relative_pos: tuple[int, int] | zp.Pos) -> tuple[int, int]:
         if type(relative_pos) == zp.Pos:

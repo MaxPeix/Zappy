@@ -64,6 +64,10 @@ class World:
     def __len__(self) -> int:
         return self._size.width * self._size.height
 
+    def clear(self) -> None:
+        for tile in self:
+            tile._known = False
+
     @property
     def size(self) -> Size:
         return self._size
