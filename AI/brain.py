@@ -38,9 +38,11 @@ class Brain:
 
     def _action(self, evt: zp.Evt) -> None:
         if self.ai.world[self.ai.pos].known:
-            while self.ai.inventory[zp.ObjectType.FOOD] < self.food_wanted and \
-                    self.ai.world[self.ai.pos].objects[zp.ObjectType.FOOD] > 0:
-                self.take(zp.ObjectType.FOOD)
+            if self.ai.id in [1, 2, 3, 4] and self.ai.pos == zp.Pos(5, 5):
+                pass
+            else:
+                while self.ai.world[self.ai.pos].objects[zp.ObjectType.FOOD] > 0:
+                    self.take(zp.ObjectType.FOOD)
         if self.ai.inventory[zp.ObjectType.FOOD] < 3:
             self.change_status(zp.Status.DYING)
         if self._status == zp.Status.DYING:
@@ -300,8 +302,7 @@ class Brain:
                 time.sleep(3600)
                 self.queen()
 
-            while True:
-                pass
+            return
 
         self.turn(self.master_direction)
         self.forward()
@@ -470,7 +471,6 @@ def recv_orientation_master(msg: Message, direction: zp.Direction, data: dict) -
         msg.brain.ai._direction = zp.Direction.N
         msg.brain.ai.id = int(data["data"]["id"])
         print("new id:", msg.brain.ai.id)
-        exit(1)
     elif msg.brain.ai.role == zp.Role.MASTER:
         msg.brain.ai.broadcast(msg["orientation master"].to_json(True, int(data["from"]), direction=direction))
 

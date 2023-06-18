@@ -132,26 +132,17 @@ class AI:
             len_msgs -= 1
 
     def run_message(self, what: str, sender: int | None) -> bool:
-        print("A")
         i: int = 0
         len_msgs: int = len(self._messages)
-        print("B")
         while i < len_msgs:
-            print("C")
             if self._messages[i][1]["what"] == what and (sender is None or self._messages[i][1]["from"] == sender):
-                print("D")
                 current = self._messages.pop(i)
                 try:
-                    print("E")
                     self.msg_handler[what](current[0], current[1])
-                    print("F")
                 except KeyError:
-                    print("G")
                     pass
                 return True
-            print("H")
             i += 1
-        print("I")
         return False
 
     def decode_msg(self, msg: str) -> None:
@@ -173,44 +164,28 @@ class AI:
 
     def recv(self, exec_buffer: bool = True) -> list[str]:
         i: int = 0
-        print("0")
         data: list[str] = self._comm.recv()
-        print("1")
         len_data: int = len(data)
 
-        print("2")
         while i < len_data:
-            print("3")
             if data[i] == utils.DEAD:
-                print("3.0")
                 data.pop(i)
                 len_data -= 1
                 raise TimeoutError("Dead")
             elif data[i] == utils.ELEVATION_UNDERWAY:
-                print("3.1")
                 self._buffer.append(data.pop(i))
                 len_data -= 1
                 pass
             elif data[i].startswith(utils.BROADCAST_MSG_START):
-                print("3.2")
                 msg = data.pop(i)
                 len_data -= 1
                 self.decode_msg(msg)
-                print("3.3")
             else:
                 i += 1
-        print("4")
         if len(data) == 0 and exec_buffer:
-            print("exec buffer: ", exec_buffer)
-            print("msgs: ", self._messages)
-            print("5")
             return self.recv()
-        print("6")
         if exec_buffer:
-            print("7")
             self.exec_buffer()
-            print("8")
-        print("9")
         return data
 
     def _login(self, team_name: str) -> None:
