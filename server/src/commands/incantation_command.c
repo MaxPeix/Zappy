@@ -16,6 +16,7 @@ void send_elevation_underway(client_t *clients, client_t *client)
             && clients[i].y_position == client->y_position
             && clients[i].level == client->level)
             dprintf(clients[i].socket, "Elevation underway\n");
+            clients[i].is_elevating = 1;
     }
 }
 
@@ -86,6 +87,7 @@ void end_incantation(client_t *clients, client_t *client,
                 clients[i].x_position,
                 clients[i].y_position, clients[i].level);
             send_message_to_graphical(clients, output_graphical);
+            clients[i].is_elevating = 0;
             free(output_graphical);
         }
     }
@@ -100,9 +102,9 @@ void handle_incantation_command(client_t *clients,
     int nb_player_on_tile = 0;
     int nb_player[7] = { 1, 2, 2, 4, 4, 6, 6 };
     char *output_graphical = NULL;
-
     if (strcmp(args[0], "Incantation") != 0)
         return;
+    printf("handle_incantation_command\n");
     nb_player_on_tile = get_nbr_on_tile(clients, client);
     int level_client_before = client->level;
     if (level_client_before > 8 || nb_player_on_tile <

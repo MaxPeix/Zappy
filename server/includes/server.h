@@ -78,6 +78,7 @@ typedef struct client
     int is_dead;
     time_t food_losing_timer;
     int team_max_clients;
+    int is_elevating;
 } client_t;
 
 typedef struct server_params
@@ -284,9 +285,7 @@ void handle_connect_nbr_command(client_t *clients, client_t *client,
 
 // client incantation
 void handle_incantation_command(client_t *clients,
-                                client_t *client,
-                                server_params_t *server_params,
-                                char **args);
+    client_t *client, server_params_t *server_params, char **args);
 
 // client fork
 void handle_fork_command(client_t *client,

@@ -8,8 +8,7 @@
 #include "server.h"
 
 void handle_command_five(client_t *client,
-                         server_params_t *server_params,
-                         char **args)
+    server_params_t *server_params, char **args)
 {
     if (strcmp(args[0], "Take") == 0) {
         take_command(server_params, client, args);
@@ -22,8 +21,7 @@ void handle_command_five(client_t *client,
 }
 
 void handle_command_four(client_t *client,
-                         server_params_t *server_params,
-                         char **args)
+    server_params_t *server_params, char **args)
 {
     if (strcmp(args[0], "bct") == 0) {
         print_bct(server_params, client, args);
@@ -44,8 +42,7 @@ void handle_command_four(client_t *client,
 }
 
 void handle_command_three(client_t *client,
-                          server_params_t *server_params,
-                          char **args)
+    server_params_t *server_params, char **args)
 {
     if (strcmp(args[0], "sgt") == 0) {
         print_sgt(server_params, client);
@@ -67,8 +64,7 @@ void handle_command_three(client_t *client,
 }
 
 void handle_command_two(client_t *client,
-                        server_params_t *server_params,
-                        char **args)
+    server_params_t *server_params, char **args)
 {
     if (strcmp(args[0], "Inventory") == 0) {
         print_inventory(server_params, client);
@@ -82,8 +78,7 @@ void handle_command_two(client_t *client,
 }
 
 void handle_command(client_t *client,
-                    server_params_t *server_params,
-                    char **args)
+    server_params_t *server_params, char **args)
 {
     int client_socket = client->socket;
 

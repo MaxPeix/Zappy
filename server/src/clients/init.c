@@ -25,6 +25,7 @@ void init_cliens_list_two(client_t *clients, int i,
     clients[i].is_dead = 0;
     clients[i].team_max_clients = server_params->clients_per_team;
     clients[i].food_losing_timer = 0;
+    clients[i].is_elevating = 0;
 }
 
 void init_clients_list(client_t *clients, server_params_t *server_params)
@@ -45,8 +46,21 @@ void init_clients_list(client_t *clients, server_params_t *server_params)
     }
 }
 
-void handle_disconnect_two(client_t *client, server_params_t *server_params)
-{
+void free_command(command_t *command) {
+    if (command) {
+        if (command->name) {
+            free(command->name);
+            command->name = NULL;
+        }
+        if (command->args) {
+            free_command_args(command->args); // assuming free_command_args() is a function you have defined to free the args
+            command->args = NULL;
+        }
+        free(command);
+    }
+}
+
+void handle_disconnect_two(client_t *client, server_params_t *server_params) {
     client->x_position = generate_rand_position(server_params->width);
     client->y_position = generate_rand_position(server_params->height);
     client->sibur = 0;
@@ -57,6 +71,12 @@ void handle_disconnect_two(client_t *client, server_params_t *server_params)
     client->is_dead = 0;
     client->team_max_clients = server_params->clients_per_team;
     client->food_losing_timer = 0;
+    client->is_elevating = 0;
+    
+    if (client->commands) {
+        free_command(client->commands);
+        client->commands = NULL;
+    }
 }
 
 void handle_disconnect(client_t *client, server_params_t *server_params)
