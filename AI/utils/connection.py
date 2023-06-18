@@ -76,11 +76,9 @@ class Comm:
             if index == -1:
                 break
             current = data[:index]
-            if current == "dead":
-                self.__logger.info("You died")
-                raise ConnectionError("You died")
             data = data[index + 1:]
-            self.__logger.info("<-- %s", current)
+            if "ping master" not in current:
+                self.__logger.info("<-- %s", current)
             res.append(current)
             self.__logger.debug("\t%s", current)
         return res

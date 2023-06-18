@@ -2,10 +2,10 @@ import logging
 import zappyAI as zp
 import ai as zp_ai
 import utils
-import os
 from typing import Callable
 from dataclasses import dataclass
 import json
+import time
 
 
 class Brain:
@@ -16,6 +16,7 @@ class Brain:
     _cartography_last_pos: zp.Pos = zp.Pos(0, 0)
     food_wanted: int = zp_ai.FOOD_WANTED
     master_direction: zp.Direction = zp.Direction.N
+    players: list[int] = []
 
     def __init__(self, team_name: str, ip: str, port: int, log_level: int = logging.INFO) -> None:
         self.ai = zp_ai.AI(utils.Comm(ip, port, log_level=log_level), team_name)
@@ -50,10 +51,8 @@ class Brain:
             self.moving(evt)
 
     def on_tile(self) -> None:
-        # input("press enter to continue")
         self._action(zp.Evt.ON_TILE)
         self.ai.draw_map()
-        print("pos:", self.ai.pos)
 
     def on_look(self) -> None:
         self.ai.look()
@@ -108,7 +107,6 @@ class Brain:
             raise ValueError("direction must be odd")
         while self.ai.direction != direction:
             self.on_turn()
-            print("direction:", self.ai.direction, "wanted:", direction)
             if self.ai.direction < direction:
                 self.ai.left()
             else:
@@ -145,7 +143,6 @@ class Brain:
 
     def go_where(self, resource: zp.ObjectType, look: bool = False, recursion: int | None = None) -> bool:
         if self.ai.world[self.ai.pos].objects[resource] > 0:
-            print("already on resource")
             return True
         i: int = 1
         x: int = self.ai.pos.x
@@ -233,11 +230,7 @@ class Brain:
         self.turn(zp.Direction.N)
 
         ops: list[int, int, int] = self._cartography_get_move(start, end)
-        print("ops: ", ops)
         while ops[1] > 0:
-            print("##############################################################################################")
-            print("ops: ", ops)
-            print("##############################################################################################")
             self._cartography_up_column(ops)
             ops[1] -= 1
             if ops[2] > 0:
@@ -255,6 +248,27 @@ class Brain:
         print("master found")
         while not self.ai.master_found:
             self.find_master()
+        if self.ai.id == 1:
+            zone: tuple[zp.Pos, zp.Pos] = (
+                zp.Pos(0, 0), zp.Pos((self.ai.world.size.height - 1) // 2, (self.ai.world.size.width - 1) // 2))
+        elif self.ai.id == 2:
+            zone: tuple[zp.Pos, zp.Pos] = (
+                zp.Pos(0, (self.ai.world.size.width - 1) // 2), zp.Pos((self.ai.world.size.height - 1) // 2,
+                                                                       self.ai.world.size.width - 1))
+        elif self.ai.id == 3:
+            zone: tuple[zp.Pos, zp.Pos] = (
+                zp.Pos((self.ai.world.size.height - 1) // 2, 0), zp.Pos(self.ai.world.size.height - 1,
+                                                                        (self.ai.world.size.width - 1) // 2))
+        elif self.ai.id == 4:
+            zone: tuple[zp.Pos, zp.Pos] = (
+                zp.Pos((self.ai.world.size.height - 1) // 2, (self.ai.world.size.width - 1) // 2),
+                zp.Pos(self.ai.world.size.height - 1, self.ai.world.size.width - 1))
+        else:
+            print("error: id not found")
+            exit(0)
+        self.cartography(zone[0], zone[1])
+        self.goto(zp.Pos(5, 5))
+        exit(0)
 
     def find_master(self) -> None:
         self.ai.recv("ping master")
@@ -267,44 +281,57 @@ class Brain:
             self.forward()
             self.turn(zp.Direction.N)
             self.ai._pos = zp.Pos(5, 5)
+            self.ai.master_found = True
+            if self.ai.id > 4:
+                self.ai.check_inventory()
+                self.drop_all(False)
+                exit(0)
+                # while True:
+                #     try:
+                #         self.ai.check_inventory()
+                #     except TimeoutError:
+                #         print("Successfully died !")
+                #         exit(0)
+            if self.ai.id == 0:
+                time.sleep(3600)
+                self.queen()
+
             while True:
                 pass
 
         self.turn(self.master_direction)
         self.forward()
 
+    def drop_all(self, survive: bool = True) -> None:
+        for resource in self.ai.inventory:
+            for _ in range(self.ai.inventory[resource]):
+                if resource == zp.ObjectType.FOOD and self.ai.inventory.food <= self.food_wanted and survive:
+                    continue
+                self.ai.set(resource)
+
+    def queen(self) -> None:
+        self.ai.food_wanted = 4
+        while True:
+            self.ai.check_inventory()
+            if self.ai.connect_nbr() == 0:
+                self.ai.fork()
+            while self.ai.inventory.food < self.food_wanted:
+                self.take(zp.ObjectType.FOOD)
+
     def run(self) -> None:
         # TODO: check if map already cartography
         # TODO: check if master
         # TODO: check if lonely
 
-        print("jfkldsjfklmsqdjflmdsjfimlqdsjmlkzgmreraegjmlergjklmfemfqdskufhdsjkfjdklnfqskjhflskqj")
-
         if self.ai.role == zp.Role.WORKER:
             self.worker()
             return
-        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         while True:
             self.ai.broadcast(self.ai.msg_handler["ping master"].to_json(False))
+            if self.ai.inventory.food > self.food_wanted:
+                self.ai.check_inventory()
+                continue
             self.take(zp.ObjectType.FOOD)
-
-        # self.cartography(zp.Pos(0, 0), zp.Pos(self.ai.world.size.height - 1, self.ai.world.size.width - 1))
-        # for resource in ai.OBJECTIVES[self.ai.level - 1]:
-        #     if resource == zp.ObjectType.PLAYER:
-        #         continue
-        #     while self.ai.inventory[resource] < ai.OBJECTIVES[self.ai.level - 1][resource]:
-        #         if not self.go_where(resource, True, 10):
-        #             raise ValueError("can't find resource")
-        #         self.take(resource)
-        # self.on_look()
-        # print(self.ai.inventory)
-        # self.ai.set(zp.ObjectType.LINEMATE)
-        # try:
-        #     self.ai.incantation(False)
-        # except ValueError as e:
-        #     print("incantation failed: ", e)
-        #     self.on_look()
-        # pass
 
 
 @dataclass
@@ -321,7 +348,7 @@ class HANDLER:
         if data == "null":
             data = None
         res: dict = {
-            "from": os.getpid(),
+            "from": self._msg.brain.ai.id,
             "to": to,
             "ans": ans,
             "what": self._name,
@@ -330,6 +357,12 @@ class HANDLER:
         return json.dumps(res)
 
     def __call__(self, direction: zp.Direction, msg: dict) -> None:
+        data = msg["data"]
+        try:
+            data = json.loads(data)
+            msg["data"] = data
+        except json.JSONDecodeError:
+            pass
         return self._recv(self._msg, direction, msg)
 
     def __init__(self, msg: 'Message', name: str, recv_handler: Callable, send_handler: Callable):
@@ -365,7 +398,7 @@ def recv_bootstrap_master(msg: Message, direction: zp.Direction, data: dict) -> 
         if msg.brain.ai.role is None:
             if data["data"] == "no master":  # FIXME: doesn't work
                 msg.brain.ai.role = zp.Role.MASTER
-                msg.brain.ai.master_id = os.getpid()
+                msg.brain.ai.master_id = msg.brain.ai.id
                 msg.brain.ai.broadcast(msg["new master"].to_json(True))
     else:
         if msg.brain.ai.role == zp.Role.MASTER:
@@ -376,7 +409,7 @@ def recv_bootstrap_master(msg: Message, direction: zp.Direction, data: dict) -> 
 
 def send_bootstrap_master(msg: Message, *args, **kwargs) -> str | None:
     if msg.brain.ai.role == zp.Role.MASTER:
-        return str(os.getpid())
+        return str(msg.brain.ai.id)
     if msg.brain.ai.master_id is None:
         return "no master"
     # return str(msg.brain.ai.master_id)
@@ -393,7 +426,7 @@ def recv_new_master(msg: Message, direction: zp.Direction, data: dict) -> None:
 
 def send_new_master(msg: Message, *args, **kwargs) -> str | None:
     if msg.brain.ai.role == zp.Role.MASTER:
-        return str(os.getpid())
+        return str(msg.brain.ai.id)
 
 
 def recv_ping_master(msg: Message, direction: zp.Direction, data: dict) -> None:
@@ -420,7 +453,7 @@ def send_ping_master(msg: Message, *args, **kwargs) -> str | None:
 
 def recv_orientation_master(msg: Message, direction: zp.Direction, data: dict) -> None:
     if data["ans"] and msg.brain.ai.role == zp.Role.WORKER:
-        new_direction: zp.Direction = zp.Direction(int(data["data"]))
+        new_direction: zp.Direction = zp.Direction(int(data["data"]["direction"]))
         if new_direction == zp.Direction.N:
             pass
         elif new_direction == zp.Direction.W:
@@ -431,6 +464,9 @@ def recv_orientation_master(msg: Message, direction: zp.Direction, data: dict) -
         elif new_direction == zp.Direction.E:
             msg.brain.ai.left()
         msg.brain.ai._direction = zp.Direction.N
+        msg.brain.ai.id = int(data["data"]["id"])
+        print("new id:", msg.brain.ai.id)
+        exit(1)
     elif msg.brain.ai.role == zp.Role.MASTER:
         msg.brain.ai.broadcast(msg["orientation master"].to_json(True, int(data["from"]), direction=direction))
 
@@ -438,6 +474,10 @@ def recv_orientation_master(msg: Message, direction: zp.Direction, data: dict) -
 def send_orientation_master(msg: Message, *args, **kwargs) -> str | None:
     if msg.brain.ai.role == zp.Role.MASTER:
         if "direction" in kwargs:
-            return str(int(kwargs["direction"].value))
+            msg.brain.players.append(len(msg.brain.players))
+            return json.dumps({
+                "direction": str(int(kwargs["direction"].value)),
+                "id": msg.brain.players[-1]
+            })
     else:
         return "?"

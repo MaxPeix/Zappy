@@ -8,8 +8,6 @@ def generate_key(password: str) -> bytes:
 
 
 def encrypt(message: bytes, key: bytes) -> bytes:
-    print(key)
-    print(len(key))
     return Fernet(key).encrypt(message)
 
 

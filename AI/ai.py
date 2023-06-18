@@ -36,6 +36,7 @@ class AI:
     _ticks: int = 0
     _inventory: zp.Resources = zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)
     role: zp.Role | None = None
+    id: int = os.getpid()
     master_id: int | None = None
     master_found: bool = False
 
@@ -65,21 +66,14 @@ class AI:
             raise ConnectionError("Invalid response")
         self._login(self._teamName)
         self.check_inventory()
-        # init world with empty tiles from world size
         self._msg_key = utils.generate_key(self._teamName)
         if self.connect_nbr() > 0:
             self.role = zp.Role.WORKER
-            print(os.getpid(), ": I'm a worker")
-            # self.forward()
-            # self.broadcast(self._msg_handler["new worker"].to_json())
+            print(self.id, ": I'm a worker")
             self._new()
             return
-        # master go here
-        print(os.getpid(), " : I'm the master")
-        lala = self.msg_handler["bootstrap master"].to_json()
-        print("0")
-        self.broadcast(lala)
-        print("1")
+        print(self.id, " : I'm the master")
+        self.broadcast(self.msg_handler["bootstrap master"].to_json())
         self.recv("bootstrap master")
         print("Master id: ", self.master_id)
 
@@ -108,32 +102,30 @@ class AI:
     def draw_map(self) -> None:
         print(self._world.__str__((self._pos, self._direction)))
         print(str(self._inventory))
+        print("pos:", self.pos)
 
     def _on_message(self, direction: zp.Direction, message: str, msg: str | list[str] | None, use_msg: bool) -> bool:
         if ENCRYPT:
             message: str = base64.b64decode(utils.decrypt(message.encode(), self._msg_key)).decode("utf-8")
             print("Message from " + str(direction) + ": " + message)
         else:
-            print("Message from " + str(direction) + ": " + message)
+            print("Message from " + str(direction))
         try:
             res: dict = json.loads(message)
         except json.JSONDecodeError:
             return False
         if "from" not in res or "to" not in res or "what" not in res or "ans" not in res:
             return False
-        if res["to"] is not None and res["to"] != os.getpid():
+        if res["to"] is not None and res["to"] != self.id:
             return False
         for handler in self.msg_handler.HANDLERS:
             if handler == res["what"]:
                 if use_msg:
                     self.msg_handler[handler](direction, res)
                 if msg is None:
-                    print("_on_message: None")
                     return True
                 elif type(msg) is list[str]:
-                    print("_on_message: list")
                     return handler in msg
-                print("_on_message: str")
                 return handler == msg
         return False
 
@@ -147,34 +139,12 @@ class AI:
         return direction, line[(len(utils.BROADCAST_MSG_START) + 2):]
 
     def recv(self, msg: str | list[str] | None = None, use_msg: bool = True) -> list[str]:
-        # i: int = 0
-        # data: list[str] = self._comm.recv()
-        # for line in data:
-        #     if line == utils.DEAD:
-        #         data.pop(i)
-        #         raise TimeoutError("Dead")
-        #     elif line == utils.ELEVATION_UNDERWAY:
-        #         data.pop(i)
-        #         pass
-        #     elif line.startswith(utils.BROADCAST_MSG_START):
-        #         direction, message = self.parse_msg(line)
-        #         print("on message: ", direction, message)
-        #         if self._on_message(direction, message, msg, use_msg):
-        #             if not use_msg:
-        #                 return [line]
-        #         if msg is None:
-        #             data.pop(i)
-        #     else:
-        #         i += 1
-        # if not data and msg is None:
-        #     return self.recv(msg, use_msg)
-        # print("recv: ", data)
-        # return data
-
-
         i: int = 0
         data: list[str] = self._comm.recv()
+        msgs: list[str] = []
+        msgs_done: bool = False
         len_data: int = len(data)
+
         while i < len_data:
             if data[i] == utils.DEAD:
                 data.pop(i)
@@ -185,45 +155,23 @@ class AI:
                 len_data -= 1
                 pass
             elif data[i].startswith(utils.BROADCAST_MSG_START):
-                direction, message = self.parse_msg(data[i])
-                print("on message: ", direction, message)
-                if self._on_message(direction, message, msg, use_msg):
-                    if not use_msg:
-                        return [data[i]]
-                data.pop(i)
+                msgs.append(data.pop(i))
                 len_data -= 1
             else:
                 i += 1
         if not data and msg is None:
             return self.recv(msg, use_msg)
+        for ms in msgs:
+            direction, message = self.parse_msg(ms)
+            if self._on_message(direction, message, msg, use_msg):
+                if not use_msg:
+                    return [ms]
+                print("=============================================================================================")
+                msgs_done = True
+        if not msgs_done and msg is not None:
+            return self.recv(msg, use_msg)
         print("recv: ", data)
         return data
-
-
-        # i: int = 0
-        # while i < len(data):
-        #     if data[i] == utils.DEAD:
-        #         data.pop(i)
-        #         raise TimeoutError("Dead")
-        #     elif data[i] == utils.ELEVATION_UNDERWAY:
-        #         data.pop(i)
-        #         pass
-        #     elif data[i].startswith(utils.BROADCAST_MSG_START):
-        #         direction, message = self.parse_msg(data[i])
-        #         if self._on_message(direction, message, msg, use_msg):
-        #             if not use_msg:
-        #                 return [data[i]]
-        #             if msg is None:
-        #                 return []
-        #         data.pop(i)
-        #     else:
-        #         i += 1
-        # if not data:
-        #     return self.recv()
-        # if msg is not None:
-        #     return self.recv(msg, use_msg)
-        # print("Data: ", data)
-        # return data
 
     def _login(self, team_name: str) -> None:
         res: tuple[int, tuple[int, int]]
@@ -362,7 +310,7 @@ class AI:
         nb_connect: int = 0
         data: list[str]
         self._comm.send("Connect_nbr\n")
-        data = self._comm.recv()
+        data = self.recv()
         if len(data) != 1:
             raise ConnectionError("Invalid response")
         nb_connect = int(data[0])
@@ -373,6 +321,8 @@ class AI:
         self._add_time(42)
         if self.recv() != [utils.OK]:
             raise ConnectionError("Invalid response")
+        os.system("notify-send 'new one created'")
+        self._new()
 
     def eject(self) -> None:
         self._comm.send("Eject\n")
