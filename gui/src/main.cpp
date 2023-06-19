@@ -9,8 +9,16 @@
 
 int parseArguments(int ac, char **av, int &port, std::string &machine)
 {
-    if (ac != 5) {
+    if (strcmp(av[1], "-help") == 0 && ac == 2) {
         std::cout << "USAGE: " << av[0] << " -p port -h machine" << std::endl;
+        std::cout << "\tport\tis the port number" << std::endl;
+        std::cout << "\tmachine\tis the name of the machine; localhost by default" << std::endl;
+        exit(SUCCESS);
+    }
+    if (ac != 3 && ac != 5) {
+        std::cout << "USAGE: " << av[0] << " -p port -h machine" << std::endl;
+        std::cout << "\tport\tis the port number" << std::endl;
+        std::cout << "\tmachine\tis the name of the machine; localhost by default" << std::endl;
         return ERROR;
     }
 

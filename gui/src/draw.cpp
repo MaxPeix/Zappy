@@ -330,6 +330,7 @@ void GUI::draw_game()
         window.draw(monster_sprite.second.first);
     for (auto &egg_sprite : assets.egg_sprites)
         window.draw(egg_sprite.second);
+    draw_tna(this->tna_cmd);
 }
 
 void GUI::draw_cmd(std::string cmd)

@@ -69,6 +69,7 @@ class GUI {
         int height;
         int width;
         std::vector<std::string> tna;
+        std::string tna_cmd;
         info_player_t player_info;
         sf::RenderWindow window;
         sf::Event event;

@@ -77,7 +77,7 @@ Or, you can run the graphic interface with this command: <br>
 
 ### How to play :video_game:
 
-The goal of the game is to have all your team elevate to level 6. <br>
+The goal of the game is to have at least 6 players of your team to elevate to the maximum elevation, level 8. <br>
 To do that, you have to collect resources and elevate yourself. <br>
 You can collect resources by moving on it and then take it. <br>
 You can elevate yourself by collecting resources and then do an `incantation`. <br>
@@ -151,11 +151,65 @@ Here is the link of our [**GitHub project**](https://github.com/orgs/EpitechProm
 
 ### Our GitHub accounts: :octocat:
 
-* [Maxime SENARD](https://github.com/RedCommand)
-* [Melissa LAGET](https://github.com/Ackfire)
-* [Gautier Bonhur](https://github.com/gautier337)
-* [Hugo DUBOIS](https://github.com/Hugo-code-dev)
-* [Max Peixoto](https://github.com/MaxPeix)
-* [Nicolas Sainty](https://github.com/nicolas-sainty)
+<div align="center" href="">
+<table>
+    <td align="center">
+        <a href="https://github.com/Ackfire">
+            <img src="https://avatars.githubusercontent.com/Ackfire" width="150px;" alt="Ackfire profile picture"/>
+            <br />
+            <b>LAGET Melissa</b>
+        </a>
+        <br />
+        <a href="mailto:melissa.laget@protonmail.com">📧</a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/RedCommand">
+            <img src="https://avatars.githubusercontent.com/RedCommand" width="150px;" alt="RedCommand profile picture"/>
+            <br />
+            <b>SENARD Maxime</b>
+        </a>
+        <br />
+        <a href="mailto:maxime.senard@epitech.eu">📧</a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/Hugo-code-dev">
+            <img src="https://avatars.githubusercontent.com/Hugo-code-dev" width="150px;" alt="Hugo DUBOIS profile picture"/>
+            <br />
+            <b>DUBOIS Hugo</b>
+        </a>
+        <br />
+        <a href="mailto:hugo.dubois@epitech.eu">📧</a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/gautier337">
+            <img src="https://avatars.githubusercontent.com/gautier337" width="150px;" alt="Gautier BONHUR profile picture"/>
+            <br />
+            <b>BONHUR Gautier</b>
+        </a>
+        <br />
+        <a href="mailto:gautier.bonhur@epitech.eu">📧</a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/MaxPeix">
+            <img src="https://avatars.githubusercontent.com/MaxPeix" width="150px;" alt="Max PEIXOTO profile picture"/>
+            <br />
+            <b>PEIXOTO Max</b>
+        </a>
+        <br />
+        <a href="mailto:max.peixoto@epitech.eu">📧</a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/nicolas-sainty">
+            <img src="https://avatars.githubusercontent.com/nicolas-sainty" width="150px;" alt="Nicolas SAINTY profile picture"/>
+            <br />
+            <b>SAINTY Nicolas</b>
+        </a>
+        <br />
+        <a href="mailto:nicolas.sainty@epitech.eu">📧</a>
+    </td>
+
+</table>
+
+</div>
 
 :+1: Thanks for reading this documentation ! :page_facing_up:
