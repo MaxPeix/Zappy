@@ -7,6 +7,21 @@
 
 #include "server.h"
 
+void handle_sst(server_params_t *server_params, char **args, client_t *client)
+{
+    if (!server_params || !args)
+        return;
+    int new_freq = 0;
+    if (strcmp(args[0], "sst") == 0) {
+        if (args[1] && atoi(args[1]) > 0) {
+            new_freq = atoi(args[1]);
+            server_params->frequency = new_freq >= 2 && new_freq <= 1000
+                ? new_freq : server_params->frequency;
+            print_sgt(server_params, client);
+        }
+    }
+}
+
 void handle_commands(client_t *clients, client_t *client,
     server_params_t *server_params, command_t cmd)
 {
@@ -20,6 +35,7 @@ void handle_commands(client_t *clients, client_t *client,
     handle_eject_command(clients, client, server_params, cmd.args);
     handle_fork_command(client, clients, server_params, cmd.args);
     handle_look_command(clients, client, server_params, cmd.args);
+    handle_sst(server_params, cmd.args, client);
 }
 
 void execute_commands_if_ready(client_t *clients, client_t *client,
