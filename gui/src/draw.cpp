@@ -128,39 +128,23 @@ void GUI::draw_ppo(std::string cmd)
     if (num_values_parsed != 4)
         return;
 
-    // Obtention du nombre de joueurs sur la case
-    int num_players = count_players_on_tile(x, y);
+    auto newPosition = std::make_pair(x, y);
+    for (auto& position : players_positions)
+        position.second.erase(std::remove(position.second.begin(), position.second.end(), id), position.second.end());
+    players_positions[newPosition].push_back(id);
 
-    // Calcul de la taille du sprite en fonction du nombre de joueurs
-    float scale_factor = 1.0f / num_players; // Réduire la taille en fonction du nombre de joueurs
-    if (scale_factor > 1.0f)
-        scale_factor = 1.0f; // Limiter l'agrandissement du sprite
-
-    // Mise à jour de la position et de la taille du sprite pour chaque joueur sur la case
-    int player_index = 0;
-    for (auto& monster_sprite : assets.monster_sprites)
-    {
-        if (monster_sprite.first == id)
-        {
-            // Mise à jour de la position
-            float player_position_x = x * assets.box_size + assets.rectangle_width + assets.box_size / 2;
-            float player_position_y = y * assets.box_size + assets.box_size / 2;
-
-            if (num_players > 1)
-            {
-                player_position_x += player_index * 10;
-                player_position_y += player_index * 10;
-            }
-
-            monster_sprite.second.first.setPosition(player_position_x, player_position_y);
-
-            // Mise à jour de la taille
-            sf::Vector2f sprite_scale = monster_sprite.second.first.getScale();
-            sf::Vector2f scaled_size(sprite_scale.x * scale_factor, sprite_scale.y * scale_factor);
-            monster_sprite.second.first.setScale(scaled_size);
-
-            player_index++;
+    if (players_positions[newPosition].size() > 1) {
+        float scale_factor = 0.5 / players_positions[newPosition].size();
+        float displacement = this->assets.box_size / 4;
+        int i = 0;
+        for (auto playerId : players_positions[newPosition]) {
+            this->assets.monster_sprites[playerId].first.setScale(scale_factor, scale_factor);
+            this->assets.monster_sprites[playerId].first.setPosition((x * this->assets.box_size + this->assets.rectangle_width + this->assets.box_size / 2) + (i == 0 ? -displacement : displacement), y * this->assets.box_size + this->assets.box_size / 2);
+            i++;
         }
+    } else {
+        this->assets.monster_sprites[id].first.setScale(0.5, 0.5);
+        this->assets.monster_sprites[id].first.setPosition(x * this->assets.box_size + this->assets.rectangle_width + this->assets.box_size / 2, y * this->assets.box_size + this->assets.box_size / 2);
     }
 
     if (o == 1)
