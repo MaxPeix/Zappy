@@ -8,17 +8,17 @@
 #ifndef SERVER_H_
     #define SERVER_H_
 
-#include <arpa/inet.h>
-#include <errno.h>
-#include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/select.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <stdbool.h>
-#include <time.h>
+    #include <arpa/inet.h>
+    #include <errno.h>
+    #include <netinet/in.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include <sys/select.h>
+    #include <sys/socket.h>
+    #include <unistd.h>
+    #include <stdbool.h>
+    #include <time.h>
 
     #define MAX_CLIENTS 30
     #define BUFFER_SIZE 4096
@@ -33,82 +33,78 @@
         WEST
     };
 
-typedef struct tile
-{
-    int x;
-    int y;
-    int food;
-    int linemate;
-    int deraumere;
-    int sibur;
-    int mendiane;
-    int phiras;
-    int thystame;
-    int *eggs;
-} tile_t;
+    typedef struct tile {
+        int x;
+        int y;
+        int food;
+        int linemate;
+        int deraumere;
+        int sibur;
+        int mendiane;
+        int phiras;
+        int thystame;
+        int *eggs;
+    } tile_t;
 
-typedef struct command
-{
-    char *name;
-    char **args;
-    time_t execution_time;
-} command_t;
+    typedef struct command {
+        char *name;
+        char **args;
+        time_t execution_time;
+        int executed;
+        struct command *next;
+    } command_t;
 
-typedef struct client
-{
-    int id;
-    int x_position;
-    int y_position;
-    int orientation;
-    int level;
-    int socket;
-    char *team_name;
-    int start_loggin;
-    int is_graphical;
-    int food;
-    int linemate;
-    int deraumere;
-    int sibur;
-    int mendiane;
-    int phiras;
-    int thystame;
-    int is_connected;
-    command_t* commands;
-    int command_count;
-    int is_dead;
-    time_t food_losing_timer;
-    int team_max_clients;
-    int is_elevating;
-} client_t;
+    typedef struct client {
+        int id;
+        int x_position;
+        int y_position;
+        int orientation;
+        int level;
+        int socket;
+        char *team_name;
+        int start_loggin;
+        int is_graphical;
+        int food;
+        int linemate;
+        int deraumere;
+        int sibur;
+        int mendiane;
+        int phiras;
+        int thystame;
+        int is_connected;
+        command_t *commands;
+        int command_count;
+        int is_dead;
+        time_t food_losing_timer;
+        int team_max_clients;
+        int is_elevating;
+    } client_t;
 
-typedef struct server_params
-{
-    int port;
-    int width;
-    int height;
-    char **team_names;
-    int clients_per_team;
-    int frequency;
-    tile_t **world;
-} server_params_t;
+    typedef struct server_params {
+        int port;
+        int width;
+        int height;
+        char **team_names;
+        int clients_per_team;
+        int frequency;
+        tile_t **world;
+    } server_params_t;
 
-typedef struct DistributionParams
-{
-    server_params_t *params;
-    int total_resource;
-    char resource;
-} DistributionParams;
+    typedef struct DistributionParams {
+        server_params_t *params;
+        int total_resource;
+        char resource;
+    } DistributionParams;
 
-typedef struct
-{
-    int x;
-    int y;
-} coordinate_t;
+    typedef struct {
+        int x;
+        int y;
+    } coordinate_t;
 
-typedef struct command_info {
-    const char *name;
-    double execution_time_factor;
-} command_info_t;
+    typedef struct command_info {
+        const char *name;
+        double execution_time_factor;
+    } command_info_t;
 
 // remove stones
 void remove_stones(tile_t *tile, int level);
@@ -119,17 +115,14 @@ bool check_stone(tile_t *tile, int level);
 // msprintf function
 char *msprintf(const char *format, ...);
 
+// free command
+void free_command(command_t *command);
+
 // free command args
 void free_command_args(char **args);
 
 // duplicate args
 char **duplicate_args(char **args);
-
-// remove executed command
-void remove_executed_command(client_t *client, int command_index);
-
-// add command to client
-void add_command_to_client(client_t *client, command_t *new_command);
 
 // Vérifie les erreurs de la ligne de commande
 int check_errors(int argc, char **argv, server_params_t params);
@@ -310,7 +303,7 @@ void check_death_player(client_t *clients,
 
 // handle client request
 void handle_client_request(client_t *clients,
-    char *buffer, int i, server_params_t *server_params);
+    char *buffer, client_t *client, server_params_t *server_params);
 
 // create new command
 command_t *create_new_command(char **args, server_params_t *server_params);
