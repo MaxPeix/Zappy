@@ -470,11 +470,24 @@ class Brain:
                                                        carrier=False))
         self.ai.incantation(False)
 
-    def _queen_elevate_3(self) -> None:
-        pass
+    def _queen_elevate_4_5(self) -> None:
+        self.ai.broadcast(
+            self.ai.msg_handler["incantation"].to_json(False, 1, direction=zp.Direction.N, carrier=True))
+        self.ai.broadcast(
+            self.ai.msg_handler["incantation"].to_json(False, 2, direction=zp.Direction.N, carrier=False))
+        self.ai.broadcast(
+            self.ai.msg_handler["incantation"].to_json(False, 3, direction=zp.Direction.N, carrier=False))
+        self.ai.broadcast(
+            self.ai.msg_handler["incantation"].to_json(False, 4, direction=zp.Direction.N, carrier=False))
 
-    def _queen_elevate_4(self) -> None:
-        pass
+        self.ai.broadcast(
+            self.ai.msg_handler["incantation"].to_json(False, 5, direction=zp.Direction.TOP, carrier=False))
+        self.ai.broadcast(
+            self.ai.msg_handler["incantation"].to_json(False, 6, direction=zp.Direction.TOP, carrier=False))
+        self.ai.broadcast(
+            self.ai.msg_handler["incantation"].to_json(False, self.ai.master_id, direction=zp.Direction.TOP,
+                                                       carrier=False))
+        self.ai.incantation(False)
 
     def queen_elevate(self) -> None:
         self.ai.broadcast(self.ai.msg_handler["elevate"].to_json(False))
@@ -483,8 +496,8 @@ class Brain:
             print("waiting for", self.nb_players, "players",
                   self.ai.world[self.ai.pos].objects[zp.ObjectType.PLAYER] + 1, "currently")
             self.ai.look()
-        fns = [self._queen_elevate_1, self._queen_elevate_2_3, self._queen_elevate_2_3, self._queen_elevate_3,
-               self._queen_elevate_4]
+        fns = [self._queen_elevate_1, self._queen_elevate_2_3, self._queen_elevate_2_3, self._queen_elevate_4_5,
+               self._queen_elevate_4_5]
         fns[self.ai.level - 1]()
 
     def queen(self) -> None:

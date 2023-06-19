@@ -64,6 +64,7 @@ class AI:
         print("\033[1;31m==> ERROR:", data)
         self._buffer = []
         self._messages = []
+        self.recv(False)
 
     def add_message(self, msg: 'Message') -> None:
         self.msg_handler = msg
