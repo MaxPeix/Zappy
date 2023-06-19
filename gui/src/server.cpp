@@ -56,7 +56,7 @@ int GUI::connectToServer()
     this->clientSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (this->clientSocket == -1) {
         std::cerr << "Failed to create socket." << std::endl;
-        return 1;
+        exit(84);
     }
 
     std::string serverIP = this->machine;
@@ -72,14 +72,14 @@ int GUI::connectToServer()
     if (connect(this->clientSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1) {
         std::cerr << "Failed to connect to the server." << std::endl;
         close(this->clientSocket);
-        return 1;
+        exit(84);
     }
 
     const char *command = "GRAPHIC\n";
     if (send(this->clientSocket, command, strlen(command), 0) == -1) {
         std::cerr << "Failed to send command to the server." << std::endl;
         close(this->clientSocket);
-        return 1;
+        exit(84);
     }
 
     char buffer[BUFFER_SIZE] = {0};
@@ -87,14 +87,14 @@ int GUI::connectToServer()
     if (recv(this->clientSocket, buffer, BUFFER_SIZE, 0) == -1) {
         std::cerr << "Failed to receive data from the server." << std::endl;
         close(this->clientSocket);
-        return 1;
+        exit(84);
     }
     char buffer1[BUFFER_SIZE] = {0};
     memset(buffer1, 0, BUFFER_SIZE);
     if (recv(this->clientSocket, buffer1, BUFFER_SIZE, 0) == -1) {
         std::cerr << "Failed to receive data from the server." << std::endl;
         close(this->clientSocket);
-        return 1;
+        exit(84);
     }
 
     int x = 0, y = 0, sgt = 0;
