@@ -201,6 +201,7 @@ class AI:
         try:
             self._level = int(msg[len(utils.ELEVATION_SUCCESS):])
             print("New level: ", self._level)
+            os.system("notify-send 'New level (" + str(self.id) + "): " + str(self._level) + "'")
         except ValueError:
             return self.connection_error(msg)
         self.elevation = False
@@ -253,11 +254,11 @@ class AI:
             return self.connection_error(data)
         self._world = zp.World(zp.Size(res[1][1], res[1][0]))
 
-    @staticmethod
-    def _get_objects(data: str) -> list[zp.Resources]:
+    def _get_objects(self, data: str) -> list[zp.Resources]:
         objects: list[zp.Resources] = []
         if not data.startswith("[") or not data.endswith("]"):
-            raise ValueError("Invalid message: " + data)
+            self.connection_error(data)
+            return
         tmp: list[str | None] = data[2:-2].split(",")
         for i in range(len(tmp)):
             if tmp[i] == "None":
@@ -343,6 +344,8 @@ class AI:
                     self._world[(pos[0], pos[1])] = zp.Tile(True, res.pop(0))
                     dump.append((zp.Pos(pos[0], pos[1]), self._world[(pos[0], pos[1])].objects))
                 except IndexError:
+                    pass
+                except AttributeError:
                     pass
         return dump
 

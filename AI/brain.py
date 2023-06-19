@@ -77,6 +77,11 @@ class Brain:
         self.ai.draw_map()
 
     def dying(self, evt: zp.Evt, go_back: bool = True) -> None:
+        if self.ai.elevation:
+            if self._status[-1] == zp.Status.DYING:
+                self.change_status()
+            self.take(zp.ObjectType.FOOD)
+            return
         if self._status[-1] == zp.Status.DYING and not self.ai.inventory.food < self.food_wanted // 2:
             self.change_status()
             return
@@ -475,6 +480,7 @@ class Brain:
         self.ai.food_wanted = 4
         while True:
             self.change_status(zp.Status.NOTHING)
+            print(">>> QUEEN")
             self.master_anti_starving()
             self.ai.check_inventory()
             if self.can_elevate():
@@ -679,10 +685,8 @@ def recv_elevate(msg: Message, direction: zp.Direction, data: dict) -> None:
     while msg.brain.ai.level == current_lvl:
         print(utils.CYAN)
         msg.brain.ai.check_inventory()
-        if msg.brain.ai.inventory.food < 3:
-            if not msg.brain.ai.take(zp.ObjectType.FOOD):
-                msg.brain.go_where(zp.ObjectType.FOOD, True)
-                msg.brain.goto(zp.Pos(5, 5))
+        if msg.brain.ai.inventory.food < 4:
+            msg.brain.take(zp.ObjectType.FOOD)
     msg.brain.change_status()
 
 
