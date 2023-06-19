@@ -319,44 +319,31 @@ class Brain:
         print("master found")
         while not self.ai.master_found:
             self.find_master()
-        # if self.ai.id == 1:
-        #     zone: tuple[zp.Pos, zp.Pos] = (
-        #         zp.Pos(0, 0), zp.Pos((self.ai.world.size.height - 1) // 2, (self.ai.world.size.width - 1) // 2))
-        # elif self.ai.id == 2:
-        #     zone: tuple[zp.Pos, zp.Pos] = (
-        #         zp.Pos(0, (self.ai.world.size.width - 1) // 2), zp.Pos((self.ai.world.size.height - 1) // 2,
-        #                                                                self.ai.world.size.width - 1))
-        # elif self.ai.id == 3:
-        #     zone: tuple[zp.Pos, zp.Pos] = (
-        #         zp.Pos((self.ai.world.size.height - 1) // 2, 0), zp.Pos(self.ai.world.size.height - 1,
-        #                                                                 (self.ai.world.size.width - 1) // 2))
-        # elif self.ai.id == 4:
-        #     zone: tuple[zp.Pos, zp.Pos] = (
-        #         zp.Pos((self.ai.world.size.height - 1) // 2, (self.ai.world.size.width - 1) // 2),
-        #         zp.Pos(self.ai.world.size.height - 1, self.ai.world.size.width - 1))
-        # else:
-        #     print("error: id not found")
-        #     exit(0)
         self.drop_all()
         while True:
+            if self.ai.level > 5 and self.ai.id > 4:
+                self.goto(zp.Pos(5, 5))
+                self.die()
             self.change_status(zp.Status.MOVING)
             self.change_status(zp.Status.SEARCHING)
-            # FIXME: cartography is not working
-            # self.cartography(zone[0], zone[1])
             self.goto(zp.Pos(random.randint(0, self.ai.world.size.height - 1),
                              random.randint(0, self.ai.world.size.width - 1)), True)
-            # self.goto(zp.Pos(random.randint(0, self.ai.world.size.height - 1),
-            #                  random.randint(0, self.ai.world.size.width - 1)), True)
-            # while self.ai.inventory.food < self.food_wanted and ret > 0:
-            #     ret -= 1
-            #     print("food:", self.ai.inventory.food, "wanted:", self.food_wanted)
-            #     if not self.go_where(zp.ObjectType.FOOD, True, 0):
-            #         print("no food found")
-            #         break
             self.change_status()
             self.goto(zp.Pos(5, 5), True)
             self.drop_all()
             self.change_status()
+
+    def die(self) -> None:
+        self.ai.check_inventory()
+        self.drop_all(False)
+        try:
+            self.forward()
+            self.forward()
+            while True:
+                self.ai.check_inventory()
+        except TimeoutError:
+            print("Successfully died !")
+            exit(0)
 
     def find_master(self) -> None:
         while not self.ai.run_message("ping master", self.ai.master_id):
@@ -374,14 +361,7 @@ class Brain:
             self.ai._pos = zp.Pos(5, 5)
             self.ai.master_found = True
             if self.ai.id > 6:
-                self.ai.check_inventory()
-                self.drop_all(False)
-                while True:
-                    try:
-                        self.ai.check_inventory()
-                    except TimeoutError:
-                        print("Successfully died !")
-                        exit(0)
+                self.die()
             if self.ai.id == 0:
                 self.queen()
 
@@ -729,7 +709,7 @@ def send_elevate(msg: Message, *args, **kwargs) -> str | None:
     return "ready"
 
 
-def recv_incantation(msg: Message, direction: zp.Direction, data: dict, recursion: int = 2) -> None:
+def recv_incantation(msg: Message, direction: zp.Direction, data: dict, recursion: int = 3) -> None:
     if msg.brain.ai.role is None or data["ans"]:
         return
     print(utils.BLUE)
@@ -751,7 +731,8 @@ def recv_incantation(msg: Message, direction: zp.Direction, data: dict, recursio
         while msg.brain.ai.world[msg.brain.ai.pos].objects.player < ai.OBJECTIVES[msg.brain.ai.level - 1].player:
             msg.brain.ai.look()
         try:
-            msg.brain.ai.incantation(False)
+            if not msg.brain.ai.incantation(False):
+                raise ValueError("incantation failed")
         except ValueError:
             if recursion > 0:
                 print("incantation failed, retrying...")
