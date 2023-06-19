@@ -8,17 +8,17 @@
 #ifndef SERVER_H_
     #define SERVER_H_
 
-#include <arpa/inet.h>
-#include <errno.h>
-#include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/select.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <stdbool.h>
-#include <time.h>
+    #include <arpa/inet.h>
+    #include <errno.h>
+    #include <netinet/in.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include <sys/select.h>
+    #include <sys/socket.h>
+    #include <unistd.h>
+    #include <stdbool.h>
+    #include <time.h>
 
     #define MAX_CLIENTS 30
     #define BUFFER_SIZE 4096
@@ -50,6 +50,8 @@
         char *name;
         char **args;
         time_t execution_time;
+        int executed;
+        struct command *next;
     } command_t;
 
     typedef struct client {
@@ -70,7 +72,7 @@
         int phiras;
         int thystame;
         int is_connected;
-        command_t* commands;
+        command_t *commands;
         int command_count;
         int is_dead;
         time_t food_losing_timer;
@@ -113,17 +115,14 @@ bool check_stone(tile_t *tile, int level);
 // msprintf function
 char *msprintf(const char *format, ...);
 
+// free command
+void free_command(command_t *command);
+
 // free command args
 void free_command_args(char **args);
 
 // duplicate args
 char **duplicate_args(char **args);
-
-// remove executed command
-void remove_executed_command(client_t *client, int command_index);
-
-// add command to client
-void add_command_to_client(client_t *client, command_t *new_command);
 
 // Vérifie les erreurs de la ligne de commande
 int check_errors(int argc, char **argv, server_params_t params);
@@ -304,7 +303,7 @@ void check_death_player(client_t *clients,
 
 // handle client request
 void handle_client_request(client_t *clients,
-    char *buffer, int i, server_params_t *server_params);
+    char *buffer, client_t *client, server_params_t *server_params);
 
 // create new command
 command_t *create_new_command(char **args, server_params_t *server_params);
