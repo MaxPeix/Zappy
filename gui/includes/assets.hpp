@@ -68,4 +68,5 @@ class Assets {
         sf::RectangleShape leftrectangle3;
         sf::Texture tileTexture;
         std::vector<std::vector<sf::Sprite>> tiles;
+        sf::Clock clock;
 };

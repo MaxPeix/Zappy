@@ -133,6 +133,7 @@ void Assets::init_assets(int height, int width)
     this->egg_texture.loadFromFile("assets/egg.png");
     this->egg_sprite.setTexture(egg_texture);
     this->egg_sprite.setOrigin(sf::Vector2f(this->egg_texture.getSize().x / 2, this->egg_texture.getSize().y / 2));
+    this->clock = sf::Clock();
 }
 
 void Assets::create_player(int x, int y, int n, int o, std::string team, std::vector<std::string> teams)

@@ -24,6 +24,8 @@ void GUI::init_game()
     this->assets = Assets();
     this->assets.init_assets(this->height, this->width);
     this->assets.text_sgt.setString(std::to_string(this->sgt));
+
+    this->tna_cmd = ask_server("tna\n");
 }
 
 void GUI::check_event()
@@ -34,8 +36,9 @@ void GUI::check_event()
     std::string player_level = "";
     std::string player_inventory = "";
 
-    server_response = ask_server("tna\n");
-    draw_cmd(server_response);
+    if (this->assets.clock.getElapsedTime().asMilliseconds() <= 1000 / this->sgt) {
+        return;
+    }
     for (auto &monster_sprite : assets.monster_sprites) {
         player_position = ask_server("ppo " + std::to_string(monster_sprite.first) + "\n");
         draw_cmd(player_position);
@@ -83,6 +86,7 @@ void GUI::check_event()
             }
         }
     }
+    this->assets.clock.restart();
 }
 
 void GUI::game_loop()
