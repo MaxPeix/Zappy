@@ -504,13 +504,22 @@ class Brain:
         print("queen")
         self.ai.role = zp.Role.QUEEN
         self.ai.food_wanted = 4
+        cycle: int = ai.INCANTATION_RATE
+        incantation_lock: bool = False
         while True:
             self.change_status(zp.Status.NOTHING)
             print(">>> QUEEN")
             self.master_anti_starving()
-            self.ai.check_inventory()
+            if incantation_lock:
+                print(f">>> Incantation locked for {cycle} cycles")
+                cycle -= 1
+                if cycle <= 0:
+                    incantation_lock = False
+                    cycle = ai.INCANTATION_RATE
             if self.can_elevate():
-                self.queen_elevate()
+                if not incantation_lock:
+                    self.queen_elevate()
+                    incantation_lock = True
             # if self.ai.connect_nbr() == 0:
             #     self.ai.fork()
             if self.ai.inventory.food < self.food_wanted:
@@ -720,7 +729,7 @@ def send_elevate(msg: Message, *args, **kwargs) -> str | None:
     return "ready"
 
 
-def recv_incantation(msg: Message, direction: zp.Direction, data: dict) -> None:
+def recv_incantation(msg: Message, direction: zp.Direction, data: dict, recursion: int = 2) -> None:
     if msg.brain.ai.role is None or data["ans"]:
         return
     print(utils.BLUE)
@@ -741,7 +750,15 @@ def recv_incantation(msg: Message, direction: zp.Direction, data: dict) -> None:
         msg.brain.ai.look()
         while msg.brain.ai.world[msg.brain.ai.pos].objects.player < ai.OBJECTIVES[msg.brain.ai.level - 1].player:
             msg.brain.ai.look()
-        msg.brain.ai.incantation(False)
+        try:
+            msg.brain.ai.incantation(False)
+        except ValueError:
+            if recursion > 0:
+                print("incantation failed, retrying...")
+                msg.brain.goto(zp.Pos(5, 5))
+                recv_incantation(msg, direction, data, recursion - 1)
+            else:
+                raise ValueError("incantation failed, aborting...")
 
 
 def send_incantation(msg: Message, *args, **kwargs) -> str | None:
