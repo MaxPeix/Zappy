@@ -319,24 +319,24 @@ class Brain:
         print("master found")
         while not self.ai.master_found:
             self.find_master()
-        if self.ai.id == 1:
-            zone: tuple[zp.Pos, zp.Pos] = (
-                zp.Pos(0, 0), zp.Pos((self.ai.world.size.height - 1) // 2, (self.ai.world.size.width - 1) // 2))
-        elif self.ai.id == 2:
-            zone: tuple[zp.Pos, zp.Pos] = (
-                zp.Pos(0, (self.ai.world.size.width - 1) // 2), zp.Pos((self.ai.world.size.height - 1) // 2,
-                                                                       self.ai.world.size.width - 1))
-        elif self.ai.id == 3:
-            zone: tuple[zp.Pos, zp.Pos] = (
-                zp.Pos((self.ai.world.size.height - 1) // 2, 0), zp.Pos(self.ai.world.size.height - 1,
-                                                                        (self.ai.world.size.width - 1) // 2))
-        elif self.ai.id == 4:
-            zone: tuple[zp.Pos, zp.Pos] = (
-                zp.Pos((self.ai.world.size.height - 1) // 2, (self.ai.world.size.width - 1) // 2),
-                zp.Pos(self.ai.world.size.height - 1, self.ai.world.size.width - 1))
-        else:
-            print("error: id not found")
-            exit(0)
+        # if self.ai.id == 1:
+        #     zone: tuple[zp.Pos, zp.Pos] = (
+        #         zp.Pos(0, 0), zp.Pos((self.ai.world.size.height - 1) // 2, (self.ai.world.size.width - 1) // 2))
+        # elif self.ai.id == 2:
+        #     zone: tuple[zp.Pos, zp.Pos] = (
+        #         zp.Pos(0, (self.ai.world.size.width - 1) // 2), zp.Pos((self.ai.world.size.height - 1) // 2,
+        #                                                                self.ai.world.size.width - 1))
+        # elif self.ai.id == 3:
+        #     zone: tuple[zp.Pos, zp.Pos] = (
+        #         zp.Pos((self.ai.world.size.height - 1) // 2, 0), zp.Pos(self.ai.world.size.height - 1,
+        #                                                                 (self.ai.world.size.width - 1) // 2))
+        # elif self.ai.id == 4:
+        #     zone: tuple[zp.Pos, zp.Pos] = (
+        #         zp.Pos((self.ai.world.size.height - 1) // 2, (self.ai.world.size.width - 1) // 2),
+        #         zp.Pos(self.ai.world.size.height - 1, self.ai.world.size.width - 1))
+        # else:
+        #     print("error: id not found")
+        #     exit(0)
         self.drop_all()
         while True:
             self.change_status(zp.Status.MOVING)
@@ -373,7 +373,7 @@ class Brain:
             self.turn(zp.Direction.N)
             self.ai._pos = zp.Pos(5, 5)
             self.ai.master_found = True
-            if self.ai.id > 4:
+            if self.ai.id > 6:
                 self.ai.check_inventory()
                 self.drop_all(False)
                 while True:
@@ -396,7 +396,7 @@ class Brain:
                 continue
             for _ in range(self.ai.inventory[resource]):
                 if resource == zp.ObjectType.FOOD and (
-                        self.ai.inventory.food <= (8 if self.ai.elevation else 6) or self.ai.elevation) and survive:
+                        self.ai.inventory.food <= (8 if self.ai.elevation else 5) or self.ai.elevation) and survive:
                     continue
                 self.ai.set(resource)
 
@@ -423,20 +423,26 @@ class Brain:
                 return False
         return True
 
+    @property
+    def nb_players(self) -> int:
+        if self.ai.level < 6:
+            return 8
+        return 6
+
     def _queen_get_resources(self) -> zp.Resources:
         resources: zp.Resources = zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)
         for resource in self.ai.world[self.ai.pos].objects:
             if resource == zp.ObjectType.PLAYER:
                 continue
-            resources[resource] = ai.OBJECTIVES[self.ai.level - 1][resource] * 6 // (
+            resources[resource] = ai.OBJECTIVES[self.ai.level - 1][resource] * self.nb_players // (
                 ai.OBJECTIVES[self.ai.level - 1][zp.ObjectType.PLAYER] if ai.OBJECTIVES[self.ai.level - 1][
                                                                               zp.ObjectType.PLAYER] > 0 else 1)
         return resources
 
     def _queen_elevate_1(self) -> None:
-        for id in range(1, 6):
+        for current_id in range(1, 7):
             self.ai.broadcast(
-                self.ai.msg_handler["incantation"].to_json(False, id, direction=zp.Direction.TOP, carrier=True))
+                self.ai.msg_handler["incantation"].to_json(False, current_id, direction=zp.Direction.TOP, carrier=True))
         self.ai.broadcast(
             self.ai.msg_handler["incantation"].to_json(False, self.ai.master_id, direction=zp.Direction.TOP,
                                                        carrier=True))
@@ -454,6 +460,11 @@ class Brain:
             self.ai.msg_handler["incantation"].to_json(False, 4, direction=zp.Direction.E, carrier=False))
 
         self.ai.broadcast(
+            self.ai.msg_handler["incantation"].to_json(False, 5, direction=zp.Direction.W, carrier=True))
+        self.ai.broadcast(
+            self.ai.msg_handler["incantation"].to_json(False, 6, direction=zp.Direction.W, carrier=False))
+
+        self.ai.broadcast(
             self.ai.msg_handler["incantation"].to_json(False, self.ai.master_id, direction=zp.Direction.TOP,
                                                        carrier=False))
         self.ai.incantation(False)
@@ -467,8 +478,9 @@ class Brain:
     def queen_elevate(self) -> None:
         self.ai.broadcast(self.ai.msg_handler["elevate"].to_json(False))
         self.ai.look()
-        while self.ai.world[self.ai.pos].objects[zp.ObjectType.PLAYER] < 5:
-            print("waiting for 6 players", self.ai.world[self.ai.pos].objects[zp.ObjectType.PLAYER], "currently")
+        while self.ai.world[self.ai.pos].objects[zp.ObjectType.PLAYER] < self.nb_players - 1:
+            print("waiting for", self.nb_players, "players",
+                  self.ai.world[self.ai.pos].objects[zp.ObjectType.PLAYER] + 1, "currently")
             self.ai.look()
         fns = [self._queen_elevate_1, self._queen_elevate_2_3, self._queen_elevate_2_3, self._queen_elevate_3,
                self._queen_elevate_4]
