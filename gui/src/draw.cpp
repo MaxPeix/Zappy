@@ -133,20 +133,38 @@ void GUI::draw_ppo(std::string cmd)
         position.second.erase(std::remove(position.second.begin(), position.second.end(), id), position.second.end());
     players_positions[newPosition].push_back(id);
 
-    if (players_positions[newPosition].size() > 1) {
-        float scale_factor = 0.5 / players_positions[newPosition].size();
-        float displacement = this->assets.box_size / 4;
-        int i = 0;
-        for (auto playerId : players_positions[newPosition]) {
-            this->assets.monster_sprites[playerId].first.setScale(scale_factor, scale_factor);
-            this->assets.monster_sprites[playerId].first.setPosition((x * this->assets.box_size + this->assets.rectangle_width + this->assets.box_size / 2) + (i == 0 ? -displacement : displacement), y * this->assets.box_size + this->assets.box_size / 2);
-            i++;
-        }
-    } else {
-        this->assets.monster_sprites[id].first.setScale(0.5, 0.5);
-        this->assets.monster_sprites[id].first.setPosition(x * this->assets.box_size + this->assets.rectangle_width + this->assets.box_size / 2, y * this->assets.box_size + this->assets.box_size / 2);
-    }
+    int player_count = players_positions[newPosition].size();
+    float scale_factor = 0.5;
+    if(player_count > 1)
+        scale_factor = 0.25;
 
+    int displacement = this->assets.box_size / 4;
+    int index = 0;
+    for (auto playerId : players_positions[newPosition]) {
+        this->assets.monster_sprites[playerId].first.setScale(scale_factor, scale_factor);
+        
+        if (player_count > 1) {
+            switch(index) {
+                case 0:
+                    this->assets.monster_sprites[playerId].first.setPosition((x * this->assets.box_size + this->assets.rectangle_width + this->assets.box_size / 2) - displacement, y * this->assets.box_size + this->assets.box_size / 2 - displacement);
+                    break;
+                case 1:
+                    this->assets.monster_sprites[playerId].first.setPosition((x * this->assets.box_size + this->assets.rectangle_width + this->assets.box_size / 2) + displacement, y * this->assets.box_size + this->assets.box_size / 2 - displacement);
+                    break;
+                case 2:
+                    this->assets.monster_sprites[playerId].first.setPosition((x * this->assets.box_size + this->assets.rectangle_width + this->assets.box_size / 2) - displacement, y * this->assets.box_size + this->assets.box_size / 2 + displacement);
+                    break;
+                case 3:
+                    this->assets.monster_sprites[playerId].first.setPosition((x * this->assets.box_size + this->assets.rectangle_width + this->assets.box_size / 2) + displacement, y * this->assets.box_size + this->assets.box_size / 2 + displacement);
+                    break;
+                default:
+                    break;
+            }
+            index++;
+        } else {
+            this->assets.monster_sprites[playerId].first.setPosition(x * this->assets.box_size + this->assets.rectangle_width + this->assets.box_size / 2, y * this->assets.box_size + this->assets.box_size / 2);
+        }
+    }
     if (o == 1)
         this->assets.monster_sprites[id].first.setRotation(180);
     else if (o == 2)
