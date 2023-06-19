@@ -27,7 +27,7 @@ class Brain:
         self.change_status(zp.Status.SEARCHING)
 
     def log_status(self) -> None:
-        if self._status[-1] == zp.Status.DYING:
+        if self._status[-1] == zp.Status.DYING or self._status[-1] == zp.Status.HEALING:
             print(utils.RED, end="")
         elif self._status[-1] == zp.Status.SEARCHING:
             print(utils.GREEN, end="")
@@ -53,6 +53,8 @@ class Brain:
                 while self.ai.world[self.ai.pos].objects[zp.ObjectType.FOOD] > 0 and \
                         self.ai.inventory.food < self.food_wanted + 5:
                     self.take(zp.ObjectType.FOOD)
+        if self._status[-1] == zp.Status.HEALING:
+            self.healing(evt)
         if self.ai.inventory[zp.ObjectType.FOOD] < 3:
             self.dying(evt)
         if self._status[-1] == zp.Status.SEARCHING:
@@ -75,16 +77,30 @@ class Brain:
         self.ai.draw_map()
 
     def dying(self, evt: zp.Evt, go_back: bool = True) -> None:
-        self.change_status(zp.Status.DYING)
+        if self._status[-1] == zp.Status.DYING and not self.ai.inventory.food < self.food_wanted // 2:
+            self.change_status()
+            return
+        self.change_status(zp.Status.HEALING)
         prev_pos = self.ai.pos
         prev_dir = self.ai.direction
         while self.ai.inventory.food < self.food_wanted // 2:
-            self.go_where(zp.ObjectType.FOOD, True)
-            self.take(zp.ObjectType.FOOD)
+            # if not self.go_where(zp.ObjectType.FOOD, True, 0):
+            self.ai.look()
+            for (pos, resources) in self._vision:
+                for resource in resources:
+                    if resource != zp.ObjectType.FOOD:
+                        continue
+                    self._go_take(pos, zp.Resources(self.food_wanted // 2, 0, 0, 0, 0, 0, 0, 0), True)
+            if random.randint(0, 4) == 0:
+                self.ai.right()
+            self.forward()
         if go_back:
             self.goto(prev_pos)
             self.turn(prev_dir)
         self.change_status()
+
+    def healing(self, evt: zp.Evt) -> None:
+        print("inventory:", self.ai.inventory)
 
     def take_max(self, resource: zp.ObjectType, pos: zp.Pos, max_item: int) -> None:
         if self.ai.world[pos].objects[resource] > 0 and self.ai.inventory[resource] < max_item:
@@ -117,7 +133,7 @@ class Brain:
                 for resource in resources:
                     if resource == zp.ObjectType.PLAYER:
                         continue
-                    self._go_take(pos, zp_ai.OBJECTIVES[lvl - 1], False)
+                    self._go_take(pos, zp_ai.OBJECTIVES[lvl - 1], True)
 
     def searching(self, evt: zp.Evt) -> None:
         if not self.ai.world[self.ai.pos].known:
@@ -168,6 +184,14 @@ class Brain:
         self.forward()
 
     def goto(self, pos: zp.Pos, look: bool = False) -> None:
+        while pos.y >= self.ai.world.size.height:
+            pos.y -= self.ai.world.size.height
+        if pos.y < 0:
+            pos.y = 0
+        while pos.x >= self.ai.world.size.width:
+            pos.x -= self.ai.world.size.width
+        if pos.x < 0:
+            pos.x = 0
         while self.ai.pos != pos:
             print("current:", self.ai.pos)
             print("target:", pos)
@@ -310,10 +334,12 @@ class Brain:
             exit(0)
         self.drop_all()
         while True:
+            self.change_status(zp.Status.MOVING)
             self.change_status(zp.Status.SEARCHING)
-            ret: int = 5
             # FIXME: cartography is not working
             # self.cartography(zone[0], zone[1])
+            self.goto(zp.Pos(random.randint(0, self.ai.world.size.height - 1),
+                             random.randint(0, self.ai.world.size.width - 1)), True)
             self.goto(zp.Pos(random.randint(0, self.ai.world.size.height - 1),
                              random.randint(0, self.ai.world.size.width - 1)), True)
             # while self.ai.inventory.food < self.food_wanted and ret > 0:
@@ -325,6 +351,7 @@ class Brain:
             self.change_status()
             self.goto(zp.Pos(5, 5), True)
             self.drop_all()
+            self.change_status()
 
     def find_master(self) -> None:
         while not self.ai.run_message("ping master", self.ai.master_id):
@@ -360,9 +387,11 @@ class Brain:
 
     def drop_all(self, survive: bool = True) -> None:
         for resource in self.ai.inventory:
+            if resource == zp.ObjectType.PLAYER:
+                continue
             for _ in range(self.ai.inventory[resource]):
                 if resource == zp.ObjectType.FOOD and (
-                        self.ai.inventory.food <= (self.food_wanted // 4) * 3 or self.ai.elevation) and survive:
+                        self.ai.inventory.food <= (8 if self.ai.elevation else 6) or self.ai.elevation) and survive:
                     continue
                 self.ai.set(resource)
 
@@ -371,7 +400,7 @@ class Brain:
             if resource == zp.ObjectType.PLAYER:
                 continue
             while self.ai.inventory[resource] < resources[resource]:
-                if not self.ai.take(resource):
+                if not self.take(resource):
                     return False
         return True
 
@@ -380,7 +409,7 @@ class Brain:
         self.ai.look()
         resources: zp.Resources = self._queen_get_resources()
         print("world:", self.ai.world[self.ai.pos].objects)
-        print("level:", ai.OBJECTIVES[self.ai.level - 1])
+        print("level:", resources)
 
         for resource in self.ai.world[self.ai.pos].objects:
             if resource == zp.ObjectType.PLAYER:
@@ -408,8 +437,21 @@ class Brain:
                                                        carrier=True))
         self.ai.incantation(False)
 
-    def _queen_elevate_2(self) -> None:
-        pass
+    def _queen_elevate_2_3(self) -> None:
+        self.ai.broadcast(
+            self.ai.msg_handler["incantation"].to_json(False, 1, direction=zp.Direction.N, carrier=True))
+        self.ai.broadcast(
+            self.ai.msg_handler["incantation"].to_json(False, 2, direction=zp.Direction.N, carrier=False))
+
+        self.ai.broadcast(
+            self.ai.msg_handler["incantation"].to_json(False, 3, direction=zp.Direction.E, carrier=True))
+        self.ai.broadcast(
+            self.ai.msg_handler["incantation"].to_json(False, 4, direction=zp.Direction.E, carrier=False))
+
+        self.ai.broadcast(
+            self.ai.msg_handler["incantation"].to_json(False, self.ai.master_id, direction=zp.Direction.TOP,
+                                                       carrier=False))
+        self.ai.incantation(False)
 
     def _queen_elevate_3(self) -> None:
         pass
@@ -423,16 +465,17 @@ class Brain:
         while self.ai.world[self.ai.pos].objects[zp.ObjectType.PLAYER] < 5:
             print("waiting for 6 players", self.ai.world[self.ai.pos].objects[zp.ObjectType.PLAYER], "currently")
             self.ai.look()
-        fns = [self._queen_elevate_1, self._queen_elevate_2, self._queen_elevate_3, self._queen_elevate_4]
+        fns = [self._queen_elevate_1, self._queen_elevate_2_3, self._queen_elevate_2_3, self._queen_elevate_3,
+               self._queen_elevate_4]
         fns[self.ai.level - 1]()
 
     def queen(self) -> None:
         print("queen")
         self.ai.role = zp.Role.QUEEN
         self.ai.food_wanted = 4
-        self.change_status(zp.Status.NOTHING)
         while True:
-            print(utils.YELLOW)
+            self.change_status(zp.Status.NOTHING)
+            self.master_anti_starving()
             self.ai.check_inventory()
             if self.can_elevate():
                 self.queen_elevate()
@@ -440,6 +483,17 @@ class Brain:
             #     self.ai.fork()
             if self.ai.inventory.food < self.food_wanted:
                 self.take(zp.ObjectType.FOOD)
+            self.change_status()
+
+    def master_anti_starving(self, check_inventory: bool = True) -> None:
+        if self.ai.inventory.food > 4 or self.ai.world[self.ai.pos].objects[zp.ObjectType.FOOD] > 0:
+            return
+        if check_inventory:
+            self.ai.check_inventory()
+            self.ai.look()
+            self.master_anti_starving(False)
+            return
+        self.ai.broadcast(self.ai.msg_handler["starving"].to_json(False))
 
     def run(self) -> None:
         # TODO: check if map already cartography
@@ -452,6 +506,7 @@ class Brain:
         self.change_status(zp.Status.NOTHING)
         while True:
             print(utils.WHITE)
+            self.master_anti_starving()
             self.ai.broadcast(self.ai.msg_handler["ping master"].to_json(False))
             if self.ai.inventory.food > self.food_wanted:
                 self.ai.check_inventory()
@@ -510,6 +565,7 @@ class Message:
         self["orientation master"] = (recv_orientation_master, send_orientation_master)
         self["elevate"] = (recv_elevate, send_elevate)
         self["incantation"] = (recv_incantation, send_incantation)
+        self["starving"] = (recv_starving, send_starving)
 
     def __getitem__(self, item):
         return self.HANDLERS[item]
@@ -640,12 +696,21 @@ def recv_incantation(msg: Message, direction: zp.Direction, data: dict) -> None:
     print(utils.BLUE)
     direction: zp.Direction = zp.Direction(int(data["data"]["direction"]))
     carrier: bool = bool(data["data"]["carrier"])
+    while msg.brain.ai.inventory.food < 4:
+        if not msg.brain.ai.take(zp.ObjectType.FOOD):
+            break
     if carrier and direction != zp.Direction.TOP:
+        for _ in range(7):
+            msg.brain.ai.check_inventory()
         msg.brain.take_resources(ai.OBJECTIVES[msg.brain.ai.level - 1])
     if direction != zp.Direction.TOP:
+        msg.brain.turn(direction)
         msg.brain.forward()
+    msg.brain.drop_all()
     if carrier:
-        msg.brain.ai.incantation(direction != zp.Direction.TOP)
+        # msg.brain.ai.incantation(direction != zp.Direction.TOP) # FIXME: drop item not working
+        # below is a fix to that (we just drop before incantation)
+        msg.brain.ai.incantation(False)
 
 
 def send_incantation(msg: Message, *args, **kwargs) -> str | None:
@@ -655,3 +720,16 @@ def send_incantation(msg: Message, *args, **kwargs) -> str | None:
         "direction": direction.value,
         "carrier": carrier
     })
+
+
+def recv_starving(msg: Message, direction: zp.Direction, data: dict) -> None:
+    if msg.brain.ai.role != zp.Role.WORKER:
+        return
+    if msg.brain.ai.inventory.food < 6:
+        return
+    msg.brain.goto(zp.Pos(5, 5))
+    msg.brain.drop_all()
+
+
+def send_starving(msg: Message, *args, **kwargs) -> str | None:
+    return "starving"

@@ -16,7 +16,7 @@ OBJECTIVES = [
     zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)  # Last one must be empty
 ]
 
-FOOD_WANTED = 12
+FOOD_WANTED = 10
 
 LVL_MAX = len(OBJECTIVES) - 1
 
@@ -112,6 +112,7 @@ class AI:
         print(self._world.__str__((self._pos, self._direction)))
         print(str(self._inventory))
         print("pos:", self.pos)
+        print("lvl:", self._level)
 
     def parse_msg(self, line: str) -> tuple[zp.Direction, str] | None:
         try:
@@ -121,7 +122,7 @@ class AI:
             return self.connection_error(line)
         return direction, line[(len(utils.BROADCAST_MSG_START) + 2):]
 
-    def exec_buffer(self) -> None:
+    def _exec_msg(self) -> None:
         len_msgs: int = len(self._messages)
         while 0 < len_msgs:
             try:
@@ -133,6 +134,23 @@ class AI:
             except KeyError:
                 pass
             len_msgs -= 1
+
+    def _exec_elevation(self) -> None:
+        len_buf: int = len(self._buffer)
+        while 0 < len_buf:
+            try:
+                current = self._buffer.pop(0)
+            except IndexError:
+                return
+            if current == utils.ELEVATION_UNDERWAY:
+                self.elevate()
+            elif current.startswith(utils.ELEVATION_SUCCESS):
+                self.new_level(current)
+            len_buf -= 1
+
+    def exec_buffer(self) -> None:
+        self._exec_elevation()
+        self._exec_msg()
 
     def run_message(self, what: str, sender: int | None) -> bool:
         i: int = 0
@@ -170,14 +188,25 @@ class AI:
 
     def elevate(self) -> None:
         self._add_time(300)
-        res = self.recv()
-        if len(res) != 1 or not res[0].startswith(utils.ELEVATION_SUCCESS):
-            return self.connection_error(res)
+        print(utils.MAGENTA)
+        # res = self.recv(True, True)
+        # for msg in res:
+        #     if msg.startswith(utils.ELEVATION_SUCCESS):
+        #         self.new_level(msg)
+        #         return
+
+    def new_level(self, msg: str) -> None:
+        print(utils.BLUE)
+        print("==============================NEW LEVEL==============================")
         try:
-            self._level = int(res[0][len(utils.ELEVATION_SUCCESS):])
+            self._level = int(msg[len(utils.ELEVATION_SUCCESS):])
+            print("New level: ", self._level)
         except ValueError:
-            return self.connection_error(res)
+            return self.connection_error(msg)
         self.elevation = False
+        self.check_inventory()
+        while self.inventory.food < 7 and self.take(zp.ObjectType.FOOD):
+            pass
 
     def recv(self, exec_buffer: bool = True, incantation: bool = False) -> list[str]:
         i: int = 0
@@ -190,9 +219,12 @@ class AI:
                 len_data -= 1
                 raise TimeoutError("Dead")
             elif (not incantation) and data[i] == utils.ELEVATION_UNDERWAY:
-                data.pop(i)
+                self._buffer.append(data.pop(i))
                 len_data -= 1
-                self.elevate()
+                pass
+            elif (not incantation) and data[i].startswith(utils.ELEVATION_SUCCESS):
+                self._buffer.append(data.pop(i))
+                len_data -= 1
                 pass
             elif data[i].startswith(utils.BROADCAST_MSG_START):
                 msg = data.pop(i)
@@ -382,7 +414,7 @@ class AI:
             return self.connection_error(data)
 
     def take(self, resource: zp.ObjectType) -> bool:
-        if resource not in self._inventory:
+        if resource not in self._inventory or resource == zp.ObjectType.PLAYER:
             return False
         self._comm.send("Take " + str(resource) + "\n")
         self._add_time(7)
@@ -438,13 +470,14 @@ class AI:
         # if self._check_time(300) < 1:
         #     raise TimeoutError("Not enough time")
         self._comm.send("Incantation\n")
-        res = self.recv(True, True)
-        if res == [utils.KO]:
-            return False
-        if res != [utils.ELEVATION_UNDERWAY]:
-            self.connection_error(res)
-            return False
-        self.elevate()
+        # res = self.recv(True, True)
+        # if res == [utils.KO]:
+        #     return False
+        # for ans in res:
+        #     if ans == utils.ELEVATION_UNDERWAY:
+        #         self.elevate()
+        #         return True
+        # self.connection_error(res)
         return True
 
     def __dict__(self) -> dict:

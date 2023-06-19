@@ -83,6 +83,8 @@ class Direction(Enum):
             return "West"
         elif self == Direction.NW:
             return "North-West"
+        elif self == Direction.TOP:
+            return "Top"
         else:
             return "Unknown"
 
@@ -108,6 +110,7 @@ class Status(Enum):
     NOTHING = 1
     SEARCHING = 2
     MOVING = 3
+    HEALING = 4
 
 
 class Evt(Enum):
