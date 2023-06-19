@@ -73,4 +73,5 @@ class GUI {
         sf::RenderWindow window;
         sf::Event event;
         std::vector<int> evolving;
+        std::map<std::pair<int, int>, std::vector<int>> players_positions;
 };

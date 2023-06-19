@@ -182,4 +182,11 @@ void Assets::delete_egg(int e)
 
 Assets::~Assets()
 {
+    this->monster_sprites.clear();
+    this->egg_sprites.clear();
+    for(auto &tile: this->tiles)
+        tile.clear();
+    this->tiles.clear();
+    this->chat_messages_string.clear();
+    this->chat_texts.clear();
 }
