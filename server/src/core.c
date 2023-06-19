@@ -44,13 +44,12 @@ void execute_commands_if_ready(client_t *clients, client_t *client,
     if (!clients || !client || !server_params)
         return;
     command_t *tmp = client->commands;
-    while (tmp != NULL && tmp->executed == 1)
+    while (tmp != NULL) {
+        if (time(NULL) >= tmp->execution_time && tmp->executed == 0) {
+            handle_commands(clients, client, server_params, *tmp);
+            tmp->executed = 1;
+        }
         tmp = tmp->next;
-    if (tmp == NULL)
-        return;
-    if (time(NULL) >= tmp->execution_time && tmp->executed == 0) {
-        handle_commands(clients, client, server_params, *tmp);
-        tmp->executed = 1;
     }
 }
 
