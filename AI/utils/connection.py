@@ -66,9 +66,13 @@ class Comm:
             self.__logger.error("Not connected")
             raise ConnectionError("Not connected")
         res: list[str] = []
-        data: str = self._recv()
+        data: str = ""
+        while not data.endswith("\n"):
+            if data is None:
+                break
+            data += self._recv()
         if data is None:
-            return res
+            return []
         self.__logger.debug("Received data:")
         while len(data) > 0:
             current: str

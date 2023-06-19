@@ -43,13 +43,12 @@ class Brain:
             if self.ai.id in [1, 2, 3, 4] and self.ai.pos == zp.Pos(5, 5):
                 pass
             else:
-                while self.ai.world[self.ai.pos].objects[zp.ObjectType.FOOD] > 0:
+                while self.ai.world[self.ai.pos].objects[zp.ObjectType.FOOD] > 0 and \
+                        self.ai.inventory.food < self.food_wanted + 5:
                     self.take(zp.ObjectType.FOOD)
         if self.ai.inventory[zp.ObjectType.FOOD] < 3:
-            self.change_status(zp.Status.DYING)
-        if self._status == zp.Status.DYING:
             self.dying(evt)
-        elif self._status == zp.Status.SEARCHING:
+        if self._status == zp.Status.SEARCHING:
             self.searching(evt)
         elif self._status == zp.Status.MOVING:
             self.moving(evt)
@@ -67,17 +66,16 @@ class Brain:
         self.ai.draw_map()
 
     def dying(self, evt: zp.Evt, go_back: bool = True) -> None:
-        if self.ai.inventory.food < 10:
-            prev_pos = self.ai.pos
-            prev_dir = self.ai.direction
+        self.change_status(zp.Status.DYING)
+        prev_pos = self.ai.pos
+        prev_dir = self.ai.direction
+        while self.ai.inventory.food < self.food_wanted // 2:
             self.go_where(zp.ObjectType.FOOD, True)
             self.take(zp.ObjectType.FOOD)
-            self.dying(evt, False)
             if go_back:
                 self.goto(prev_pos)
                 self.turn(prev_dir)
-        else:
-            self.change_status(self._prev_status)
+        self.change_status(self._prev_status)
 
     def _searching(self, evt: zp.Evt, lvl: int) -> None:
         for resource in zp_ai.OBJECTIVES[lvl - 1]:
@@ -275,10 +273,18 @@ class Brain:
             exit(0)
         self.drop_all()
         while True:
+            ret: int = 5
+            print(utils.GREEN)
             # FIXME: cartography is not working
             # self.cartography(zone[0], zone[1])
             self.goto(zp.Pos(random.randint(0, self.ai.world.size.height - 1),
                              random.randint(0, self.ai.world.size.width - 1)), True)
+            # while self.ai.inventory.food < self.food_wanted and ret > 0:
+            #     ret -= 1
+            #     print("food:", self.ai.inventory.food, "wanted:", self.food_wanted)
+            #     if not self.go_where(zp.ObjectType.FOOD, True, 0):
+            #         print("no food found")
+            #         break
             self.goto(zp.Pos(5, 5), True)
             self.drop_all()
 
@@ -317,22 +323,60 @@ class Brain:
     def drop_all(self, survive: bool = True) -> None:
         for resource in self.ai.inventory:
             for _ in range(self.ai.inventory[resource]):
-                if resource == zp.ObjectType.FOOD and self.ai.inventory.food <= self.food_wanted and survive:
+                if resource == zp.ObjectType.FOOD and (self.ai.inventory.food <= (self.food_wanted // 4) * 3 or self.ai.elevation) and survive:
                     continue
                 self.ai.set(resource)
+
+    def take_resources(self, resources: zp.Resources) -> bool:
+        for resource in resources:
+            if resource == zp.ObjectType.PLAYER:
+                continue
+            while self.ai.inventory[resource] < resources[resource]:
+                if not self.ai.take(resource):
+                    return False
+        return True
 
     def can_elevate(self) -> bool:
         print(">>> can elevate ?")
         self.ai.look()
+        resources: zp.Resources = self._queen_get_resources()
         print("world:", self.ai.world[self.ai.pos].objects)
         print("level:", ai.OBJECTIVES[self.ai.level - 1])
 
         for resource in self.ai.world[self.ai.pos].objects:
             if resource == zp.ObjectType.PLAYER:
                 continue
-            if self.ai.world[self.ai.pos].objects[resource] < ai.OBJECTIVES[self.ai.level - 1][resource]:
+            if self.ai.world[self.ai.pos].objects[resource] < resources[resource]:
                 return False
         return True
+
+    def _queen_get_resources(self) -> zp.Resources:
+        resources: zp.Resources = zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)
+        for resource in self.ai.world[self.ai.pos].objects:
+            if resource == zp.ObjectType.PLAYER:
+                continue
+            resources[resource] = ai.OBJECTIVES[self.ai.level - 1][resource] * 6 // (
+                ai.OBJECTIVES[self.ai.level - 1][zp.ObjectType.PLAYER] if ai.OBJECTIVES[self.ai.level - 1][
+                                                                              zp.ObjectType.PLAYER] > 0 else 1)
+        return resources
+
+    def _queen_elevate_1(self) -> None:
+        for id in range(1, 6):
+            self.ai.broadcast(
+                self.ai.msg_handler["incantation"].to_json(False, id, direction=zp.Direction.TOP, carrier=True))
+        self.ai.broadcast(
+            self.ai.msg_handler["incantation"].to_json(False, self.ai.master_id, direction=zp.Direction.TOP,
+                                                       carrier=True))
+        self.ai.incantation(False)
+
+    def _queen_elevate_2(self) -> None:
+        pass
+
+    def _queen_elevate_3(self) -> None:
+        pass
+
+    def _queen_elevate_4(self) -> None:
+        pass
 
     def queen_elevate(self) -> None:
         self.ai.broadcast(self.ai.msg_handler["elevate"].to_json(False))
@@ -340,7 +384,8 @@ class Brain:
         while self.ai.world[self.ai.pos].objects[zp.ObjectType.PLAYER] < 5:
             print("waiting for 6 players", self.ai.world[self.ai.pos].objects[zp.ObjectType.PLAYER], "currently")
             self.ai.look()
-        self.ai.incantation(False)
+        fns = [self._queen_elevate_1, self._queen_elevate_2, self._queen_elevate_3, self._queen_elevate_4]
+        fns[self.ai.level - 1]()
 
     def queen(self) -> None:
         print("queen")
@@ -423,6 +468,7 @@ class Message:
         self["ping master"] = (recv_ping_master, send_ping_master)
         self["orientation master"] = (recv_orientation_master, send_orientation_master)
         self["elevate"] = (recv_elevate, send_elevate)
+        self["incantation"] = (recv_incantation, send_incantation)
 
     def __getitem__(self, item):
         return self.HANDLERS[item]
@@ -527,11 +573,13 @@ def send_orientation_master(msg: Message, *args, **kwargs) -> str | None:
 def recv_elevate(msg: Message, direction: zp.Direction, data: dict) -> None:
     if msg.brain.ai.role == zp.Role.MASTER or msg.brain.ai.role == zp.Role.QUEEN or data["ans"]:
         return
+    msg.brain.ai.elevation = True
     current_lvl = msg.brain.ai.level
     msg.brain.goto(zp.Pos(5, 5))
     print("===========================on master===========================")
     msg.brain.drop_all()
     while msg.brain.ai.level == current_lvl:
+        print(utils.CYAN)
         msg.brain.ai.check_inventory()
         if msg.brain.ai.inventory.food < 3:
             if not msg.brain.ai.take(zp.ObjectType.FOOD):
@@ -541,3 +589,26 @@ def recv_elevate(msg: Message, direction: zp.Direction, data: dict) -> None:
 
 def send_elevate(msg: Message, *args, **kwargs) -> str | None:
     return "ready"
+
+
+def recv_incantation(msg: Message, direction: zp.Direction, data: dict) -> None:
+    if msg.brain.ai.role is None or data["ans"]:
+        return
+    print(utils.BLUE)
+    direction: zp.Direction = zp.Direction(int(data["data"]["direction"]))
+    carrier: bool = bool(data["data"]["carrier"])
+    if carrier and direction != zp.Direction.TOP:
+        msg.brain.take_resources(ai.OBJECTIVES[msg.brain.ai.level - 1])
+    if direction != zp.Direction.TOP:
+        msg.brain.forward()
+    if carrier:
+        msg.brain.ai.incantation(direction != zp.Direction.TOP)
+
+
+def send_incantation(msg: Message, *args, **kwargs) -> str | None:
+    direction: zp.Direction = kwargs["direction"]
+    carrier: bool = kwargs["carrier"]
+    return json.dumps({
+        "direction": direction.value,
+        "carrier": carrier
+    })

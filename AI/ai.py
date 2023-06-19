@@ -7,12 +7,12 @@ import utils
 
 OBJECTIVES = [
     zp.Resources(0, 1, 0, 0, 0, 0, 0, 0),
-    zp.Resources(0, 1, 1, 1, 0, 0, 0, 0),
-    zp.Resources(0, 2, 0, 1, 0, 2, 0, 0),
-    zp.Resources(0, 1, 1, 2, 0, 1, 0, 0),
-    zp.Resources(0, 1, 2, 1, 3, 0, 0, 0),
-    zp.Resources(0, 1, 2, 3, 0, 1, 0, 0),
-    zp.Resources(0, 2, 2, 2, 2, 2, 1, 0),
+    zp.Resources(0, 1, 1, 1, 0, 0, 0, 1),
+    zp.Resources(0, 2, 0, 1, 0, 2, 0, 1),
+    zp.Resources(0, 1, 1, 2, 0, 1, 0, 3),
+    zp.Resources(0, 1, 2, 1, 3, 0, 0, 3),
+    zp.Resources(0, 1, 2, 3, 0, 1, 0, 5),
+    zp.Resources(0, 2, 2, 2, 2, 2, 1, 5),
     zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)  # Last one must be empty
 ]
 
@@ -41,6 +41,7 @@ class AI:
     master_found: bool = False
     _messages: list[tuple[zp.Direction, dict]] = []
     _buffer: list[str] = []
+    elevation: bool = False
 
     @staticmethod
     def _new() -> None:
@@ -173,6 +174,7 @@ class AI:
         except ValueError:
             print("\033[1;31m==> ERROR:", res)
             raise ConnectionError("Invalid response:")
+        self.elevation = False
 
     def recv(self, exec_buffer: bool = True, incantation: bool = False) -> list[str]:
         i: int = 0
@@ -243,10 +245,6 @@ class AI:
 
     def forward(self) -> None:
         self._comm.send("Forward\n")
-        data: list[str] = self.recv()
-        if data != [utils.OK]:
-            print("\033[1;31m==> ERROR:", data)
-            raise ConnectionError("Invalid response:")
         if self._direction == zp.Direction.N:
             self._pos.y = (self._pos.y - 1) % self._world.size.height
         elif self._direction == zp.Direction.E:
@@ -257,27 +255,31 @@ class AI:
             self._pos.x = (self._pos.x - 1) % self._world.size.width
         else:
             raise ValueError("Invalid direction")
+        data: list[str] = self.recv()
+        if data != [utils.OK]:
+            print("\033[1;31m==> ERROR:", data)
+            raise ConnectionError("Invalid response:")
         self._add_time(7)
 
     def right(self) -> None:
         self._comm.send("Right\n")
         self._add_time(7)
+        self._direction = zp.Direction(
+            (self._direction.value - (1 if self._direction.value % 2 == 0 else 2) if self._direction.value > 2 else 7))
         data: list[str] = self.recv()
         if data != [utils.OK]:
             print("\033[1;31m==> ERROR:", data)
             raise ConnectionError("Invalid response:")
-        self._direction = zp.Direction(
-            (self._direction.value - (1 if self._direction.value % 2 == 0 else 2) if self._direction.value > 2 else 7))
 
     def left(self) -> None:
         self._comm.send("Left\n")
         self._add_time(7)
+        self._direction = zp.Direction(
+            (self._direction.value + (1 if self._direction.value % 2 == 0 else 2) if self._direction.value < 6 else 1))
         data: list[str] = self.recv()
         if data != [utils.OK]:
             print("\033[1;31m==> ERROR:", data)
             raise ConnectionError("Invalid response:")
-        self._direction = zp.Direction(
-            (self._direction.value + (1 if self._direction.value % 2 == 0 else 2) if self._direction.value < 6 else 1))
 
     def _at(self, relative_pos: tuple[int, int] | zp.Pos) -> tuple[int, int]:
         if type(relative_pos) == zp.Pos:
@@ -300,13 +302,16 @@ class AI:
         self._add_time(7)
         data: list[str] = self.recv()
         res: list[zp.Resources] = self._get_objects(data[0])
-        if len(res) - 1 != nb_tiles[self._level]:
-            print("\033[1;31m==> ERROR:", data)
-            raise ConnectionError("Invalid response:")
+        # if len(res) - 1 != nb_tiles[self._level]:
+        #     print("\033[1;31m==> ERROR:", data)
+        #     raise ConnectionError("Invalid response:")
         for lv in range(self._level + 1):
             for i in range(-lv, nb_tiles[lv] - lv):
                 pos = self._at((lv, i))
-                self._world[(pos[0], pos[1])] = zp.Tile(True, res.pop(0))
+                try:
+                    self._world[(pos[0], pos[1])] = zp.Tile(True, res.pop(0))
+                except IndexError:
+                    pass
 
     def check_inventory(self) -> bool:
         self._comm.send("Inventory\n")
@@ -413,13 +418,18 @@ class AI:
     def incantation(self, drop_items: bool = True) -> bool:
         if drop_items:
             self.check_inventory()
+            self.look()
             for resource in self._inventory:
+                if resource == zp.ObjectType.PLAYER:
+                    continue
                 missing: int = OBJECTIVES[self._level - 1][resource] - self._world[(self._pos.y, self._pos.x)].objects[
                     resource]
                 if self._inventory[resource] < missing:
                     raise ValueError("Not enough resources (drop)")
             # this code is duplicated because we need check all resources before dropping them
             for resource in self._inventory:
+                if resource == zp.ObjectType.PLAYER:
+                    continue
                 missing: int = OBJECTIVES[self._level - 1][resource] - self._world[(self._pos.y, self._pos.x)].objects[
                     resource]
                 for _ in range(missing):
