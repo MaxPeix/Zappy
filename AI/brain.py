@@ -131,7 +131,10 @@ class Brain:
     def take(self, resource: zp.ObjectType) -> bool:
         if not self.ai.take(resource):
             self.ai.look()
-            return self.ai.take(resource)
+            if self.ai.world[self.ai.pos].objects[resource] > 0:
+                return self.ai.take(resource)
+            else:
+                return False
         return True
 
     def forward(self) -> None:
