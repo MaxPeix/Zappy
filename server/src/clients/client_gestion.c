@@ -33,15 +33,6 @@ int accept_new_connection(int server_socket, struct sockaddr_in address)
     return new_socket;
 }
 
-int find_empty_slot(client_t *clients)
-{
-    for (int i = 0; i < MAX_CLIENTS; i++) {
-        if (clients[i].socket == 0)
-            return i;
-    }
-    return -1;
-}
-
 void update_client_struct(int new_socket, client_t *clients,
     server_params_t *server_params)
 {
@@ -65,21 +56,24 @@ void update_client_struct(int new_socket, client_t *clients,
     }
 }
 
+void setup_readfds(int server_socket, fd_set *readfds)
+{
+    FD_ZERO(readfds);
+    FD_SET(server_socket, readfds);
+}
+
 void wait_for_connections(int server_socket, client_t *clients,
-    struct sockaddr_in address, server_params_t *server_params)
+    struct sockaddr_in address, server_params_t *serv_params)
 {
     int new_socket = 0;
     fd_set readfds = {0};
     int max_fd = server_socket;
     int activity = 0;
     struct timeval tv;
-
     tv.tv_sec = 0;
     tv.tv_usec = 100000;
-
     while (1) {
-        FD_ZERO(&readfds);
-        FD_SET(server_socket, &readfds);
+        setup_readfds(server_socket, &readfds);
         max_fd = set_clients_sockets(clients, &readfds, server_socket);
         activity = select(max_fd + 1, &readfds, NULL, NULL, &tv);
         if ((activity < 0) && (errno != EINTR))
@@ -87,9 +81,8 @@ void wait_for_connections(int server_socket, client_t *clients,
         handle_select_errors(activity);
         if (FD_ISSET(server_socket, &readfds)) {
             new_socket = accept_new_connection(server_socket, address);
-            update_client_struct(new_socket, clients, server_params);
+            update_client_struct(new_socket, clients, serv_params);
         }
-        check_client_activity(clients,
-            server_socket, &readfds, server_params);
+        check_client_activity(clients, server_socket, &readfds, serv_params);
     }
 }

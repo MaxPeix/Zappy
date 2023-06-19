@@ -36,16 +36,10 @@ command_info_t commands_list[] = {
 command_t *create_new_command(char **args, server_params_t *server_params)
 {
     command_t *new_command = calloc(1, sizeof(command_t));
-    if (!new_command)
+    if (!new_command || !args || !server_params)
         return NULL;
-    if (!args || !server_params) {
+    if (!args[0])
         return NULL;
-    }
-    if (!args[0]) {
-        if (new_command)
-            free(new_command);
-        return NULL;
-    }
     new_command->name = strdup(args[0]);
     new_command->args = duplicate_args(args);
     for (command_info_t *command = commands_list; command->name; ++command) {
@@ -63,22 +57,12 @@ command_t *create_new_command(char **args, server_params_t *server_params)
     return NULL;
 }
 
-void handle_client_request(client_t *clients,
-    char *buffer, client_t *client, server_params_t *server_params)
+void handle_incantation_command_gestion(client_t *clients, client_t *client,
+    server_params_t *server_params, char **args)
 {
-    if (!buffer || strlen(buffer) == 0)
-        return;
-    char **args = get_args_from_buffer(buffer);
-    if (args == NULL)
-        return;
-    if (args[0] == NULL) {
-        free_array(args);
-        return;
-    }
     char *output_incantation = NULL;
     if (strcmp(args[0], "Incantation") == 0) {
-        if (can_do_incantation(clients, client,
-            server_params, args) == 0) {
+        if (can_do_incantation(clients, client, server_params, args) == 0) {
             output_incantation = msprintf("ko\n");
             send_response(client->socket, output_incantation);
             free(output_incantation);
@@ -88,10 +72,12 @@ void handle_client_request(client_t *clients,
         send_message_to_graphical_start_incantation(clients,
             client, server_params, args);
     }
-    command_t *new = create_new_command(args, server_params);
+}
 
+void add_new_command(client_t *client, command_t *new_command, char **args)
+{
     if (client->commands == NULL) {
-        client->commands = new;
+        client->commands = new_command;
         if (client->commands == NULL) {
             free_array(args);
             return;
@@ -100,10 +86,28 @@ void handle_client_request(client_t *clients,
         command_t *tmp = client->commands;
         while (tmp->next != NULL)
             tmp = tmp->next;
-        tmp->next = new;
+        tmp->next = new_command;
         if (tmp->next == NULL) {
             free_array(args);
             return;
         }
     }
+}
+
+void handle_client_request(client_t *clients, char *buffer, client_t *client,
+    server_params_t *server_params)
+{
+    if (!buffer || strlen(buffer) == 0)
+        return;
+
+    char **args = get_args_from_buffer(buffer);
+    if (args == NULL)
+        return;
+    if (args[0] == NULL) {
+        free_array(args);
+        return;
+    }
+    handle_incantation_command_gestion(clients, client, server_params, args);
+    command_t *new_command = create_new_command(args, server_params);
+    add_new_command(client, new_command, args);
 }

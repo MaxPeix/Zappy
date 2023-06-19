@@ -7,6 +7,11 @@
 
 #include "server.h"
 
+int generate_rand_position(int upper_limit)
+{
+    return rand() % upper_limit;
+}
+
 void free_command_args(char **args)
 {
     for (int i = 0; args[i] != NULL; i++)
@@ -31,7 +36,6 @@ char **duplicate_args(char **args)
     int arg_count = count_args(args);
     if (arg_count == -1)
         return NULL;
-
     char **new_args = calloc(arg_count + 1, sizeof(char *));
     if (new_args == NULL)
         return NULL;

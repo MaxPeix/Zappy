@@ -7,7 +7,6 @@
 
 #include "server.h"
 #include <stdio.h>
-#define _GNU_SOURCE
 
 char *get_tna(server_params_t *server_params, client_t *client)
 {

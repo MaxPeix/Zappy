@@ -19,6 +19,7 @@
     #include <unistd.h>
     #include <stdbool.h>
     #include <time.h>
+    #define _GNU_SOURCE
 
     #define MAX_CLIENTS 30
     #define BUFFER_SIZE 4096
@@ -105,6 +106,13 @@
         const char *name;
         double execution_time_factor;
     } command_info_t;
+
+// build_message_incantation
+int build_message_incantation(client_t *clients,
+    client_t *client, char *message);
+
+// lib function
+int generate_rand_position(int upper_limit);
 
 // remove stones
 void remove_stones(tile_t *tile, int level);
@@ -287,11 +295,14 @@ void handle_fork_command(client_t *client,
 // client look
 void handle_look_command(client_t *clients, client_t *client,
     server_params_t *server_params, char **args);
+
 coordinate_t get_relative_coords(client_t *client, int x, int y);
+
 bool get_player_on_tile(client_t *clients, char *tiles_content, int *i,
                         coordinate_t coord);
+
 bool get_relative_tile_items(coordinate_t coord, char *tiles_content, int *i,
-                             server_params_t *server_params);
+                            server_params_t *server_params);
 
 // check if client can do incantation
 int can_do_incantation(client_t *clients, client_t *client,
@@ -316,5 +327,8 @@ int is_valid_user(client_t *client);
 
 // get the number of player on a tile
 int get_nbr_on_tile(client_t *clients, client_t *client);
+
+// find empty slot
+int find_empty_slot(client_t *clients);
 
 #endif /* !SERVER_H_ */

@@ -38,15 +38,14 @@ int check_errors(int argc, char **argv, server_params_t params)
 {
     if (!argv || !argv[1])
         return EPITECH_ERROR;
-    if (argc == 1 || strcmp(argv[1], "-help") == 0) {
-        FILE *file = fopen("helper.txt", "r");
-        if (file) {
-            char buffer[256];
-            while (fgets(buffer, sizeof(buffer), file))
-                printf("%s", buffer);
-            fclose(file);
-        } else
-            printf("Failed to open helper.txt\n");
+    if (!(argc == 1 || strcmp(argv[1], "-help") == 0))
+        return 0;
+    FILE *file = fopen("helper.txt", "r");
+    if (file) {
+        char buffer[256];
+        while (fgets(buffer, sizeof(buffer), file))
+            printf("%s", buffer);
+        fclose(file);
         return 1;
     }
     if (check_error_params(params) == EPITECH_ERROR)

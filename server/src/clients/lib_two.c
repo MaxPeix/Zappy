@@ -21,24 +21,33 @@ void free_command_executed(command_t *command)
     }
 }
 
-// void remove_executed_command(client_t *client, int command_index)
-// {
-//     if (!client || !client->commands)
-//         return;
-//     if (command_index < 0 || command_index >= client->command_count)
-//         return;
+int find_empty_slot(client_t *clients)
+{
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        if (clients[i].socket == 0)
+            return i;
+    }
+    return -1;
+}
 
-//     printf("Removing command %s\n", client->commands[command_index].name);
-//     free_command_executed(&client->commands[command_index]);
-//     memset(&client->commands[command_index], 0, sizeof(command_t));
-//     for (int k = command_index; k < client->command_count - 1; k++)
-//         client->commands[k] = client->commands[k + 1];
-//     client->command_count--;
-//     command_t *new_commands =
-//         realloc(client->commands, sizeof(command_t) * client->command_count);
-//     if (new_commands == NULL && client->command_count > 0) {
-//         free(client->commands);
-//         client->commands = NULL;
-//     } else
-//         client->commands = new_commands;
-// }
+int build_message_incantation(client_t *clients,
+    client_t *client, char *message)
+{
+    int nb_player[7] = { 1, 2, 2, 4, 4, 6, 6 };
+    sprintf(message, "pic %d %d %d", client->x_position,
+        client->y_position, client->level);
+    int nb_player_on_tile = 0;
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        if (is_valid_user(&clients[i]) == 0)
+            continue;
+        if (clients[i].x_position == client->x_position
+            && clients[i].y_position == client->y_position
+            && clients[i].level == client->level) {
+            char player_num[10];
+            sprintf(player_num, " %d", clients[i].id);
+            strcat(message, player_num);
+            nb_player_on_tile++;
+        }
+    }
+    strcat(message, "\n");
+}

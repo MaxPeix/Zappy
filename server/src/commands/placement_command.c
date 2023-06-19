@@ -23,8 +23,8 @@ static void handle_north_south(client_t *client,
 }
 
 void handle_forward_command(server_params_t *server_params,
-                            client_t *client,
-                            char **args)
+    client_t *client,
+    char **args)
 {
     if (strcmp(args[0], "Forward") != 0)
         return;
@@ -46,28 +46,42 @@ void handle_right_command(client_t *client, char **args)
 {
     if (strcmp(args[0], "Right") != 0)
         return;
-    if (client->orientation == NORTH)
+    if (client->orientation == NORTH) {
         client->orientation = EAST;
-    else if (client->orientation == EAST)
+        return send_response(client->socket, "ok\n");
+    }
+    if (client->orientation == EAST) {
         client->orientation = SOUTH;
-    else if (client->orientation == SOUTH)
+        return send_response(client->socket, "ok\n");
+    }
+    if (client->orientation == SOUTH) {
         client->orientation = WEST;
-    else if (client->orientation == WEST)
+        return send_response(client->socket, "ok\n");
+    }
+    if (client->orientation == WEST) {
         client->orientation = NORTH;
-    send_response(client->socket, "ok\n");
+        return send_response(client->socket, "ok\n");
+    }
 }
 
 void handle_left_command(client_t *client, char **args)
 {
     if (strcmp(args[0], "Left") != 0)
         return;
-    if (client->orientation == NORTH)
+    if (client->orientation == NORTH) {
         client->orientation = WEST;
-    else if (client->orientation == WEST)
+        return send_response(client->socket, "ok\n");
+    }
+    if (client->orientation == WEST) {
         client->orientation = SOUTH;
-    else if (client->orientation == SOUTH)
+        return send_response(client->socket, "ok\n");
+    }
+    if (client->orientation == SOUTH) {
         client->orientation = EAST;
-    else if (client->orientation == EAST)
+        return send_response(client->socket, "ok\n");
+    }
+    if (client->orientation == EAST) {
         client->orientation = NORTH;
-    send_response(client->socket, "ok\n");
+        return send_response(client->socket, "ok\n");
+    }
 }

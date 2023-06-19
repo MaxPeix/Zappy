@@ -23,11 +23,11 @@ tile_t *get_tile(server_params_t *server_params, int x, int y)
 bool get_tile_items(tile_t *tile, char *tiles_content, int *i)
 {
     char **names = (char *[]){ "food",     "linemate", "deraumere", "sibur",
-                               "mendiane", "phiras",   "thystame",  NULL };
-    int *resources[] = { &tile->food,      &tile->linemate,
-                         &tile->deraumere, &tile->sibur,
-                         &tile->mendiane,  &tile->phiras,
-                         &tile->thystame,  NULL };
+        "mendiane", "phiras",   "thystame",  NULL };
+    int *resources[] = { &tile->food, &tile->linemate,
+        &tile->deraumere, &tile->sibur,
+        &tile->mendiane,  &tile->phiras,
+        &tile->thystame,  NULL };
     bool is_resource = false;
 
     for (int j = 0; names[j] != NULL; j++) {
@@ -44,7 +44,7 @@ bool get_tile_items(tile_t *tile, char *tiles_content, int *i)
 }
 
 bool get_player_on_tile(client_t *clients, char *tiles_content, int *i,
-                        coordinate_t coord)
+    coordinate_t coord)
 {
     bool is_player = false;
     for (int j = 0; j < MAX_CLIENTS; j++) {
@@ -64,7 +64,7 @@ bool get_player_on_tile(client_t *clients, char *tiles_content, int *i,
 }
 
 bool get_relative_tile_items(coordinate_t coord, char *tiles_content, int *i,
-                             server_params_t *server_params)
+    server_params_t *server_params)
 {
     tile_t *tile = get_tile(server_params, coord.x, coord.y);
 

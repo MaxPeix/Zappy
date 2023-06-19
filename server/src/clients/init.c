@@ -8,11 +8,6 @@
 #include "server.h"
 #include <stdlib.h>
 
-int generate_rand_position(int upper_limit)
-{
-    return rand() % upper_limit;
-}
-
 void init_cliens_list_two(client_t *clients, int i,
     server_params_t *server_params)
 {
