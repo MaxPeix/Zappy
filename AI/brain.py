@@ -144,7 +144,7 @@ class Brain:
         if not self.ai.world[self.ai.pos].known:
             return
         self._searching(evt, self.ai.level)
-        self._searching(evt, self.ai.level + 1)
+        # self._searching(evt, self.ai.level + 1)
 
     def moving(self, evt: zp.Evt) -> None:
         pass
@@ -345,8 +345,8 @@ class Brain:
             # self.cartography(zone[0], zone[1])
             self.goto(zp.Pos(random.randint(0, self.ai.world.size.height - 1),
                              random.randint(0, self.ai.world.size.width - 1)), True)
-            self.goto(zp.Pos(random.randint(0, self.ai.world.size.height - 1),
-                             random.randint(0, self.ai.world.size.width - 1)), True)
+            # self.goto(zp.Pos(random.randint(0, self.ai.world.size.height - 1),
+            #                  random.randint(0, self.ai.world.size.width - 1)), True)
             # while self.ai.inventory.food < self.food_wanted and ret > 0:
             #     ret -= 1
             #     print("food:", self.ai.inventory.food, "wanted:", self.food_wanted)
@@ -430,14 +430,15 @@ class Brain:
         return 6
 
     def _queen_get_resources(self) -> zp.Resources:
-        resources: zp.Resources = zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)
-        for resource in self.ai.world[self.ai.pos].objects:
-            if resource == zp.ObjectType.PLAYER:
-                continue
-            resources[resource] = ai.OBJECTIVES[self.ai.level - 1][resource] * self.nb_players // (
-                ai.OBJECTIVES[self.ai.level - 1][zp.ObjectType.PLAYER] if ai.OBJECTIVES[self.ai.level - 1][
-                                                                              zp.ObjectType.PLAYER] > 0 else 1)
-        return resources
+        resources: list[zp.Resources] = [
+            zp.Resources(0, 8, 0, 0, 0, 0, 0, 0),
+            zp.Resources(0, 4, 4, 4, 0, 0, 0, 0),
+            zp.Resources(0, 8, 4, 0, 0, 8, 0, 0),
+            zp.Resources(0, 2, 2, 4, 0, 2, 0, 0),
+            zp.Resources(0, 1, 2, 3, 0, 1, 0, 0),
+            zp.Resources(0, 2, 2, 2, 2, 2, 1, 0),
+        ]
+        return resources[self.ai.level - 1]
 
     def _queen_elevate_1(self) -> None:
         for current_id in range(1, 7):
@@ -712,12 +713,10 @@ def recv_incantation(msg: Message, direction: zp.Direction, data: dict) -> None:
     print(utils.BLUE)
     direction: zp.Direction = zp.Direction(int(data["data"]["direction"]))
     carrier: bool = bool(data["data"]["carrier"])
-    while msg.brain.ai.inventory.food < 4:
+    while msg.brain.ai.inventory.food < 6:
         if not msg.brain.ai.take(zp.ObjectType.FOOD):
             break
     if carrier and direction != zp.Direction.TOP:
-        for _ in range(7):
-            msg.brain.ai.check_inventory()
         msg.brain.take_resources(ai.OBJECTIVES[msg.brain.ai.level - 1])
     if direction != zp.Direction.TOP:
         msg.brain.turn(direction)
@@ -726,6 +725,9 @@ def recv_incantation(msg: Message, direction: zp.Direction, data: dict) -> None:
     if carrier:
         # msg.brain.ai.incantation(direction != zp.Direction.TOP) # FIXME: drop item not working
         # below is a fix to that (we just drop before incantation)
+        msg.brain.ai.look()
+        while msg.brain.ai.world[msg.brain.ai.pos].objects.player < ai.OBJECTIVES[msg.brain.ai.level - 1].player:
+            msg.brain.ai.look()
         msg.brain.ai.incantation(False)
 
 
