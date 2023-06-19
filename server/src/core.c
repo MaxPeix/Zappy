@@ -9,9 +9,11 @@
 
 void handle_sst(server_params_t *server_params, char **args, client_t *client)
 {
+    int new_freq = 0;
     if (!server_params || !args)
         return;
-    int new_freq = 0;
+    if (!args[0])
+        return;
     if (strcmp(args[0], "sst") == 0) {
         if (args[1] && atoi(args[1]) > 0) {
             new_freq = atoi(args[1]);
@@ -25,17 +27,30 @@ void handle_sst(server_params_t *server_params, char **args, client_t *client)
 void handle_commands(client_t *clients, client_t *client,
     server_params_t *server_params, command_t cmd)
 {
+    if (!clients || !client || !server_params || !cmd.args)
+        return;
+    if (!cmd.args[0])
+        return;
     handle_incantation_command(clients, client, server_params, cmd.args);
     if (client->is_elevating == 1)
         return;
+    printf("début handle_command\n");
     handle_command(client, server_params, cmd.args);
+    printf("fin handle_command\n");
     handle_connect_nbr_command(clients, client, server_params, cmd.args);
+    printf("fin1 handle_command\n");
     handle_command_with_player_nbr(clients, client, server_params, cmd.args);
+    printf("fin2 handle_command\n");
     handle_broadcast_command(clients, client, cmd.args);
+    printf("fin3 handle_command\n");
     handle_eject_command(clients, client, server_params, cmd.args);
+    printf("fin4 handle_command\n");
     handle_fork_command(client, clients, server_params, cmd.args);
+    printf("fin5 handle_command\n");
     handle_look_command(clients, client, server_params, cmd.args);
+    printf("fin6 handle_command\n");
     handle_sst(server_params, cmd.args, client);
+    printf("fin fonction\n");
 }
 
 void execute_commands_if_ready(client_t *clients, client_t *client,
@@ -44,6 +59,8 @@ void execute_commands_if_ready(client_t *clients, client_t *client,
     if (!clients || !client || !server_params)
         return;
     command_t *tmp = client->commands;
+    if (tmp == NULL)
+        return;
     while (tmp != NULL) {
         if (time(NULL) >= tmp->execution_time && tmp->executed == 0) {
             handle_commands(clients, client, server_params, *tmp);

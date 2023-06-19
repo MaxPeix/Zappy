@@ -47,7 +47,7 @@ void handle_fork_command(client_t *client,
         &server_params->world[client->y_position][client->x_position];
     char *output_graphical = NULL;
     if (strcmp(args[0], "Fork") != 0)
-        return
+        return;
     update_client_per_team_after_fork(client, clients);
     int length = 0;
     if (tile->eggs)
