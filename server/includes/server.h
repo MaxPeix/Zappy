@@ -33,82 +33,76 @@
         WEST
     };
 
-typedef struct tile
-{
-    int x;
-    int y;
-    int food;
-    int linemate;
-    int deraumere;
-    int sibur;
-    int mendiane;
-    int phiras;
-    int thystame;
-    int *eggs;
-} tile_t;
+    typedef struct tile {
+        int x;
+        int y;
+        int food;
+        int linemate;
+        int deraumere;
+        int sibur;
+        int mendiane;
+        int phiras;
+        int thystame;
+        int *eggs;
+    } tile_t;
 
-typedef struct command
-{
-    char *name;
-    char **args;
-    time_t execution_time;
-} command_t;
+    typedef struct command {
+        char *name;
+        char **args;
+        time_t execution_time;
+    } command_t;
 
-typedef struct client
-{
-    int id;
-    int x_position;
-    int y_position;
-    int orientation;
-    int level;
-    int socket;
-    char *team_name;
-    int start_loggin;
-    int is_graphical;
-    int food;
-    int linemate;
-    int deraumere;
-    int sibur;
-    int mendiane;
-    int phiras;
-    int thystame;
-    int is_connected;
-    command_t* commands;
-    int command_count;
-    int is_dead;
-    time_t food_losing_timer;
-    int team_max_clients;
-    int is_elevating;
-} client_t;
+    typedef struct client {
+        int id;
+        int x_position;
+        int y_position;
+        int orientation;
+        int level;
+        int socket;
+        char *team_name;
+        int start_loggin;
+        int is_graphical;
+        int food;
+        int linemate;
+        int deraumere;
+        int sibur;
+        int mendiane;
+        int phiras;
+        int thystame;
+        int is_connected;
+        command_t* commands;
+        int command_count;
+        int is_dead;
+        time_t food_losing_timer;
+        int team_max_clients;
+        int is_elevating;
+    } client_t;
 
-typedef struct server_params
-{
-    int port;
-    int width;
-    int height;
-    char **team_names;
-    int clients_per_team;
-    int frequency;
-    tile_t **world;
-} server_params_t;
+    typedef struct server_params {
+        int port;
+        int width;
+        int height;
+        char **team_names;
+        int clients_per_team;
+        int frequency;
+        tile_t **world;
+    } server_params_t;
 
-typedef struct DistributionParams
-{
-    server_params_t *params;
-    int total_resource;
-    char resource;
-} DistributionParams;
+    typedef struct DistributionParams {
+        server_params_t *params;
+        int total_resource;
+        char resource;
+    } DistributionParams;
 
-typedef struct
-{
-    int x;
-    int y;
-} coordinate_t;
+    typedef struct {
+        int x;
+        int y;
+    } coordinate_t;
 
-typedef struct command_info {
-    const char *name;
-    double execution_time_factor;
-} command_info_t;
+    typedef struct command_info {
+        const char *name;
+        double execution_time_factor;
+    } command_info_t;
 
 // remove stones
 void remove_stones(tile_t *tile, int level);

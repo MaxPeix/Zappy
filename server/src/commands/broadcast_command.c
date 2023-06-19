@@ -33,26 +33,20 @@ void send_to_graphical_clients(client_t *clients, char *output)
 void handle_broadcast_command(client_t *clients,
     client_t *client, char **args)
 {
-    if (!args)
+    if (!args || !client)
         return;
     if (args[0] == NULL)
         return;
     if (strcmp(args[0], "Broadcast") == 0) {
-        if (args[1] == NULL) {
-            send_response(client->socket, "ko\n");
-            return;
-        }
+        if (args[1] == NULL)
+            return send_response(client->socket, "ko\n");
         char *message = build_message(args);
-        if (!message) {
-            printf("Error: Could not allocate memory for message\n");
+        if (!message)
             return;
-        }
-        char *output = msprintf("pbc %d %s\n", client->id, message);
         free(message);
-        if (!output) {
-            printf("Error: Could not allocate memory for output string\n");
+        char *output = msprintf("pbc %d %s\n", client->id, message);
+        if (!output)
             return;
-        }
         send_to_graphical_clients(clients, output);
         send_response(client->socket, "ok\n");
         free(output);
