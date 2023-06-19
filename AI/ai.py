@@ -16,7 +16,7 @@ OBJECTIVES = [
     zp.Resources(0, 0, 0, 0, 0, 0, 0, 0)  # Last one must be empty
 ]
 
-FOOD_WANTED = 10
+FOOD_WANTED = 12
 
 LVL_MAX = len(OBJECTIVES) - 1
 
@@ -60,14 +60,18 @@ class AI:
         self._comm = comm
         self._teamName = team_name
 
+    def connection_error(self, data) -> None:
+        print("\033[1;31m==> ERROR:", data)
+        self._buffer = []
+        self._messages = []
+
     def add_message(self, msg: 'Message') -> None:
         self.msg_handler = msg
 
     def start(self) -> None:
         data: list[str] = self._comm.recv()
         if data != [utils.WELCOME]:
-            print("\033[1;31m==> ERROR:", data)
-            raise ConnectionError("Invalid response:")
+            return self.connection_error(data)
         self._login(self._teamName)
         self.check_inventory()
         self._msg_key = utils.generate_key(self._teamName)
@@ -109,14 +113,12 @@ class AI:
         print(str(self._inventory))
         print("pos:", self.pos)
 
-    @staticmethod
-    def parse_msg(line: str) -> tuple[zp.Direction, str]:
+    def parse_msg(self, line: str) -> tuple[zp.Direction, str] | None:
         try:
             direction: zp.Direction = zp.Direction(
                 int(line[len(utils.BROADCAST_MSG_START):(len(utils.BROADCAST_MSG_START) + 1)]))
         except ValueError:
-            print("\033[1;31m==> ERROR:", line)
-            raise ConnectionError("Invalid response:")
+            return self.connection_error(line)
         return direction, line[(len(utils.BROADCAST_MSG_START) + 2):]
 
     def exec_buffer(self) -> None:
@@ -147,7 +149,10 @@ class AI:
         return False
 
     def decode_msg(self, msg: str) -> None:
-        direction, message = self.parse_msg(msg)
+        data = self.parse_msg(msg)
+        if data is None:
+            return
+        direction, message = data
         if ENCRYPT:
             message: str = base64.b64decode(utils.decrypt(message.encode(), self._msg_key)).decode("utf-8")
             print("Message from " + str(direction) + ": " + message)
@@ -167,13 +172,11 @@ class AI:
         self._add_time(300)
         res = self.recv()
         if len(res) != 1 or not res[0].startswith(utils.ELEVATION_SUCCESS):
-            print("\033[1;31m==> ERROR:", res)
-            raise ConnectionError("Invalid response:")
+            return self.connection_error(res)
         try:
             self._level = int(res[0][len(utils.ELEVATION_SUCCESS):])
         except ValueError:
-            print("\033[1;31m==> ERROR:", res)
-            raise ConnectionError("Invalid response:")
+            return self.connection_error(res)
         self.elevation = False
 
     def recv(self, exec_buffer: bool = True, incantation: bool = False) -> list[str]:
@@ -210,14 +213,12 @@ class AI:
         self._comm.send(team_name + "\n")
         data = self.recv()
         if len(data) != 2:
-            print("\033[1;31m==> ERROR:", data)
-            raise ConnectionError("Invalid response:")
+            return self.connection_error(data)
         try:
             res = (int(data[0]),
                    (int(data[1].split(" ")[0]), int(data[1].split(" ")[1])))
         except ValueError:
-            print("\033[1;31m==> ERROR:", data)
-            raise ConnectionError("Invalid response:")
+            return self.connection_error(data)
         self._world = zp.World(zp.Size(res[1][1], res[1][0]))
 
     @staticmethod
@@ -257,8 +258,7 @@ class AI:
             raise ValueError("Invalid direction")
         data: list[str] = self.recv()
         if data != [utils.OK]:
-            print("\033[1;31m==> ERROR:", data)
-            raise ConnectionError("Invalid response:")
+            return self.connection_error(data)
         self._add_time(7)
 
     def right(self) -> None:
@@ -268,8 +268,7 @@ class AI:
             (self._direction.value - (1 if self._direction.value % 2 == 0 else 2) if self._direction.value > 2 else 7))
         data: list[str] = self.recv()
         if data != [utils.OK]:
-            print("\033[1;31m==> ERROR:", data)
-            raise ConnectionError("Invalid response:")
+            return self.connection_error(data)
 
     def left(self) -> None:
         self._comm.send("Left\n")
@@ -278,8 +277,7 @@ class AI:
             (self._direction.value + (1 if self._direction.value % 2 == 0 else 2) if self._direction.value < 6 else 1))
         data: list[str] = self.recv()
         if data != [utils.OK]:
-            print("\033[1;31m==> ERROR:", data)
-            raise ConnectionError("Invalid response:")
+            return self.connection_error(data)
 
     def _at(self, relative_pos: tuple[int, int] | zp.Pos) -> tuple[int, int]:
         if type(relative_pos) == zp.Pos:
@@ -296,12 +294,13 @@ class AI:
         else:
             raise ValueError("Invalid direction")
 
-    def look(self) -> None:
+    def look(self) -> list[tuple[zp.Pos, zp.Resources]]:
         nb_tiles: list[int] = [1, 3, 5, 7, 9, 11, 13, 15, 17]
         self._comm.send("Look\n")
         self._add_time(7)
         data: list[str] = self.recv()
         res: list[zp.Resources] = self._get_objects(data[0])
+        dump: list[tuple[zp.Pos, zp.Resources]] = []
         # if len(res) - 1 != nb_tiles[self._level]:
         #     print("\033[1;31m==> ERROR:", data)
         #     raise ConnectionError("Invalid response:")
@@ -310,8 +309,10 @@ class AI:
                 pos = self._at((lv, i))
                 try:
                     self._world[(pos[0], pos[1])] = zp.Tile(True, res.pop(0))
+                    dump.append((zp.Pos(pos[0], pos[1]), self._world[(pos[0], pos[1])].objects))
                 except IndexError:
                     pass
+        return dump
 
     def check_inventory(self) -> bool:
         self._comm.send("Inventory\n")
@@ -320,21 +321,21 @@ class AI:
         data: list[str] = self.recv()
         datalist: list[str]
         if len(data) != 1:
-            print("\033[1;31m==> ERROR:", data)
-            raise ConnectionError("Invalid response:")
+            self.connection_error(data)
+            return False
         if not data[0].startswith("[ ") or not data[0].endswith(" ]"):
-            print("\033[1;31m==> ERROR:", data)
-            raise ConnectionError("Invalid response:")
+            self.connection_error(data)
+            return False
         data[0] = data[0][2:-2]
         datalist = data[0].split(", ")
         if len(datalist) != 7:
-            print("\033[1;31m==> ERROR:", data)
-            raise ConnectionError("Invalid response:")
+            self.connection_error(data)
+            return False
         for string in datalist:
             key, value = string.strip().split(" ")
             if key not in self._inventory or not value.isdigit():
-                print("\033[1;31m==> ERROR:", data)
-                raise ConnectionError("Invalid response:")
+                self.connection_error(data)
+                return False
             if int(value) != self._inventory[key]:
                 success = False
             self._inventory[key] = int(value)
@@ -351,8 +352,7 @@ class AI:
         self._add_time(7)
         data: list[str] = self.recv()
         if data != [utils.OK]:
-            print("\033[1;31m==> ERROR:", data)
-            raise ConnectionError("Invalid response:")
+            return self.connection_error(data)
 
     def connect_nbr(self) -> int:
         nb_connect: int = 0
@@ -360,8 +360,8 @@ class AI:
         self._comm.send("Connect_nbr\n")
         data = self.recv()
         if len(data) != 1:
-            print("\033[1;31m==> ERROR:", data)
-            raise ConnectionError("Invalid response:")
+            self.connection_error(data)
+            return 0
         nb_connect = int(data[0])
         return nb_connect
 
@@ -370,8 +370,7 @@ class AI:
         self._add_time(42)
         data: list[str] = self.recv()
         if data != [utils.OK]:
-            print("\033[1;31m==> ERROR:", data)
-            raise ConnectionError("Invalid response:")
+            return self.connection_error(data)
         os.system("notify-send 'new one created'")
         self._new()
 
@@ -380,8 +379,7 @@ class AI:
         self._add_time(7)
         data: list[str] = self.recv()
         if data != [utils.OK]:
-            print("\033[1;31m==> ERROR:", data)
-            raise ConnectionError("Invalid response:")
+            return self.connection_error(data)
 
     def take(self, resource: zp.ObjectType) -> bool:
         if resource not in self._inventory:
@@ -397,8 +395,8 @@ class AI:
             return True
         elif res == [utils.KO]:
             return False
-        print("\033[1;31m==> ERROR:", res)
-        raise ConnectionError("Invalid response:")
+        self.connection_error(res)
+        return False
 
     def set(self, resource: zp.ObjectType) -> bool:
         if resource not in self._inventory or self._inventory[resource] <= 0:
@@ -412,13 +410,13 @@ class AI:
             return True
         elif res == [utils.KO]:
             return False
-        print("\033[1;31m==> ERROR:", res)
-        raise ConnectionError("Invalid response:")
+        self.connection_error(res)
+        return False
 
     def incantation(self, drop_items: bool = True) -> bool:
+        self.look()
         if drop_items:
             self.check_inventory()
-            self.look()
             for resource in self._inventory:
                 if resource == zp.ObjectType.PLAYER:
                     continue
@@ -437,15 +435,15 @@ class AI:
         for resource in self._world[(self._pos.y, self._pos.x)].objects:
             if self._world[(self._pos.y, self._pos.x)].objects[resource] < OBJECTIVES[self._level - 1][resource]:
                 raise ValueError("Not enough resources")
-        if self._check_time(300) < 1:
-            raise TimeoutError("Not enough time")
+        # if self._check_time(300) < 1:
+        #     raise TimeoutError("Not enough time")
         self._comm.send("Incantation\n")
         res = self.recv(True, True)
         if res == [utils.KO]:
             return False
         if res != [utils.ELEVATION_UNDERWAY]:
-            print("\033[1;31m==> ERROR:", res)
-            raise ConnectionError("Invalid response:")
+            self.connection_error(res)
+            return False
         self.elevate()
         return True
 
