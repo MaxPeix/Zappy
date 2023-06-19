@@ -61,6 +61,7 @@ void check_lose_food(client_t *client, server_params_t *server_params)
             + 126 / server_params->frequency;
         printf("Client %d lost 1 food\n", client->id);
     }
+}
 
 void check_client_activity(client_t *clients,
     int server_socket, fd_set *readfds, server_params_t *server_params)
