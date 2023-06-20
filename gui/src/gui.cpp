@@ -36,9 +36,6 @@ void GUI::check_event()
     std::string player_level = "";
     std::string player_inventory = "";
 
-    if (this->assets.clock.getElapsedTime().asMilliseconds() <= 1000 / this->sgt) {
-        return;
-    }
     for (auto &monster_sprite : assets.monster_sprites) {
         player_position = ask_server("ppo " + std::to_string(monster_sprite.first) + "\n");
         draw_cmd(player_position);
@@ -86,7 +83,6 @@ void GUI::check_event()
             }
         }
     }
-    this->assets.clock.restart();
 }
 
 void GUI::game_loop()
@@ -98,18 +94,21 @@ void GUI::game_loop()
     };
 
     while (window.isOpen()) {
-        while (window.pollEvent(this->event)) {
-            check_event();
+        if (this->assets.clock.getElapsedTime().asMilliseconds() > 100) {
+            this->assets.clock.restart();
+            while (window.pollEvent(this->event)) {
+                check_event();
+            }
+            window.clear();
+            draw_game();
+            this->setup_fd_set(&read_fds, this->clientSocket);
+            if (select(this->clientSocket + 1, &read_fds, NULL, NULL, &tv) == -1) {
+                std::cout << "Error: select" << std::endl;
+                exit(84);
+            }
+            if (FD_ISSET(this->clientSocket, &read_fds))
+                handle_read_server();
+            window.display();
         }
-        window.clear();
-        draw_game();
-        this->setup_fd_set(&read_fds, this->clientSocket);
-        if (select(this->clientSocket + 1, &read_fds, NULL, NULL, &tv) == -1) {
-            std::cout << "Error: select" << std::endl;
-            exit(84);
-        }
-        if (FD_ISSET(this->clientSocket, &read_fds))
-            handle_read_server();
-        window.display();
     }
 }
