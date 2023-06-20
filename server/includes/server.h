@@ -25,6 +25,7 @@
     #define BUFFER_SIZE 4096
     #define CLIENT_NAME "Anonymous"
     #define EPITECH_ERROR 84
+    #define M_PI 3.14159265358979323846
 
     enum direction {
         FIRST,
@@ -33,6 +34,15 @@
         SOUTH,
         WEST
     };
+
+    typedef struct coord_params {
+        int x1;
+        int y1;
+        int x2;
+        int y2;
+        int width;
+        int height;
+    } coord_params_t;
 
     typedef struct tile {
         int x;
@@ -114,6 +124,12 @@ int build_message_incantation(client_t *clients,
 // lib function
 int generate_rand_position(int upper_limit);
 
+// identify tile
+int identify_tile(client_t *emitter,
+    client_t *receiver, coord_params_t params);
+
+int manhattan_distance_torus(coord_params_t params);
+
 // remove stones
 void remove_stones(tile_t *tile, int level);
 
@@ -183,7 +199,7 @@ void handle_command_with_player_nbr(client_t *clients, client_t *client,
 
 // handle_graphic_command_two
 void handle_broadcast_command(client_t *clients,
-    client_t *client, char **args);
+    client_t *client, char **args, server_params_t *server_params);
 
 // handle_graphic_command_three
 void handle_eject_command(client_t *clients, client_t *client,

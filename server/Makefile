@@ -21,6 +21,7 @@ SRC				=	src/core.c \
 					src/clients/lib_two.c \
 					src/clients/lib_three.c \
 					src/clients/init.c \
+					src/clients/sound_transmission.c \
 					src/clients/send_message_to_graphical.c \
 					src/clients/check_death_player.c \
 					src/clients/gestion_command_entered.c \
@@ -56,7 +57,7 @@ CRITERION		= 			--coverage -lcriterion
 all: 			$(NAME)
 
 $(NAME):		$(OBJ) $(OBJ_MAIN)
-	gcc -o $(NAME) $(OBJ) $(OBJ_MAIN) $(LDFLAGS)
+	gcc -o $(NAME) $(OBJ) $(OBJ_MAIN) -lm
 
 tests_run: $(OBJ)
 	make re

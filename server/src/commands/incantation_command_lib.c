@@ -44,7 +44,8 @@ void remove_stones(tile_t *tile, int level)
 
 int is_valid_user(client_t *client)
 {
-    if ((client->is_connected == 1 && client->is_graphical == 0))
+    if ((client->is_connected == 1 && client->is_graphical == 0
+        && client->is_dead == 0))
         return 1;
     return 0;
 }

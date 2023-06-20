@@ -6,17 +6,35 @@
 */
 
 #include "server.h"
+#include <math.h>
 
-void send_sound_to_graphical_clients(client_t *clients, int client_id)
+int manhattan_distance_torus(coord_params_t params)
 {
-    char *output_graphical = NULL;
+    int dx = abs(params.x1 - params.x2);
+    int dy = abs(params.y1 - params.y2);
 
-    for (int index = 0; index < MAX_CLIENTS; index++) {
-        if (clients[index].is_graphical == 1
-            && clients[index].is_connected == 1) {
-            output_graphical = msprintf("pic %d\n", client_id);
-            send_response(clients[index].socket, output_graphical);
-            free(output_graphical);
-        }
-    }
+    dx = dx > params.width / 2 ? params.width - dx : dx;
+    dy = dy > params.height / 2 ? params.height - dy : dy;
+
+    return dx + dy;
+}
+
+int identify_tile(client_t *emitter,
+    client_t *receiver, coord_params_t params)
+{
+    int dx = (receiver->x_position - emitter->x_position + params.width)
+        % params.width;
+    int dy = (receiver->y_position - emitter->y_position + params.height)
+        % params.height;
+    if (dx > params.width / 2)
+        dx -= params.width;
+    if (dy > params.height / 2)
+        dy -= params.height;
+    double angle = atan2(dy, dx);
+    int direction = (int)((angle + 2 * M_PI + M_PI / 8
+        - emitter->orientation * M_PI / 2) / (M_PI / 4));
+    direction %= 8;
+    int tile_number = direction + 1;
+    tile_number = (tile_number == 9) ? 1 : tile_number;
+    return tile_number;
 }

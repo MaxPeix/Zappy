@@ -34,23 +34,14 @@ void handle_commands(client_t *clients, client_t *client,
     handle_incantation_command(clients, client, server_params, cmd.args);
     if (client->is_elevating == 1)
         return;
-    printf("début handle_command\n");
     handle_command(client, server_params, cmd.args);
-    printf("fin handle_command\n");
     handle_connect_nbr_command(clients, client, server_params, cmd.args);
-    printf("fin1 handle_command\n");
     handle_command_with_player_nbr(clients, client, server_params, cmd.args);
-    printf("fin2 handle_command\n");
-    handle_broadcast_command(clients, client, cmd.args);
-    printf("fin3 handle_command\n");
+    handle_broadcast_command(clients, client, cmd.args, server_params);
     handle_eject_command(clients, client, server_params, cmd.args);
-    printf("fin4 handle_command\n");
     handle_fork_command(client, clients, server_params, cmd.args);
-    printf("fin5 handle_command\n");
     handle_look_command(clients, client, server_params, cmd.args);
-    printf("fin6 handle_command\n");
     handle_sst(server_params, cmd.args, client);
-    printf("fin fonction\n");
 }
 
 void execute_commands_if_ready(client_t *clients, client_t *client,
@@ -74,7 +65,8 @@ void check_lose_food(client_t *client, server_params_t *server_params)
 {
     if (!client || !server_params)
         return;
-    if (client->is_graphical == 1 || client->is_connected == 0)
+    if (client->is_graphical == 1 || client->is_connected == 0
+        || client->is_dead == 1)
         return;
     if (time(NULL) >= client->food_losing_timer) {
         client->food -= 1;
