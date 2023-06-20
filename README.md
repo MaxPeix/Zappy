@@ -81,10 +81,10 @@ The goal of the game is to have at least 6 players of your team to elevate to th
 To do that, you have to collect resources and elevate yourself. <br>
 You can collect resources by moving on it and then take it. <br>
 You can elevate yourself by collecting resources and then do an `incantation`. <br>
-You have to *be careful* because you can die if you don't have enough food. <br>
-You can also communicate with other players by sending messages using the `broadcast <msg>` command. <br>
+You have to **be careful** because you can **die** if you don't have enough food. <br>
+You can also **communicate** with other players by sending messages using the `broadcast <msg>` command. <br>
 
-The different commands you can use are: <br>
+The different **commands** you can use are: <br>
 
 | Action                       | Command        | Time limit | Response                                  |
 |------------------------------|----------------|------------|-------------------------------------------|
@@ -103,7 +103,7 @@ The different commands you can use are: <br>
 | start incantation            | Incantation    | 300/f      | Elevation underway && Current level: k/ko |
 | bad command                  | -              | 7/f        | ko                                        |
 
-Here is the different resources you can collect: <br>
+Here is the different **resources** you can collect: <br>
 
 - `food` : food to eat
 - `linemate` : stone to elevate yourself
@@ -113,7 +113,7 @@ Here is the different resources you can collect: <br>
 - `phiras` : stone to elevate yourself
 - `thystame` : stone to elevate yourself
 
-Here is what you need to elevate yourself from the different levels: <br>
+Here is what you need to **elevate yourself** from the different levels: <br>
 
 - `level 1 to level 2` : 1 player, 1 linemate, 0 deraumere, 0 sibur, 0 mendiane, 0 phiras, 0 thystame
 - `level 2 to level 3` : 2 players, 1 linemate, 1 deraumere, 1 sibur, 0 mendiane, 0 phiras, 0 thystame
@@ -128,8 +128,7 @@ Here is what you need to elevate yourself from the different levels: <br>
 An **output** you can get from this program can be:
 
 ![gameplay.png](assets/screenshot_game.png)
-
-[//]: # (Put screenshots of the game)
+![gameplay2.png](assets/screenshot_game_without_player.png)
 
 ### Tools and languages used :hammer_and_wrench:
 
