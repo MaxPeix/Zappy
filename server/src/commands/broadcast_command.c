@@ -47,10 +47,34 @@ int calc_distance(int x1, int y1, int x2, int y2)
     return abs(x2 - x1) + abs(y2 - y1);
 }
 
-int get_direction(client_t *emitter, client_t *receiver)
+int calc_teleport_distance(int size, int pos1, int pos2) {
+    int distance = abs(pos2 - pos1);
+    if (distance > size / 2)
+        distance = size - distance;
+    return distance;
+}
+
+int get_teleport_direction(int size, int pos1, int pos2) {
+    int distance = pos2 - pos1;
+    if (abs(distance) > size / 2) {
+        if (distance > 0)
+            return -1;
+        else
+            return 1;
+    }
+    return (distance > 0) ? 1 : -1;
+}
+
+
+int get_direction(client_t *emitter,
+    client_t *receiver, server_params_t *server_params)
 {
-    int diff_x = receiver->x_position - emitter->x_position;
-    int diff_y = receiver->y_position - emitter->y_position;
+    int diff_x = get_teleport_direction(server_params->width, emitter->x_position, receiver->x_position);
+    diff_x *= calc_teleport_distance(server_params->width, emitter->x_position, receiver->x_position);
+
+    int diff_y = get_teleport_direction(server_params->height, emitter->y_position, receiver->y_position);
+    diff_y *= calc_teleport_distance(server_params->height, emitter->y_position, receiver->y_position);
+
 
     double angle = atan2(diff_y, diff_x) * 180.0 / M_PI;
 
@@ -85,14 +109,15 @@ int get_direction(client_t *emitter, client_t *receiver)
     return 0;
 }
 
-void send_broadcast_to_clients(client_t *clients, client_t *client, char *message, server_params_t *server_params)
+void send_broadcast_to_clients(client_t *clients, client_t *client,
+    char *message, server_params_t *server_params)
 {
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i].is_connected == 0 || clients[i].is_graphical == 1
             || clients[i].is_dead == 1 || clients[i].id == client->id)
             continue;
         char *output = NULL;
-        int tile_number = get_direction(client, &clients[i]);
+        int tile_number = get_direction(client, &clients[i], server_params);
         output = msprintf("message %d, %s\n", tile_number, message);
         dprintf(clients[i].socket, "%s", output);
         free(output);
