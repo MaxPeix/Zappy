@@ -81,10 +81,8 @@ class Comm:
                 break
             current = data[:index]
             data = data[index + 1:]
-            if "ping master" not in current:
-                self.__logger.info("<-- %s", current)
+            self.__logger.info("<-- %s", current)
             res.append(current)
-            self.__logger.debug("\t%s", current)
         return res
 
     def close(self) -> None:
