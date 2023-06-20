@@ -51,7 +51,6 @@
 *.x86_64
 *.hex
 zappy_server
-zappy_ai
 zappy_gui
 zappy_server_epitech
 .vscode

@@ -20,8 +20,8 @@ class Brain:
     master_direction: zp.Direction = zp.Direction.N
     players: list[int] = []
 
-    def __init__(self, team_name: str, ip: str, port: int, log_level: int = logging.INFO) -> None:
-        self.ai = zp_ai.AI(utils.Comm(ip, port, log_level=log_level), team_name)
+    def __init__(self, team_name: str, comm: utils.Comm) -> None:
+        self.ai = zp_ai.AI(comm, team_name)
         self.ai.add_message(Message(self))
         self.ai.start()
         self.change_status(zp.Status.SEARCHING)
