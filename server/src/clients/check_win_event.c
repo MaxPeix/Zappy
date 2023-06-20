@@ -16,7 +16,7 @@ void check_win_event(client_t client, client_t *clients,
     for (;server_params->team_names[team_count] != NULL; team_count++);
     team = malloc(sizeof(int) * team_count);
     for (int i = 0; i < MAX_CLIENTS; i++) {
-        if (clients[i].is_graphical == 0 || clients[i].is_connected == 0
+        if (clients[i].is_graphical == 1 || clients[i].is_connected == 0
             || clients[i].is_dead == 1)
             continue;
         if (clients[i].level == 8) {
