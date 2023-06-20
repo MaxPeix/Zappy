@@ -31,6 +31,7 @@ void check_win_event(client_t client, client_t *clients,
         if (clients[i].level == 8)
             nb_lvl_8 += 1;
         if (nb_lvl_8 >= 6) {
+            send_message_to_graphical(clients, "seg\n");
             send_win_to_client(&client, clients);
         }
     }
