@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from brain import Brain
 import logging
 from utils import Comm

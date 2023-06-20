@@ -7,26 +7,30 @@
 
 NAME = zappy_ai
 
-VENV = venv
+$(NAME): requirements build
 
-install:
-	python3 -m venv $(VENV)
+deps:
+	python3 -m venv venv
+
+build: requirements
+	./venv/bin/pip install nuitka
+	python -m nuitka --standalone --standalone --onefile --remove-output main.py --output-filename=$(NAME)
 
 activate:
-	. $(VENV)/bin/activate
+	. venv/bin/activate
 
-requirements: install activate
-	./$(VENV)/bin/pip install -r requirement.txt
+requirements: deps activate
+	./venv/bin/pip install -r requirement.txt
 
-$(NAME): requirements
-	chmod +x $(NAME)
-
-all: $(NAME)
+all: build
 
 clean:
-	rm -rf $(VENV)
+	rm -rf venv
 	rm -rf __pycache__
 
-re: clean all
+fclean: clean
+	rm -rf $(NAME)
 
-.PHONY: install requirements activate $(NAME) all clean re run
+re: fclean all
+
+.PHONY: $(NAME) install build requirements activate all clean fclean re run
