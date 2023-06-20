@@ -97,6 +97,7 @@ void check_client_activity(client_t *clients,
             send_response(clients[i].socket, "ko\n");
             continue;
         }
+        printf("Message reçu: %s\n", buffer);
         handle_client_request(clients, buffer, &clients[i], server_params);
     }
 }
