@@ -10,7 +10,6 @@
 void send_win_to_client(client_t *client, const client_t *clients)
 {
     printf("Client %d won\n", (*client).id);
-    send_response((*client).socket, "seg\n");
     for (int j = 0; j < MAX_CLIENTS; j++)
         if (clients[j].is_graphical == 1)
             send_response(clients[j].socket, "You win!\n");
