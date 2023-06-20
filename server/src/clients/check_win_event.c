@@ -21,8 +21,7 @@ void check_win_event(client_t client, client_t *clients,
     int team_count = 0;
     int *team = NULL;
     char *output_to_graphical = NULL;
-
-    for (;server_params->team_names[team_count] != NULL; team_count++);
+    for (; server_params->team_names[team_count] != NULL; team_count++);
     team = calloc(team_count, sizeof(int));
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i].is_graphical == 1 || clients[i].is_connected == 0
@@ -33,7 +32,8 @@ void check_win_event(client_t client, client_t *clients,
     }
     for (int i = 0; i < team_count; i++)
         if (team[i] >= 6) {
-            output_to_graphical = msprintf("seg %s\n", server_params->team_names[i]);
+            output_to_graphical = msprintf("seg %s\n",
+                server_params->team_names[i]);
             send_message_to_graphical(clients, output_to_graphical);
             return;
         }
