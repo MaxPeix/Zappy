@@ -22,7 +22,7 @@
     #include <math.h>
     #define _GNU_SOURCE
 
-    #define MAX_CLIENTS 30
+    #define MAX_CLIENTS 500
     #define BUFFER_SIZE 4096
     #define CLIENT_NAME "Anonymous"
     #define EPITECH_ERROR 84
