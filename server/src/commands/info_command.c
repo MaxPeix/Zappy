@@ -39,13 +39,7 @@ void print_tna(server_params_t *server_params, client_t *client)
 {
     if (!server_params->team_names)
         return;
-    for (int i = 0; server_params->team_names[i]; i++) {
-        char *message = msprintf("tna %s\n", server_params->team_names[i]);
-        if (message) {
-            send_response(client->socket, message);
-            free(message);
-        }
-    }
+    dprintf(client->socket, get_tna(server_params, client));
 }
 
 void print_sgt(server_params_t *server_params, client_t *client)
