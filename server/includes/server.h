@@ -19,6 +19,7 @@
     #include <unistd.h>
     #include <stdbool.h>
     #include <time.h>
+    #include <math.h>
     #define _GNU_SOURCE
 
     #define MAX_CLIENTS 30
