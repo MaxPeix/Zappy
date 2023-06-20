@@ -140,13 +140,13 @@ void Assets::create_player(int x, int y, int n, int o, std::string team, std::ve
 {
     monster_sprite.setScale(sf::Vector2f(scale_factor, scale_factor));
     if (o == 1)
-        monster_sprite.setRotation(180);
+        monster_sprite.setRotation(0);
     else if (o == 2)
         monster_sprite.setRotation(90);
     else if (o == 3)
-        monster_sprite.setRotation(0);
+        monster_sprite.setRotation(180);
     else if (o == 4)
-        monster_sprite.setRotation(270);
+        monster_sprite.setRotation(-90);
     if (team == teams[0])
         monster_sprite.setTexture(monster_red_texture);
     else if (team == teams[1])
