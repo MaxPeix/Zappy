@@ -117,7 +117,6 @@
         double execution_time_factor;
     } command_info_t;
 
-// get tna char *
 char *get_tna(server_params_t *server_params, client_t *client);
 
 // build_message_incantation
