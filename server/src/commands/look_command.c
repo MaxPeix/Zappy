@@ -75,5 +75,5 @@ void handle_look_command(client_t *clients, client_t *client,
         }
     i += (i < 2 ? 2 : 0);
     strncpy((tiles_content + i) - 2, " ]\n", BUFFER_SIZE - i);
-    write(client->socket, tiles_content, BUFFER_SIZE);
+    dprintf(client->socket, "%s", tiles_content);
 }

@@ -19,6 +19,7 @@
     #include <unistd.h>
     #include <stdbool.h>
     #include <time.h>
+    #include <math.h>
     #define _GNU_SOURCE
 
     #define MAX_CLIENTS 30
@@ -117,6 +118,8 @@
         double execution_time_factor;
     } command_info_t;
 
+char *get_tna(server_params_t *server_params, client_t *client);
+
 // build_message_incantation
 int build_message_incantation(client_t *clients,
     client_t *client, char *message);
@@ -206,7 +209,8 @@ void handle_eject_command(client_t *clients, client_t *client,
     server_params_t *server_params, char **args);
 
 // Gère la deconnexion du client
-void handle_disconnect(client_t *client, server_params_t *server_params);
+void handle_disconnect(client_t *client, client_t *clients,
+    server_params_t *server_params);
 
 // Récupère les arguments du client
 char **get_args_from_buffer(char *buffer);
@@ -346,5 +350,9 @@ int get_nbr_on_tile(client_t *clients, client_t *client);
 
 // find empty slot
 int find_empty_slot(client_t *clients);
+
+// win condition
+void check_win_event(client_t client, client_t *clients,
+                     server_params_t *server_params);
 
 #endif /* !SERVER_H_ */

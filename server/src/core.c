@@ -82,14 +82,15 @@ void check_client_activity(client_t *clients,
     int valread = 0;
     char buffer[BUFFER_SIZE] = {0};
     for (int i = 0; i < MAX_CLIENTS; i++) {
-        check_lose_food(&clients[i], server_params);
+        // check_lose_food(&clients[i], server_params);
         execute_commands_if_ready(clients, &clients[i], server_params);
         check_death_player(clients, &clients[i], server_params);
+        check_win_event(clients[i], clients, server_params);
         if (!FD_ISSET(clients[i].socket, readfds))
             continue;
         valread = read(clients[i].socket, buffer, BUFFER_SIZE - 1);
         if (valread <= 0 ) {
-            handle_disconnect(&clients[i], server_params);
+            handle_disconnect(&clients[i], clients, server_params);
             continue;
         }
         buffer[valread] = '\0';

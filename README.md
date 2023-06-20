@@ -21,20 +21,20 @@ The game is composed of a **server** made in C :computer:, an **AI** made in pyt
 > If you don't, the gui part of the project will **not compile**. <br>
 
 * Clone this repository locally
-* Run `make` in your bash / command line
+* Run `make zappy` in your bash / command line
 * And run `./zappy_<server|ai|gui> <options>`
 
 You can **run** each binary separately or together. <br>
 
-* To run the server, you have to run `make server && ./zappy_server <options>`
-* To run the AI, you have to run `make ai && ./zappy_ai <options>`
-* To run the graphic interface, you have to run `make gui && ./zappy_gui <options>`
-* To run all of them, you have to run `make && ./zappy_<server|ai|gui> <options>`
+* To run the server, you have to run `make zappy_server && ./zappy_server <options>`
+* To run the AI, you have to run `make zappy_ai && ./zappy_ai <options>`
+* To run the graphic interface, you have to run `make zappy_gui && ./zappy_gui <options>`
+* To run all of them, you have to run `make zappy && ./zappy_<server|ai|gui> <options>`
 
 To try this program, you can to use this **command**: :computer: <br>
 
 ```bash
-make && ./zappy_<server|ai|gui> <options>
+make zappy && ./zappy_<server|ai|gui> <options>
 ```
 
 There are 3 binaries in this project: <br>

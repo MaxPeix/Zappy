@@ -166,13 +166,13 @@ void GUI::draw_ppo(std::string cmd)
         }
     }
     if (o == 1)
-        assets.monster_sprites[id].first.setRotation(180);
+        assets.monster_sprites[id].first.setRotation(0);
     else if (o == 2)
         assets.monster_sprites[id].first.setRotation(90);
     else if (o == 3)
-        assets.monster_sprites[id].first.setRotation(0);
+        assets.monster_sprites[id].first.setRotation(180);
     else if (o == 4)
-        assets.monster_sprites[id].first.setRotation(270);
+        assets.monster_sprites[id].first.setRotation(-90);
 }
 
 int GUI::count_players_on_tile(int x, int y)
@@ -409,15 +409,12 @@ void GUI::draw_cmd(std::string cmd)
         return;
     }
     if (cmd_tag.compare("smg") == 0) {
-        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("suc") == 0) {
-        std::cout << cmd;
         return;
     }
     if (cmd_tag.compare("sbp") == 0) {
-        std::cout << cmd;
         return;
     }
     return;
