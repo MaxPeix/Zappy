@@ -64,6 +64,7 @@ There are 3 binaries in this project: <br>
 > **Warning**
 > 
 > Make sure you have the **python 3.11** library installed on your computer.
+> <br>
 > If you don't, the **AI** part of the project will **not run**. <br>
 > If you want to build the **AI** part using **Nuitka**, you will also need patchelf and the python headers (python3-devel on fedora).
 
