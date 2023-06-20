@@ -89,7 +89,7 @@ void check_client_activity(client_t *clients,
             continue;
         valread = read(clients[i].socket, buffer, BUFFER_SIZE - 1);
         if (valread <= 0 ) {
-            handle_disconnect(&clients[i], server_params);
+            handle_disconnect(&clients[i], clients, server_params);
             continue;
         }
         buffer[valread] = '\0';

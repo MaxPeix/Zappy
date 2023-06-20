@@ -81,8 +81,11 @@ void handle_disconnect_two(client_t *client, server_params_t *server_params)
     }
 }
 
-void handle_disconnect(client_t *client, server_params_t *server_params)
+void handle_disconnect(client_t *client, client_t *clients,
+    server_params_t *server_params)
 {
+    char *output_to_graphical = msprintf("pdi %d\n", client->id);
+    send_message_to_graphical(clients, output_to_graphical);
     close(client->socket);
     client->socket = 0;
     client->start_loggin = 0;

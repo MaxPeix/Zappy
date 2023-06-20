@@ -206,7 +206,8 @@ void handle_eject_command(client_t *clients, client_t *client,
     server_params_t *server_params, char **args);
 
 // Gère la deconnexion du client
-void handle_disconnect(client_t *client, server_params_t *server_params);
+void handle_disconnect(client_t *client, client_t *clients,
+    server_params_t *server_params);
 
 // Récupère les arguments du client
 char **get_args_from_buffer(char *buffer);
