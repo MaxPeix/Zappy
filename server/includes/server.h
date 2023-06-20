@@ -351,4 +351,8 @@ int get_nbr_on_tile(client_t *clients, client_t *client);
 // find empty slot
 int find_empty_slot(client_t *clients);
 
+// win condition
+void check_win_event(client_t client, client_t *clients,
+                     server_params_t *server_params);
+
 #endif /* !SERVER_H_ */

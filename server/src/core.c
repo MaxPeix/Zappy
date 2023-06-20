@@ -85,6 +85,7 @@ void check_client_activity(client_t *clients,
         check_lose_food(&clients[i], server_params);
         execute_commands_if_ready(clients, &clients[i], server_params);
         check_death_player(clients, &clients[i], server_params);
+        check_win_event(clients[i], clients, server_params);
         if (!FD_ISSET(clients[i].socket, readfds))
             continue;
         valread = read(clients[i].socket, buffer, BUFFER_SIZE - 1);

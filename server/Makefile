@@ -25,6 +25,7 @@ SRC				=	src/core.c \
 					src/clients/send_message_to_graphical.c \
 					src/clients/check_death_player.c \
 					src/clients/gestion_command_entered.c \
+					src/clients/check_win_event.c \
 					src/commands/info_command.c \
 					src/commands/info_command_two.c \
 					src/commands/handle_command.c \
