@@ -19,36 +19,36 @@ $(NAME) :
 				make -C server
 				make -C gui
 				make -C ai
-				cp server/zappy_server .
-				cp gui/zappy_gui .
-				cp ai/zappy_ai .
+				mv server/zappy_server .
+				mv gui/zappy_gui .
+				mv ai/zappy_ai .
 
 $(NAME_SERVER) :
 				make -C server
-				cp server/zappy_server .
+				mv server/zappy_server .
 
 $(NAME_GUI) :
 				make -C gui
-				cp gui/zappy_gui .
+				mv gui/zappy_gui .
 
 $(NAME_AI) :
 				make -C ai
-				cp ai/zappy_ai .
+				mv ai/zappy_ai .
 
 clean :
 				make clean -C server
 				make clean -C gui
 				make clean -C ai
 
-fclean :		clean
+fclean :
 				make fclean -C server
 				make fclean -C gui
+				make clean -C ai
 				rm -f			$(NAME)
 				rm -f			$(NAME_SERVER)
 				rm -f			$(NAME_GUI)
 				rm -f			$(NAME_AI)
-				make fclean -C ai
 
 re :			fclean all
 
-.PHONY :		all clean fclean re
+.PHONY :		all $(NAME) $(NAME_SERVER) $(NAME_GUI) $(NAME_AI) clean fclean re
