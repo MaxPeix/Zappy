@@ -47,7 +47,7 @@ void send_broadcast_to_clients(client_t *clients, client_t *client,
         params.height = server_params->height;
         int distance = manhattan_distance_torus(params);
         int tile_number = identify_tile(client, &clients[i], params);
-        output = msprintf("pbc %d %s\n", tile_number, message);
+        output = msprintf("message %d %s\n", tile_number, message);
         dprintf(clients[i].socket, "%s", output);
         free(output);
     }
