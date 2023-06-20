@@ -23,14 +23,13 @@ void check_win_event(client_t client, client_t *clients,
     char *output_to_graphical = NULL;
 
     for (;server_params->team_names[team_count] != NULL; team_count++);
-    team = malloc(sizeof(int) * team_count);
+    team = calloc(team_count, sizeof(int));
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i].is_graphical == 1 || clients[i].is_connected == 0
             || clients[i].is_dead == 1)
             continue;
-        if (clients[i].level == 8) {
+        if (clients[i].level == 8)
             count_nb_player(&clients[i], server_params, team_count, team);
-        }
     }
     for (int i = 0; i < team_count; i++)
         if (team[i] >= 6) {
