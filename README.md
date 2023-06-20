@@ -14,12 +14,6 @@ The game is composed of a **server** made in C :computer:, an **AI** made in pyt
 
 ### Running the project locally :building_construction:
 
-> **Warning**
->
-> Make sure you have the **SFML** library installed on your computer.
-> <br>
-> If you don't, the gui part of the project will **not compile**. <br>
-
 * Clone this repository locally
 * Run `make zappy` in your bash / command line
 * And run `./zappy_<server|ai|gui> <options>`
@@ -56,6 +50,24 @@ There are 3 binaries in this project: <br>
   Where the **options** are:
     - `-p` : the port of the server
     - `-h` : the name of the machine; `localhost` by default
+
+<br>
+
+> **Warning**
+>
+> Make sure you have the **SFML** library installed on your computer.
+> <br>
+> If you don't, the gui part of the project will **not compile**. <br>
+
+<br>
+
+> **Warning**
+> 
+> Make sure you have the **python 3.11** library installed on your computer.
+> If you don't, the **AI** part of the project will **not run**. <br>
+> If you want to build the **AI** part using **Nuitka**, you will also need patchelf and the python headers (python3-devel on fedora).
+
+<br>
 
 In example, you can run the server with this command: <br>
 
