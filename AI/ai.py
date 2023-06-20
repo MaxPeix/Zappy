@@ -370,13 +370,16 @@ class AI:
             self.connection_error(data)
             return False
         for string in datalist:
-            key, value = string.strip().split(" ")
-            if key not in self._inventory or not value.isdigit():
+            try:
+                key, value = string.strip().split(" ")
+                if key not in self._inventory or not value.isdigit():
+                    raise ValueError
+                if int(value) != self._inventory[key]:
+                    success = False
+                self._inventory[key] = int(value)
+            except:
                 self.connection_error(data)
                 return False
-            if int(value) != self._inventory[key]:
-                success = False
-            self._inventory[key] = int(value)
         return success
 
     def broadcast(self, message: str | None) -> None:
@@ -421,6 +424,10 @@ class AI:
 
     def take(self, resource: zp.ObjectType) -> bool:
         if resource not in self._inventory or resource == zp.ObjectType.PLAYER:
+            return False
+        if resource != zp.ObjectType.FOOD and not self.elevation and self.pos in [zp.Pos(5, 5), zp.Pos(5, 6),
+                                                                                  zp.Pos(6, 5), zp.Pos(5, 4),
+                                                                                  zp.Pos(4, 5)]:
             return False
         self._comm.send("Take " + str(resource) + "\n")
         self._add_time(7)
