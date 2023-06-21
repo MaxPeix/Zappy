@@ -52,7 +52,7 @@
 *.hex
 zappy_server
 zappy_gui
-zappy_ai
+#zappy_ai
 zappy_server_epitech
 .vscode
 notes

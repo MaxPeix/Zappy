@@ -8,4 +8,4 @@ WORKDIR /app
 
 RUN make requirements
 
-ENTRYPOINT ["python", "main.py"]
+ENTRYPOINT ["python", "zappy_ai"]
