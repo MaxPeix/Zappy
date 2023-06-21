@@ -21,6 +21,7 @@ $(NAME) :
 				make -C AI
 				mv server/zappy_server .
 				mv gui/zappy_gui .
+				mv AI/zappy_ai .
 
 $(NAME_SERVER) :
 				make -C server
@@ -32,6 +33,7 @@ $(NAME_GUI) :
 
 $(NAME_AI) :
 				make -C AI
+				mv AI/zappy_ai .
 
 clean :
 				make clean -C server
