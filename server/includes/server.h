@@ -120,6 +120,8 @@
         double execution_time_factor;
     } command_info_t;
 
+// free command
+void free_command(command_t *command);
 
 // get tna
 char *get_tna(server_params_t *server_params, client_t *client);

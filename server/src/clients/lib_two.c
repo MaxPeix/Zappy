@@ -7,6 +7,25 @@
 
 #include "server.h"
 
+void free_command(command_t *command)
+{
+    if (command) {
+        if (command->name) {
+            free(command->name);
+            command->name = NULL;
+        }
+        if (command->args) {
+            free_command_args(command->args);
+            command->args = NULL;
+        }
+    }
+    if (command->next) {
+        free_command(command->next);
+        command->next = NULL;
+    } else
+        free(command);
+}
+
 void free_command_executed(command_t *command)
 {
     if (command) {

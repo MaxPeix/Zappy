@@ -8,6 +8,15 @@
 #include "server.h"
 #include <stdlib.h>
 
+#include <stdlib.h>
+#include <time.h>
+
+int generate_random_orienation(void)
+{
+    int num = (rand() % 4) + 1;
+    return num;
+}
+
 void init_cliens_list_two(client_t *clients, int i,
     server_params_t *server_params)
 {
@@ -41,30 +50,11 @@ void init_clients_list(client_t *clients, server_params_t *server_params)
             clients[i].x_position = 1;
         if (clients[i].y_position == 0)
             clients[i].y_position = 1;
-        clients[i].orientation = SOUTH;
+        clients[i].orientation = generate_random_orienation();
         clients[i].food = 9;
         clients[i].linemate = 0;
         init_cliens_list_two(clients, i, server_params);
     }
-}
-
-void free_command(command_t *command)
-{
-    if (command) {
-        if (command->name) {
-            free(command->name);
-            command->name = NULL;
-        }
-        if (command->args) {
-            free_command_args(command->args);
-            command->args = NULL;
-        }
-    }
-    if (command->next) {
-        free_command(command->next);
-        command->next = NULL;
-    } else
-        free(command);
 }
 
 void handle_disconnect_two(client_t *client, server_params_t *server_params)
@@ -105,7 +95,7 @@ void handle_disconnect(client_t *client, client_t *clients,
     client->level = 1;
     client->x_position = 0;
     client->y_position = 0;
-    client->orientation = SOUTH;
+    client->orientation = generate_random_orienation();
     client->food = 9;
     client->linemate = 0;
     client->deraumere = 0;
