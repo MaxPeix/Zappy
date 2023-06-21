@@ -105,6 +105,18 @@ class AI:
         print("Food left: ", food_left)
         return food_left
 
+    def on_eject(self, msg: str):
+        print("Ejected")
+        old_direction: zp.Direction = self._direction
+        goto_direction: zp.Direction = zp.Direction(int(msg[len(utils.EJECT_MSG):]))
+        while goto_direction.value > 8:
+            goto_direction.value -= 8
+        while self._direction != goto_direction:
+            self.left()
+        self.forward()
+        while self._direction != old_direction:
+            self.right()
+
     def draw_map(self) -> None:
         print(self._world.__str__((self._pos, self._direction)))
         print(str(self._inventory))
@@ -216,6 +228,9 @@ class AI:
                 data.pop(i)
                 len_data -= 1
                 raise TimeoutError("Dead")
+            elif data[i] == utils.EJECT_MSG:
+                self.on_eject(data.pop(i))
+                len_data -= 1
             elif (not incantation) and data[i] == utils.ELEVATION_UNDERWAY:
                 self._buffer.append(data.pop(i))
                 len_data -= 1

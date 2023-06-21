@@ -11,6 +11,8 @@ ELEVATION_SUCCESS = "Current level: "
 
 BROADCAST_MSG_START = "message "
 
+EJECT_MSG = "eject: "
+
 OK = "ok"
 KO = "ko"
 
