@@ -93,11 +93,7 @@ class AI:
             if self._ticks % 126 == 0:
                 self._inventory[zp.ObjectType.FOOD] -= 1
                 if self._inventory[zp.ObjectType.FOOD] <= 0:
-                    if self.check_inventory():
-                        raise TimeoutError("Dead")
-                    else:
-                        if self._inventory[zp.ObjectType.FOOD] <= 0:
-                            raise TimeoutError("Dead")
+                    self.check_inventory()
 
     def _check_time(self, time: int) -> int:
         current: int = self._ticks
