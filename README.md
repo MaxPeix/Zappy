@@ -166,7 +166,6 @@ We also gave us **roles** to know who had to do what. <br>
 - **Maxime** and **Melissa**: AI
 - **Max** and **Hugo**: graphic interface
 
-<br>
 
 ### Our GitHub accounts: :octocat:
 
