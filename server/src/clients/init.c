@@ -33,8 +33,10 @@ void init_clients_list(client_t *clients, server_params_t *server_params)
         clients[i].is_graphical = 0;
         clients[i].team_name = NULL;
         clients[i].level = 1;
-        clients[i].x_position = generate_rand_position(server_params->width);
-        clients[i].y_position = generate_rand_position(server_params->height);
+        clients[i].x_position =
+            generate_rand_position(server_params->width - 2);
+        clients[i].y_position =
+            generate_rand_position(server_params->height - 2);
         clients[i].orientation = SOUTH;
         clients[i].food = 9;
         clients[i].linemate = 0;

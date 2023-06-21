@@ -7,6 +7,23 @@
 
 #include "server.h"
 
+int get_connect_nbr(client_t *clients, client_t *client)
+{
+    int count = 0;
+
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        if (clients[i].is_connected == 0 || clients[i].is_graphical == 1)
+            continue;
+        if (clients[i].id == client->id)
+            continue;
+        if (client->team_name == NULL || clients[i].team_name == NULL)
+            continue;
+        if (strcmp(client->team_name, clients[i].team_name) == 0)
+            count++;
+    }
+    return client->team_max_clients - count;
+}
+
 static void print_connect_nbr(server_params_t *server_params,
     client_t *client, client_t *clients)
 {
