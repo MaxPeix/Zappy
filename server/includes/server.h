@@ -20,6 +20,7 @@
     #include <stdbool.h>
     #include <time.h>
     #include <math.h>
+    #include <sys/time.h>
     #define _GNU_SOURCE
 
     #define MAX_CLIENTS 500
@@ -61,7 +62,7 @@
     typedef struct command {
         char *name;
         char **args;
-        time_t execution_time;
+        long long execution_time;
         int executed;
         struct command *next;
     } command_t;
@@ -87,7 +88,7 @@
         command_t *commands;
         int command_count;
         int is_dead;
-        time_t food_losing_timer;
+        long long food_losing_timer;
         int team_max_clients;
         int is_elevating;
     } client_t;
@@ -100,6 +101,7 @@
         int clients_per_team;
         int frequency;
         tile_t **world;
+        long long food_spawning_timer;
     } server_params_t;
 
     typedef struct DistributionParams {

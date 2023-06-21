@@ -17,6 +17,7 @@ server_params_t init_default_server_params(void)
     params.team_names = NULL;
     params.clients_per_team = 3;
     params.frequency = 100;
+    params.food_spawning_timer = time(NULL) + 126 / params.frequency;
 
     return params;
 }

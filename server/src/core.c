@@ -49,11 +49,17 @@ void execute_commands_if_ready(client_t *clients, client_t *client,
 {
     if (!clients || !client || !server_params)
         return;
+
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    long long current_time_in_milliseconds = tv.tv_sec
+        * 1000LL + tv.tv_usec / 1000LL;
+
     command_t *tmp = client->commands;
     if (tmp == NULL)
         return;
     while (tmp != NULL) {
-        if (time(NULL) >= tmp->execution_time && tmp->executed == 0) {
+        if (current_time_in_milliseconds >= tmp->execution_time && tmp->executed == 0) {
             handle_commands(clients, client, server_params, *tmp);
             tmp->executed = 1;
         }
@@ -68,11 +74,41 @@ void check_lose_food(client_t *client, server_params_t *server_params)
     if (client->is_graphical == 1 || client->is_connected == 0
         || client->is_dead == 1)
         return;
-    if (time(NULL) >= client->food_losing_timer) {
+
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    long long current_time_in_milliseconds =
+        tv.tv_sec * 1000LL + tv.tv_usec / 1000LL;
+
+    if (current_time_in_milliseconds >= client->food_losing_timer) {
         client->food -= 1;
-        client->food_losing_timer = time(NULL)
-            + 126 / server_params->frequency;
+        client->food_losing_timer = current_time_in_milliseconds
+            + 126000LL / server_params->frequency;
         printf("Client %d lost 1 food\n", client->id);
+    }
+}
+
+void spawn_food(server_params_t *server_params)
+{
+    if (!server_params)
+        return;
+
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    long long current_time_in_milliseconds =
+        tv.tv_sec * 1000LL + tv.tv_usec / 1000LL;
+    if (current_time_in_milliseconds
+        >= server_params->food_spawning_timer) {
+        srand(current_time_in_milliseconds);
+        distribute_food(server_params);
+        distribute_linemate(server_params);
+        distribute_deraumere(server_params);
+        distribute_sibur(server_params);
+        distribute_mendiane(server_params);
+        distribute_phiras(server_params);
+        distribute_thystame(server_params);
+        server_params->food_spawning_timer = current_time_in_milliseconds
+            + 20000LL / server_params->frequency;
     }
 }
 
@@ -82,8 +118,9 @@ void check_client_activity(client_t *clients,
     int valread = 0;
     char buffer[BUFFER_SIZE] = {0};
     for (int i = 0; i < MAX_CLIENTS; i++) {
-        // check_lose_food(&clients[i], server_params);
+        check_lose_food(&clients[i], server_params);
         execute_commands_if_ready(clients, &clients[i], server_params);
+        spawn_food(server_params);
         check_death_player(clients, &clients[i], server_params);
         check_win_event(clients[i], clients, server_params);
         if (!FD_ISSET(clients[i].socket, readfds))

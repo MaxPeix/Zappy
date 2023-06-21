@@ -33,6 +33,8 @@ command_info_t commands_list[] = {
     {NULL, 0.0},
 };
 
+#include <sys/time.h>
+
 command_t *create_new_command(char **args, server_params_t *server_params)
 {
     command_t *new_command = calloc(1, sizeof(command_t));
@@ -42,11 +44,16 @@ command_t *create_new_command(char **args, server_params_t *server_params)
         return NULL;
     new_command->name = strdup(args[0]);
     new_command->args = duplicate_args(args);
+
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    long long current_time_in_milliseconds = tv.tv_sec * 1000LL + tv.tv_usec / 1000LL;
+
     for (command_info_t *command = commands_list; command->name; ++command) {
         if (strcmp(new_command->name, command->name) == 0) {
             new_command->executed = 0;
-            new_command->execution_time = time(NULL) +
-                command->execution_time_factor / server_params->frequency;
+            new_command->execution_time = current_time_in_milliseconds +
+                command->execution_time_factor * 1000LL / server_params->frequency;
             new_command->next = NULL;
             return new_command;
         }
