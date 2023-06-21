@@ -51,6 +51,13 @@ void update_client_struct(int new_socket, client_t *clients,
             clients[i].is_graphical == 0 ? msprintf("%s", buffer) : NULL;
         clients[i].food_losing_timer = time(NULL)
             + 126 / server_params->frequency;
+        if (clients[i].is_graphical == 0) {
+            if (get_connect_nbr(clients, &clients[i]) <= 0) {
+                clients[i].is_connected = 0;
+                send_response(clients[i].socket, "ko\n");
+                return;
+            }
+        }
         send_info_loggin(clients[i].socket, &clients[i], server_params);
         send_notification_player_loggin(clients, &clients[i], server_params);
     }
