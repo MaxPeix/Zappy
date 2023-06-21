@@ -20,13 +20,10 @@ FOOD_WANTED = 10
 
 INCANTATION_RATE = 150
 
-LVL_MAX = len(OBJECTIVES) - 1
-
-ENCRYPT: bool = False
-AUTO_SPAWN: bool = False
-
 
 class AI:
+    _encrypt: bool
+    _auto_spawn: bool
     msg_handler: 'Message'
     _msg_key: bytes
     _direction: zp.Direction = zp.Direction.N
@@ -45,9 +42,8 @@ class AI:
     _buffer: list[str] = []
     elevation: bool = False
 
-    @staticmethod
-    def _new() -> None:
-        if not AUTO_SPAWN:
+    def _new(self) -> None:
+        if not self._auto_spawn:
             print("====================You must spawn manually====================")
             return
         pid = os.fork()
@@ -58,9 +54,11 @@ class AI:
         if pid < 0:
             raise RuntimeError("Failed to fork")
 
-    def __init__(self, comm: utils.Comm, team_name: str) -> None:
+    def __init__(self, comm: utils.Comm, team_name: str, encrypt: bool, auto_spawn: bool) -> None:
         self._comm = comm
         self._teamName = team_name
+        self._encrypt = encrypt
+        self._auto_spawn = auto_spawn
 
     def connection_error(self, data) -> None:
         print("\033[1;31m==> ERROR:", data)
@@ -174,7 +172,7 @@ class AI:
         if data is None:
             return
         direction, message = data
-        if ENCRYPT:
+        if self._encrypt:
             message: str = base64.b64decode(utils.decrypt(message.encode(), self._msg_key)).decode("utf-8")
             print("Message from " + str(direction) + ": " + message)
         else:
@@ -385,7 +383,7 @@ class AI:
     def broadcast(self, message: str | None) -> None:
         if message is None:
             return
-        if ENCRYPT:
+        if self._encrypt:
             print("raw message: " + message)
             encoded: bytes = base64.b64encode(message.encode())
             message: str = utils.encrypt(encoded, self._msg_key).decode("utf-8")
