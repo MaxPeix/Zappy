@@ -33,6 +33,8 @@ int accept_new_connection(int server_socket, struct sockaddr_in address)
     return new_socket;
 }
 
+#include <sys/time.h>
+
 void update_client_struct(int new_socket, client_t *clients,
     server_params_t *server_params)
 {
@@ -49,8 +51,13 @@ void update_client_struct(int new_socket, client_t *clients,
             clients[i].is_graphical = 1;
         clients[i].team_name =
             clients[i].is_graphical == 0 ? msprintf("%s", buffer) : NULL;
-        clients[i].food_losing_timer = time(NULL)
-            + 126 / server_params->frequency;
+        
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        long long current_time_in_milliseconds = tv.tv_sec * 1000LL + tv.tv_usec / 1000LL;
+
+        clients[i].food_losing_timer = current_time_in_milliseconds
+            + 126000LL / server_params->frequency;
         if (clients[i].is_graphical == 0) {
             if (get_connect_nbr(clients, &clients[i]) <= 0) {
                 clients[i].is_connected = 0;
@@ -62,6 +69,7 @@ void update_client_struct(int new_socket, client_t *clients,
         send_notification_player_loggin(clients, &clients[i], server_params);
     }
 }
+
 
 void setup_readfds(int server_socket, fd_set *readfds)
 {

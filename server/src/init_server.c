@@ -17,8 +17,11 @@ server_params_t init_default_server_params(void)
     params.team_names = NULL;
     params.clients_per_team = 3;
     params.frequency = 100;
-    params.food_spawning_timer = time(NULL) + 126 / params.frequency;
 
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    long long current_time_in_milliseconds = tv.tv_sec * 1000LL + tv.tv_usec / 1000LL;
+    params.food_spawning_timer = current_time_in_milliseconds + 126000LL / params.frequency;
     return params;
 }
 
