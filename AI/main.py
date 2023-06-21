@@ -26,7 +26,6 @@ def print_usage() -> None:
 
 
 def main() -> None:
-
     if "--help" in sys.argv:
         print_usage()
         exit(0)
@@ -37,7 +36,12 @@ def main() -> None:
     )
     parser.add_argument("-p", "--port", required=True, type=int, help='The port number')
     parser.add_argument("-n", "--name", required=True, type=str, help="The name of the team to join")
-    parser.add_argument("-h", "--host", default="localhost", help="The ip or hostname of the server")
+    parser.add_argument("-h", "--host", default="localhost", type=str, help="The ip or hostname of the server")
+    parser.add_argument("-l", "--log-level", default=20, type=str,
+                        help="Enable verbose logging (lower is more verbose)")
+    parser.add_argument("-a", "--auto-spawn", default=False, type=bool, help="Automatically spawn new players")
+    parser.add_argument("-e", "--encrypt", default=False, type=bool,
+                        help="Encrypt the communication (required if multiple teams)")
 
     try:
         args = parser.parse_args()
@@ -45,11 +49,11 @@ def main() -> None:
         exit(84)
 
     try:
-        communication: Comm = Comm(args.host, args.port, log_level=logging.INFO)
+        communication: Comm = Comm(args.host, args.port, log_level=args.log_level)
     except ConnectionRefusedError:
         print(f"Unable to connect to the server at {args.host}:{args.port}")
         exit(84)
-    br = Brain(args.name, communication)
+    br = Brain(args.name, communication, args.encrypt, args.auto_spawn)
     br.run()
 
 
