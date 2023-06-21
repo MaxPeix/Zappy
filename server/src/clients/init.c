@@ -37,6 +37,10 @@ void init_clients_list(client_t *clients, server_params_t *server_params)
             generate_rand_position(server_params->width - 2);
         clients[i].y_position =
             generate_rand_position(server_params->height - 2);
+        if (clients[i].x_position == 0)
+            clients[i].x_position = 1;
+        if (clients[i].y_position == 0)
+            clients[i].y_position = 1;
         clients[i].orientation = SOUTH;
         clients[i].food = 9;
         clients[i].linemate = 0;
@@ -65,8 +69,12 @@ void free_command(command_t *command)
 
 void handle_disconnect_two(client_t *client, server_params_t *server_params)
 {
-    client->x_position = generate_rand_position(server_params->width);
-    client->y_position = generate_rand_position(server_params->height);
+    client->x_position = generate_rand_position(server_params->width - 1);
+    client->y_position = generate_rand_position(server_params->height - 1);
+    if (client->x_position == 0)
+        client->x_position = 1;
+    if (client->y_position == 0)
+        client->y_position = 1;
     client->sibur = 0;
     client->mendiane = 0;
     client->phiras = 0;
@@ -76,7 +84,6 @@ void handle_disconnect_two(client_t *client, server_params_t *server_params)
     client->team_max_clients = server_params->clients_per_team;
     client->food_losing_timer = 0;
     client->is_elevating = 0;
-
     if (client->commands) {
         free_command(client->commands);
         client->commands = NULL;
