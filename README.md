@@ -161,6 +161,13 @@ We also made **milestones** to know what we had to do in which part, like the se
 
 Here is the link of our [**GitHub project**](https://github.com/orgs/EpitechPromo2026/projects/727). :octocat:
 
+We also gave us **roles** to know who had to do what. <br>
+- **Gautier**, **Melissa**, **Nicolas**, **Max**, **Hugo** and **Maxime**: server
+- **Maxime** and **Melissa**: AI
+- **Max** and **Hugo**: graphic interface
+
+<br>
+
 ### Our GitHub accounts: :octocat:
 
 <div align="center" href="">
